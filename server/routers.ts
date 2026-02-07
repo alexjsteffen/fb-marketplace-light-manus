@@ -258,6 +258,49 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getBackgroundTemplateById(input.id);
       }),
+
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string(),
+        description: z.string().optional(),
+        previewUrl: z.string().optional(),
+        templateType: z.enum([
+          "gradient_modern",
+          "gradient_sunset",
+          "solid_professional",
+          "textured_premium",
+          "branded_dealer",
+          "seasonal_special"
+        ]),
+        config: z.string(), // JSON string
+        sortOrder: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createBackgroundTemplate(input);
+        return { success: true };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().optional(),
+        description: z.string().optional(),
+        previewUrl: z.string().optional(),
+        config: z.string().optional(),
+        sortOrder: z.number().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updates } = input;
+        await db.updateBackgroundTemplate(id, updates);
+        return { success: true };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteBackgroundTemplate(input.id);
+        return { success: true };
+      }),
   }),
 
   // AI enhancement
@@ -294,6 +337,9 @@ export const appRouter = router({
           price: z.string().optional(),
           subtitle: z.string().optional(),
         }),
+        stockNumber: z.string().optional(),
+        brand: z.string().optional(),
+        model: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const result = await generateAdImage(input);

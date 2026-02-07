@@ -98,3 +98,27 @@
 - [x] Allow selective import of specific items
 - [ ] Handle pagination for multi-page inventories
 - [x] Add error handling for unsupported page formats
+
+## Downloadable Ad Images (Critical Feature)
+- [x] Convert generated ad image URLs to actual downloadable files
+- [x] Add download button that triggers file download
+- [x] Ensure images can be dragged directly to Facebook Marketplace
+- [x] Store generated images with proper filenames (stock-number-template.png)
+- [ ] Add "Download All" option for batch ad creation
+
+## Facebook Marketplace Link Management
+- [x] Add Facebook Marketplace URL field to ads table
+- [x] Create link input interface in Ad Staging page
+- [x] Display marketplace links in Dashboard
+- [x] Add "Copy Link" button for easy embedding in blog posts
+- [x] Show link status (published vs draft)
+- [x] Create shareable link cards for blog integration
+
+## Template Management System
+- [x] Create Templates admin page
+- [x] Implement template upload interface (image + config)
+- [x] Add template preview gallery
+- [x] Build template editor for modifying colors, overlays, text positions
+- [x] Add template delete functionality with confirmation
+- [x] Support custom template configurations (gradients, opacity, text styles)
+- [x] Validate uploaded templates before saving

@@ -97,7 +97,10 @@ export async function generateAdImage(params: {
     price?: string;
     subtitle?: string;
   };
-}): Promise<{ url: string; fileKey: string }> {
+  stockNumber?: string;
+  brand?: string;
+  model?: string;
+}): Promise<{ url: string; fileKey: string; filename: string }> {
   const { vehicleImageUrl, templateType, brandColor, overlayText } = params;
 
   // Canvas dimensions (optimized for Facebook)
@@ -201,10 +204,19 @@ export async function generateAdImage(params: {
   // Convert canvas to buffer
   const buffer = canvas.toBuffer("image/png");
 
-  // Generate unique file key
+  // Generate descriptive filename
   const timestamp = Date.now();
   const random = Math.random().toString(36).substring(7);
-  const fileKey = `ads/${timestamp}-${random}.png`;
+  
+  // Create human-readable filename
+  const nameParts = [];
+  if (params.stockNumber) nameParts.push(params.stockNumber);
+  if (params.brand) nameParts.push(params.brand.replace(/\s+/g, '-'));
+  if (params.model) nameParts.push(params.model.replace(/\s+/g, '-'));
+  const descriptiveName = nameParts.length > 0 ? nameParts.join('-') : 'ad';
+  const filename = `${descriptiveName}-${templateType}.png`;
+  
+  const fileKey = `ads/${timestamp}-${random}-${filename}`;
 
   // Upload to S3
   const result = await storagePut(fileKey, buffer, "image/png");
@@ -212,5 +224,6 @@ export async function generateAdImage(params: {
   return {
     url: result.url,
     fileKey,
+    filename,
   };
 }

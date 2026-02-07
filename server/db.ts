@@ -236,6 +236,21 @@ export async function getBackgroundTemplateById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function updateBackgroundTemplate(id: number, updates: Partial<InsertBackgroundTemplate>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(backgroundTemplates).set(updates).where(eq(backgroundTemplates.id, id));
+}
+
+export async function deleteBackgroundTemplate(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Soft delete by setting isActive to false
+  await db.update(backgroundTemplates).set({ isActive: false }).where(eq(backgroundTemplates.id, id));
+}
+
 // Facebook ads functions
 export async function createFacebookAd(ad: InsertFacebookAd) {
   const db = await getDb();

@@ -2,7 +2,7 @@ import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { getLoginUrl } from "@/const";
-import { Building2, Package, Image, BarChart3, FileText, Facebook } from "lucide-react";
+import { Building2, Package, Image, BarChart3, FileText, Facebook, Palette } from "lucide-react";
 import { Link } from "wouter";
 
 export default function Home() {
@@ -166,6 +166,20 @@ export default function Home() {
                 </CardDescription>
               </CardContent>
             </Card>
+
+            <Link href="/templates">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <Palette className="w-10 h-10 text-blue-600 mb-2" />
+                  <CardTitle>Templates</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Manage background templates - upload, edit, and customize ad designs
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </Link>
           </div>
         </div>
       </main>
