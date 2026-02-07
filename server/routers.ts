@@ -1,10 +1,13 @@
 import { COOKIE_NAME } from "@shared/const";
 import { getSessionCookieOptions } from "./_core/cookies";
 import { systemRouter } from "./_core/systemRouter";
-import { publicProcedure, router } from "./_core/trpc";
+import { publicProcedure, protectedProcedure, router } from "./_core/trpc";
+import { z } from "zod";
+import * as db from "./db";
+import { TRPCError } from "@trpc/server";
+import { enhanceAdText, generateAdImage, TEMPLATE_CONFIGS } from "./adEnhancement";
 
 export const appRouter = router({
-    // if you need to use socket.io, read and register route in server/_core/index.ts, all api should start with '/api/' so that the gateway can route correctly
   system: systemRouter,
   auth: router({
     me: publicProcedure.query(opts => opts.ctx.user),
@@ -17,12 +20,301 @@ export const appRouter = router({
     }),
   }),
 
-  // TODO: add feature routers here, e.g.
-  // todo: router({
-  //   list: protectedProcedure.query(({ ctx }) =>
-  //     db.getUserTodos(ctx.user.id)
-  //   ),
-  // }),
+  // Dealer management
+  dealers: router({
+    list: protectedProcedure.query(async ({ ctx }) => {
+      if (ctx.user.role === 'admin') {
+        return await db.getAllDealers();
+      }
+      return await db.getDealersByOwnerId(ctx.user.id);
+    }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getDealerById(input.id);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        name: z.string().min(1),
+        slug: z.string().min(1),
+        contactEmail: z.string().email().optional(),
+        contactPhone: z.string().optional(),
+        websiteUrl: z.string().url().optional(),
+        logoUrl: z.string().url().optional(),
+        brandColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        const dealer = await db.createDealer({
+          ...input,
+          ownerId: ctx.user.id,
+        });
+        return { success: true, dealer };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        name: z.string().min(1).optional(),
+        contactEmail: z.string().email().optional(),
+        contactPhone: z.string().optional(),
+        websiteUrl: z.string().url().optional(),
+        logoUrl: z.string().url().optional(),
+        brandColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updates } = input;
+        await db.updateDealer(id, updates);
+        return { success: true };
+      }),
+  }),
+
+  // Inventory management
+  inventory: router({
+    list: protectedProcedure
+      .input(z.object({ dealerId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getInventoryItemsByDealerId(input.dealerId);
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getInventoryItemById(input.id);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        dealerId: z.number(),
+        stockNumber: z.string().min(1),
+        brand: z.string().optional(),
+        category: z.string().optional(),
+        year: z.number().optional(),
+        model: z.string().optional(),
+        description: z.string().optional(),
+        price: z.string().optional(), // decimal as string
+        location: z.string().optional(),
+        imageUrl: z.string().url().optional(),
+        condition: z.enum(['new', 'used']).default('used'),
+      }))
+      .mutation(async ({ input }) => {
+        const item = await db.createInventoryItem(input);
+        return { success: true, item };
+      }),
+
+    bulkImport: protectedProcedure
+      .input(z.object({
+        dealerId: z.number(),
+        items: z.array(z.object({
+          stockNumber: z.string().min(1),
+          brand: z.string().optional(),
+          category: z.string().optional(),
+          year: z.number().optional(),
+          model: z.string().optional(),
+          description: z.string().optional(),
+          price: z.string().optional(),
+          location: z.string().optional(),
+          imageUrl: z.string().url().optional(),
+          condition: z.enum(['new', 'used']).default('used'),
+        }))
+      }))
+      .mutation(async ({ input }) => {
+        const { dealerId, items } = input;
+        
+        // Get current active stock numbers
+        const activeStockNumbers = items.map(item => item.stockNumber);
+        
+        // Mark items not in the import as sold
+        if (activeStockNumbers.length > 0) {
+          await db.markItemsAsSold(dealerId, activeStockNumbers);
+        }
+        
+        // Update lastSeenAt for existing items
+        await db.updateLastSeenAt(dealerId, activeStockNumbers);
+        
+        // Insert new items
+        for (const item of items) {
+          try {
+            await db.createInventoryItem({
+              ...item,
+              dealerId,
+            });
+          } catch (error) {
+            // Item might already exist, just update lastSeenAt
+            console.log(`Item ${item.stockNumber} might already exist`);
+          }
+        }
+        
+        return { success: true, imported: items.length };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        brand: z.string().optional(),
+        category: z.string().optional(),
+        year: z.number().optional(),
+        model: z.string().optional(),
+        description: z.string().optional(),
+        price: z.string().optional(),
+        location: z.string().optional(),
+        imageUrl: z.string().url().optional(),
+        status: z.enum(['active', 'sold', 'archived']).optional(),
+        condition: z.enum(['new', 'used']).optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updates } = input;
+        await db.updateInventoryItem(id, updates);
+        return { success: true };
+      }),
+  }),
+
+  // Facebook ads management
+  ads: router({
+    list: protectedProcedure
+      .input(z.object({ dealerId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getFacebookAdsByDealerId(input.dealerId);
+      }),
+
+    getById: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getFacebookAdById(input.id);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        dealerId: z.number(),
+        inventoryItemId: z.number(),
+        templateId: z.number().optional(),
+        originalText: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createFacebookAd(input);
+        return { success: true };
+      }),
+
+    update: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+        templateId: z.number().optional(),
+        enhancedText: z.string().optional(),
+        finalText: z.string().optional(),
+        imageUrl: z.string().optional(),
+        imageFileKey: z.string().optional(),
+        status: z.enum(['draft', 'staged', 'published']).optional(),
+        facebookMarketplaceUrl: z.string().url().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const { id, ...updates } = input;
+        
+        // If publishing, set publishedAt timestamp
+        if (updates.status === 'published') {
+          await db.updateFacebookAd(id, {
+            ...updates,
+            publishedAt: new Date(),
+          });
+        } else {
+          await db.updateFacebookAd(id, updates);
+        }
+        
+        return { success: true };
+      }),
+
+    published: protectedProcedure
+      .input(z.object({ dealerId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getPublishedAdsByDealerId(input.dealerId);
+      }),
+  }),
+
+  // Background templates
+  templates: router({
+    list: publicProcedure.query(async () => {
+      return await db.getAllBackgroundTemplates();
+    }),
+
+    getById: publicProcedure
+      .input(z.object({ id: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getBackgroundTemplateById(input.id);
+      }),
+  }),
+
+  // AI enhancement
+  enhance: router({
+    text: protectedProcedure
+      .input(z.object({
+        brand: z.string().optional(),
+        model: z.string().optional(),
+        year: z.number().optional(),
+        category: z.string().optional(),
+        price: z.string().optional(),
+        description: z.string().optional(),
+        condition: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        const enhancedText = await enhanceAdText(input);
+        return { enhancedText };
+      }),
+
+    generateImage: protectedProcedure
+      .input(z.object({
+        vehicleImageUrl: z.string().url(),
+        templateType: z.enum([
+          "gradient_modern",
+          "gradient_sunset",
+          "solid_professional",
+          "textured_premium",
+          "branded_dealer",
+          "seasonal_special"
+        ]),
+        brandColor: z.string().optional(),
+        overlayText: z.object({
+          title: z.string(),
+          price: z.string().optional(),
+          subtitle: z.string().optional(),
+        }),
+      }))
+      .mutation(async ({ input }) => {
+        const result = await generateAdImage(input);
+        return result;
+      }),
+  }),
+
+  // Generated content
+  content: router({
+    list: protectedProcedure
+      .input(z.object({ dealerId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getGeneratedContentByDealerId(input.dealerId);
+      }),
+
+    getByAdId: protectedProcedure
+      .input(z.object({ facebookAdId: z.number() }))
+      .query(async ({ input }) => {
+        return await db.getGeneratedContentByAdId(input.facebookAdId);
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        dealerId: z.number(),
+        facebookAdId: z.number(),
+        contentType: z.enum(['pillar_page', 'blog_post', 'badge_image']),
+        title: z.string().optional(),
+        content: z.string().optional(),
+        badgeImageUrl: z.string().optional(),
+        badgeImageFileKey: z.string().optional(),
+        exportFormat: z.enum(['markdown', 'html', 'json']).default('markdown'),
+        metadata: z.string().optional(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.createGeneratedContent(input);
+        return { success: true };
+      }),
+  }),
 });
 
 export type AppRouter = typeof appRouter;

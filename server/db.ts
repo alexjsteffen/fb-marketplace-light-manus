@@ -1,6 +1,19 @@
-import { eq } from "drizzle-orm";
+import { eq, and, desc, sql } from "drizzle-orm";
 import { drizzle } from "drizzle-orm/mysql2";
-import { InsertUser, users } from "../drizzle/schema";
+import { 
+  InsertUser, 
+  users, 
+  dealers, 
+  InsertDealer, 
+  inventoryItems, 
+  InsertInventoryItem,
+  backgroundTemplates,
+  InsertBackgroundTemplate,
+  facebookAds,
+  InsertFacebookAd,
+  generatedContent,
+  InsertGeneratedContent
+} from "../drizzle/schema";
 import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
@@ -89,4 +102,210 @@ export async function getUserByOpenId(openId: string) {
   return result.length > 0 ? result[0] : undefined;
 }
 
-// TODO: add feature queries here as your schema grows.
+// Dealer management functions
+export async function createDealer(dealer: InsertDealer) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(dealers).values(dealer);
+  const insertId = Number(result[0].insertId);
+  return await getDealerById(insertId);
+}
+
+export async function getDealerById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(dealers).where(eq(dealers.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getDealersByOwnerId(ownerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(dealers).where(eq(dealers.ownerId, ownerId));
+}
+
+export async function getAllDealers() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(dealers).where(eq(dealers.isActive, true));
+}
+
+export async function updateDealer(id: number, updates: Partial<InsertDealer>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(dealers).set(updates).where(eq(dealers.id, id));
+}
+
+// Inventory management functions
+export async function createInventoryItem(item: InsertInventoryItem) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(inventoryItems).values(item);
+  const insertId = Number(result[0].insertId);
+  return await getInventoryItemById(insertId);
+}
+
+export async function getInventoryItemsByDealerId(dealerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(inventoryItems)
+    .where(eq(inventoryItems.dealerId, dealerId))
+    .orderBy(desc(inventoryItems.createdAt));
+}
+
+export async function getInventoryItemById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(inventoryItems).where(eq(inventoryItems.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateInventoryItem(id: number, updates: Partial<InsertInventoryItem>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(inventoryItems).set(updates).where(eq(inventoryItems.id, id));
+}
+
+export async function markItemsAsSold(dealerId: number, activeStockNumbers: string[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Mark items as sold if they're not in the active list
+  await db.update(inventoryItems)
+    .set({ 
+      status: 'sold',
+      soldAt: new Date()
+    })
+    .where(
+      and(
+        eq(inventoryItems.dealerId, dealerId),
+        eq(inventoryItems.status, 'active'),
+        sql`${inventoryItems.stockNumber} NOT IN (${activeStockNumbers.join(',')})`
+      )
+    );
+}
+
+export async function updateLastSeenAt(dealerId: number, stockNumbers: string[]) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  for (const stockNumber of stockNumbers) {
+    await db.update(inventoryItems)
+      .set({ lastSeenAt: new Date() })
+      .where(
+        and(
+          eq(inventoryItems.dealerId, dealerId),
+          eq(inventoryItems.stockNumber, stockNumber)
+        )
+      );
+  }
+}
+
+// Background template functions
+export async function createBackgroundTemplate(template: InsertBackgroundTemplate) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(backgroundTemplates).values(template);
+  return result;
+}
+
+export async function getAllBackgroundTemplates() {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(backgroundTemplates)
+    .where(eq(backgroundTemplates.isActive, true))
+    .orderBy(backgroundTemplates.sortOrder);
+}
+
+export async function getBackgroundTemplateById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(backgroundTemplates).where(eq(backgroundTemplates.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+// Facebook ads functions
+export async function createFacebookAd(ad: InsertFacebookAd) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(facebookAds).values(ad);
+  return result;
+}
+
+export async function getFacebookAdsByDealerId(dealerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(facebookAds)
+    .where(eq(facebookAds.dealerId, dealerId))
+    .orderBy(desc(facebookAds.createdAt));
+}
+
+export async function getFacebookAdById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(facebookAds).where(eq(facebookAds.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateFacebookAd(id: number, updates: Partial<InsertFacebookAd>) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.update(facebookAds).set(updates).where(eq(facebookAds.id, id));
+}
+
+export async function getPublishedAdsByDealerId(dealerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(facebookAds)
+    .where(
+      and(
+        eq(facebookAds.dealerId, dealerId),
+        eq(facebookAds.status, 'published')
+      )
+    )
+    .orderBy(desc(facebookAds.publishedAt));
+}
+
+// Generated content functions
+export async function createGeneratedContent(content: InsertGeneratedContent) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  const result = await db.insert(generatedContent).values(content);
+  return result;
+}
+
+export async function getGeneratedContentByAdId(facebookAdId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(generatedContent)
+    .where(eq(generatedContent.facebookAdId, facebookAdId))
+    .orderBy(desc(generatedContent.createdAt));
+}
+
+export async function getGeneratedContentByDealerId(dealerId: number) {
+  const db = await getDb();
+  if (!db) return [];
+  
+  return await db.select().from(generatedContent)
+    .where(eq(generatedContent.dealerId, dealerId))
+    .orderBy(desc(generatedContent.createdAt));
+}
