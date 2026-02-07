@@ -7,8 +7,10 @@ import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Package, Plus, Upload, Search, Filter } from "lucide-react";
+import { Package, Plus, Upload, Search, Globe, Loader2 } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
@@ -18,9 +20,15 @@ export default function Inventory() {
   const { user, loading: authLoading } = useAuth();
   const [openManual, setOpenManual] = useState(false);
   const [openBulk, setOpenBulk] = useState(false);
+  const [openScrape, setOpenScrape] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   
+  // URL Scraping state
+  const [scrapeUrl, setScrapeUrl] = useState("");
+  const [scrapedItems, setScrapedItems] = useState<any[]>([]);
+  const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+
   const [formData, setFormData] = useState({
     stockNumber: "",
     brand: "",
@@ -45,6 +53,16 @@ export default function Inventory() {
     { id: parseInt(dealerId || "0") },
     { enabled: !!dealerId }
   );
+
+  const scrapeUrlMutation = trpc.inventory.scrapeUrl.useMutation({
+    onSuccess: (data) => {
+      setScrapedItems(data.items);
+      toast.success(`Found ${data.items.length} items!`);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to scrape URL");
+    },
+  });
 
   const createItem = trpc.inventory.create.useMutation({
     onSuccess: () => {
@@ -105,6 +123,55 @@ export default function Inventory() {
     }
   };
 
+  const handleScrapeUrl = () => {
+    if (!scrapeUrl) {
+      toast.error("Please enter a URL");
+      return;
+    }
+    scrapeUrlMutation.mutate({ url: scrapeUrl });
+  };
+
+  const toggleItemSelection = (index: number) => {
+    const newSelected = new Set(selectedItems);
+    if (newSelected.has(index)) {
+      newSelected.delete(index);
+    } else {
+      newSelected.add(index);
+    }
+    setSelectedItems(newSelected);
+  };
+
+  const handleImportSelected = () => {
+    const itemsToImport = scrapedItems
+      .filter((_, index) => selectedItems.has(index))
+      .map((item) => ({
+        stockNumber: item.stockNumber,
+        brand: item.brand || "",
+        category: item.category || "",
+        year: item.year,
+        model: item.model || "",
+        price: item.price?.replace(/[$,]/g, "") || "",
+        location: item.location || "",
+        imageUrl: item.imageUrl || "",
+        condition: "used" as const,
+      }));
+
+    if (itemsToImport.length === 0) {
+      toast.error("Please select at least one item");
+      return;
+    }
+
+    bulkImport.mutate({
+      dealerId: parseInt(dealerId || "0"),
+      items: itemsToImport,
+    });
+    
+    setOpenScrape(false);
+    setScrapedItems([]);
+    setSelectedItems(new Set());
+    setScrapeUrl("");
+  };
+
   const filteredInventory = inventory?.filter((item) => {
     const matchesSearch =
       item.stockNumber?.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -142,6 +209,128 @@ export default function Inventory() {
               </div>
             </div>
             <div className="flex gap-2">
+              <Dialog open={openScrape} onOpenChange={setOpenScrape}>
+                <DialogTrigger asChild>
+                  <Button variant="outline">
+                    <Globe className="w-4 h-4 mr-2" />
+                    Scrape URL
+                  </Button>
+                </DialogTrigger>
+                <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+                  <DialogHeader>
+                    <DialogTitle>Import from Website</DialogTitle>
+                    <DialogDescription>
+                      Enter a dealer inventory page URL to automatically extract items
+                    </DialogDescription>
+                  </DialogHeader>
+                  <div className="grid gap-4 py-4">
+                    <div className="flex gap-2">
+                      <Input
+                        placeholder="https://novlanbros.com/agriculture/inventory/..."
+                        value={scrapeUrl}
+                        onChange={(e) => setScrapeUrl(e.target.value)}
+                        className="flex-1"
+                      />
+                      <Button 
+                        onClick={handleScrapeUrl} 
+                        disabled={scrapeUrlMutation.isPending}
+                      >
+                        {scrapeUrlMutation.isPending ? (
+                          <>
+                            <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                            Scraping...
+                          </>
+                        ) : (
+                          "Scrape"
+                        )}
+                      </Button>
+                    </div>
+
+                    {scrapedItems.length > 0 && (
+                      <div className="border rounded-lg">
+                        <div className="p-4 border-b bg-gray-50">
+                          <div className="flex items-center justify-between">
+                            <p className="text-sm font-medium">
+                              Found {scrapedItems.length} items - Select items to import
+                            </p>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                if (selectedItems.size === scrapedItems.length) {
+                                  setSelectedItems(new Set());
+                                } else {
+                                  setSelectedItems(new Set(scrapedItems.map((_, i) => i)));
+                                }
+                              }}
+                            >
+                              {selectedItems.size === scrapedItems.length ? "Deselect All" : "Select All"}
+                            </Button>
+                          </div>
+                        </div>
+                        <div className="max-h-96 overflow-y-auto">
+                          <Table>
+                            <TableHeader>
+                              <TableRow>
+                                <TableHead className="w-12"></TableHead>
+                                <TableHead>Stock #</TableHead>
+                                <TableHead>Title</TableHead>
+                                <TableHead>Year</TableHead>
+                                <TableHead>Brand</TableHead>
+                                <TableHead>Category</TableHead>
+                                <TableHead>Price</TableHead>
+                              </TableRow>
+                            </TableHeader>
+                            <TableBody>
+                              {scrapedItems.map((item, index) => (
+                                <TableRow key={index}>
+                                  <TableCell>
+                                    <Checkbox
+                                      checked={selectedItems.has(index)}
+                                      onCheckedChange={() => toggleItemSelection(index)}
+                                    />
+                                  </TableCell>
+                                  <TableCell className="font-mono text-sm">
+                                    {item.stockNumber}
+                                  </TableCell>
+                                  <TableCell className="max-w-xs truncate">
+                                    {item.title}
+                                  </TableCell>
+                                  <TableCell>{item.year || "-"}</TableCell>
+                                  <TableCell>{item.brand || "-"}</TableCell>
+                                  <TableCell>{item.category || "-"}</TableCell>
+                                  <TableCell>{item.price || "-"}</TableCell>
+                                </TableRow>
+                              ))}
+                            </TableBody>
+                          </Table>
+                        </div>
+                      </div>
+                    )}
+                  </div>
+                  <DialogFooter>
+                    <Button 
+                      type="button" 
+                      variant="outline" 
+                      onClick={() => {
+                        setOpenScrape(false);
+                        setScrapedItems([]);
+                        setSelectedItems(new Set());
+                        setScrapeUrl("");
+                      }}
+                    >
+                      Cancel
+                    </Button>
+                    <Button 
+                      onClick={handleImportSelected} 
+                      disabled={selectedItems.size === 0 || bulkImport.isPending}
+                    >
+                      {bulkImport.isPending ? "Importing..." : `Import ${selectedItems.size} Selected`}
+                    </Button>
+                  </DialogFooter>
+                </DialogContent>
+              </Dialog>
+
               <Dialog open={openBulk} onOpenChange={setOpenBulk}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
@@ -335,9 +524,13 @@ export default function Inventory() {
           <div className="text-center py-16">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
             <h3 className="text-xl font-semibold text-gray-900 mb-2">No inventory items</h3>
-            <p className="text-gray-600 mb-6">Add items manually or import from your inventory system</p>
+            <p className="text-gray-600 mb-6">Add items manually, import from JSON, or scrape from a website</p>
             <div className="flex gap-2 justify-center">
-              <Button onClick={() => setOpenManual(true)}>
+              <Button onClick={() => setOpenScrape(true)}>
+                <Globe className="w-4 h-4 mr-2" />
+                Scrape URL
+              </Button>
+              <Button variant="outline" onClick={() => setOpenManual(true)}>
                 <Plus className="w-4 h-4 mr-2" />
                 Add Item
               </Button>
@@ -384,13 +577,9 @@ export default function Inventory() {
                       ${parseFloat(item.price).toLocaleString()}
                     </p>
                   )}
-                  <div className="flex gap-2 mt-4">
-                    <Link href={`/ads/create/${item.id}`}>
-                      <Button size="sm" className="w-full" disabled={item.status !== "active"}>
-                        Create Ad
-                      </Button>
-                    </Link>
-                  </div>
+                  {item.location && (
+                    <p className="text-xs text-gray-500">{item.location}</p>
+                  )}
                 </CardContent>
               </Card>
             ))}

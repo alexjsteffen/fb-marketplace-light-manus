@@ -6,6 +6,7 @@ import { z } from "zod";
 import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import { enhanceAdText, generateAdImage, TEMPLATE_CONFIGS } from "./adEnhancement";
+import { scrapeInventoryFromUrl } from "./inventoryScraper";
 
 export const appRouter = router({
   system: systemRouter,
@@ -167,6 +168,22 @@ export const appRouter = router({
         const { id, ...updates } = input;
         await db.updateInventoryItem(id, updates);
         return { success: true };
+      }),
+
+    scrapeUrl: protectedProcedure
+      .input(z.object({
+        url: z.string().url(),
+      }))
+      .mutation(async ({ input }) => {
+        try {
+          const items = await scrapeInventoryFromUrl(input.url);
+          return { success: true, items };
+        } catch (error) {
+          throw new TRPCError({
+            code: 'INTERNAL_SERVER_ERROR',
+            message: error instanceof Error ? error.message : 'Failed to scrape URL',
+          });
+        }
       }),
   }),
 

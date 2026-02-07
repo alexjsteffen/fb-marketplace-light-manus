@@ -88,3 +88,13 @@
 - [ ] Create user documentation
 - [ ] Create API integration guide
 - [ ] Test multi-tenant isolation
+
+## Browser-Based Inventory Scraping (New Feature)
+- [x] Create URL input interface for dealer inventory pages
+- [x] Implement server-side web scraping with Cheerio/Puppeteer
+- [x] Parse common dealer inventory page structures
+- [x] Extract stock numbers, brands, models, years, prices, categories, images
+- [x] Show preview table of detected items with selection checkboxes
+- [x] Allow selective import of specific items
+- [ ] Handle pagination for multi-page inventories
+- [x] Add error handling for unsupported page formats
