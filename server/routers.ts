@@ -40,10 +40,10 @@ export const appRouter = router({
       .input(z.object({
         name: z.string().min(1),
         slug: z.string().min(1),
-        contactEmail: z.string().email().optional(),
+        contactEmail: z.string().email().or(z.literal('')).optional(),
         contactPhone: z.string().optional(),
-        websiteUrl: z.string().url().optional(),
-        logoUrl: z.string().url().optional(),
+        websiteUrl: z.string().url().or(z.literal('')).optional(),
+        logoUrl: z.string().url().or(z.literal('')).optional(),
         brandColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
       }))
       .mutation(async ({ ctx, input }) => {
@@ -58,10 +58,10 @@ export const appRouter = router({
       .input(z.object({
         id: z.number(),
         name: z.string().min(1).optional(),
-        contactEmail: z.string().email().optional(),
+        contactEmail: z.string().email().or(z.literal('')).optional(),
         contactPhone: z.string().optional(),
-        websiteUrl: z.string().url().optional(),
-        logoUrl: z.string().url().optional(),
+        websiteUrl: z.string().url().or(z.literal('')).optional(),
+        logoUrl: z.string().url().or(z.literal('')).optional(),
         brandColor: z.string().regex(/^#[0-9A-Fa-f]{6}$/).optional(),
       }))
       .mutation(async ({ input }) => {

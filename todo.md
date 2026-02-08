@@ -135,3 +135,6 @@
 - [x] Add template icons (⚡ Flash Sale, ✨ Premium, 💰 Value, 📅 Event, 🎬 Creator, 🚀 Trending)
 - [ ] Show dealer branding (logo) on enhanced images
 - [x] Add "Ready" badge on completed enhanced images
+
+## Bug Fixes
+- [x] Fix email validation error in dealer creation form (should allow empty string for optional contactEmail)
