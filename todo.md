@@ -211,3 +211,6 @@
 ## UI Improvements - Vehicle Detail Modal
 - [x] Make vehicle detail modal wider (changed from max-w-5xl to max-w-7xl)
 - [x] Add click-to-expand functionality for enhanced images (added Dialog lightbox with cursor-pointer and hover effect)
+
+## Bug Fix - Dialog Accessibility Error
+- [x] Fix DialogContent missing DialogTitle error in ad-staging page (added DialogTitle with sr-only class to image lightbox Dialog in VehicleDetailModal.tsx)

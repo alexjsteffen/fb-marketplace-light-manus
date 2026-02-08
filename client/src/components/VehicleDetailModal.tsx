@@ -133,6 +133,9 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
             {/* Image Lightbox */}
             <Dialog open={imageExpanded} onOpenChange={setImageExpanded}>
               <DialogContent className="max-w-[95vw] max-h-[95vh] p-0">
+                <DialogTitle className="sr-only">
+                  Enhanced Image: {vehicle.year} {vehicle.brand} {vehicle.model}
+                </DialogTitle>
                 <img
                   src={enhancedImageUrl}
                   alt={`${vehicle.brand} ${vehicle.model}`}
