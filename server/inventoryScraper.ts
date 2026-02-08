@@ -100,6 +100,11 @@ export async function scrapeInventoryFromUrl(
         const statusMatch = containerText.match(/Status:?\s*([^\n\r]+?)(?:\s*Odometer|$)/i);
         const status = statusMatch?.[1]?.trim();
         
+        // Extract odometer and determine condition (new vs used)
+        const odometerMatch = containerText.match(/Odometer:?\s*([\d,]+)\s*kms?/i);
+        const odometerKm = odometerMatch?.[1] ? parseInt(odometerMatch[1].replace(/,/g, '')) : 0;
+        const category = odometerKm < 100 ? 'new' : 'used';
+        
         // Extract image
         const imageUrl = $container.find('img').first().attr('src') || 
                         $container.find('img').first().attr('data-src');
@@ -130,6 +135,7 @@ export async function scrapeInventoryFromUrl(
             year,
             price,
             status,
+            category,
             imageUrl: imageUrl?.startsWith('http') ? imageUrl : imageUrl ? new URL(imageUrl, url).href : undefined,
             description: description || undefined,
           });

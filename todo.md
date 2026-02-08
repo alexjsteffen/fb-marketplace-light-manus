@@ -168,3 +168,6 @@
 - [x] Fix scraper to extract vehicle descriptions from dealer websites
 - [x] Fix scraper to download and store vehicle images in S3
 - [x] Implement image download feature for dragging to Facebook Marketplace
+
+## Bug - Vehicle Condition Detection
+- [x] Fix scraper to correctly identify new vs used vehicles (now uses odometer < 100km = new)

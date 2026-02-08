@@ -152,6 +152,8 @@ export const appRouter = router({
             await db.createInventoryItem({
               ...item,
               dealerId,
+              // Map category to condition (scraper uses 'category', DB uses 'condition')
+              condition: (item.category === 'new' || item.category === 'used') ? item.category as 'new' | 'used' : item.condition,
             });
           } catch (error) {
             // Item might already exist, just update lastSeenAt
