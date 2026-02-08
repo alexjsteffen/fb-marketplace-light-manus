@@ -214,3 +214,8 @@
 
 ## Bug Fix - Dialog Accessibility Error
 - [x] Fix DialogContent missing DialogTitle error in ad-staging page (added DialogTitle with sr-only class to image lightbox Dialog in VehicleDetailModal.tsx)
+
+## UI/UX Improvements - Vehicle Detail Modal
+- [x] Make desktop popup wider (changed from max-w-7xl to max-w-[90vw] for more breathing room)
+- [x] Add edit mode for price and description (added Edit/Save button with Input for price and Textarea for description, values are used when sending to staging)
+- [x] Fix ad staging navigation link (fixed route from /ad-staging to /ads/staging/:dealerId with proper dealer ID parameter)

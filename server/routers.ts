@@ -368,6 +368,7 @@ export const appRouter = router({
         description: z.string(),
         imageUrl: z.string(),
         template: z.string(),
+        price: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const item = await db.getInventoryItemById(input.inventoryItemId);

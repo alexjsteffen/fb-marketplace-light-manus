@@ -4,8 +4,10 @@ import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Card, CardContent } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
 import { trpc } from "@/lib/trpc";
-import { Loader2, Sparkles, Image as ImageIcon, Send } from "lucide-react";
+import { Loader2, Sparkles, Image as ImageIcon, Send, Edit, Check, X } from "lucide-react";
 import { toast } from "sonner";
 import { useLocation } from "wouter";
 
@@ -37,12 +39,18 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
   const [enhancedDescription, setEnhancedDescription] = useState("");
   const [enhancedImageUrl, setEnhancedImageUrl] = useState("");
   const [imageExpanded, setImageExpanded] = useState(false);
+  const [editMode, setEditMode] = useState(false);
+  const [editedPrice, setEditedPrice] = useState("");
+  const [editedDescription, setEditedDescription] = useState("");
 
   // Sync state when vehicle changes
   useEffect(() => {
     if (vehicle) {
       setEnhancedDescription(vehicle.description || "");
       setEnhancedImageUrl(vehicle.imageUrl || "");
+      setEditedPrice(vehicle.price || "");
+      setEditedDescription(vehicle.description || "");
+      setEditMode(false);
     }
   }, [vehicle]);
 
@@ -71,7 +79,9 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
     onSuccess: () => {
       toast.success("Ad sent to staging!");
       onOpenChange(false);
-      setLocation("/ad-staging");
+      // Navigate to ad staging with dealer ID
+      const dealerId = vehicle?.dealerId || 60001;
+      setLocation(`/ads/staging/${dealerId}`);
     },
     onError: (error) => {
       toast.error(error.message || "Failed to send to staging");
@@ -95,9 +105,10 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
   const handleSendToStaging = () => {
     sendToStaging.mutate({
       inventoryItemId: vehicle.id,
-      description: enhancedDescription,
+      description: editMode ? editedDescription : enhancedDescription,
       imageUrl: enhancedImageUrl,
       template: selectedTemplate,
+      price: editedPrice,
     });
   };
 
@@ -105,7 +116,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-[90vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">
             {vehicle.year} {vehicle.brand} {vehicle.model}
@@ -203,11 +214,20 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
                   </Badge>
                 </div>
                 {vehicle.price && (
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center">
                     <span className="text-sm text-gray-600">Price:</span>
-                    <span className="text-xl font-bold text-blue-600">
-                      ${parseFloat(vehicle.price).toLocaleString()}
-                    </span>
+                    {editMode ? (
+                      <Input
+                        type="number"
+                        value={editedPrice}
+                        onChange={(e) => setEditedPrice(e.target.value)}
+                        className="w-32 h-8 text-right"
+                      />
+                    ) : (
+                      <span className="text-xl font-bold text-blue-600">
+                        ${parseFloat(editedPrice || vehicle.price).toLocaleString()}
+                      </span>
+                    )}
                   </div>
                 )}
                 {vehicle.category && (
@@ -230,10 +250,38 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
           <div className="space-y-4">
             <Card>
               <CardContent className="p-4">
-                <h3 className="font-semibold mb-3 flex items-center gap-2">
-                  <Sparkles className="w-4 h-4" />
-                  AI Description
-                </h3>
+                <div className="flex items-center justify-between mb-3">
+                  <h3 className="font-semibold flex items-center gap-2">
+                    <Sparkles className="w-4 h-4" />
+                    AI Description
+                  </h3>
+                  <Button
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => {
+                      if (editMode) {
+                        // Save changes
+                        setEnhancedDescription(editedDescription);
+                      } else {
+                        // Enter edit mode
+                        setEditedDescription(enhancedDescription || vehicle.description || "");
+                      }
+                      setEditMode(!editMode);
+                    }}
+                  >
+                    {editMode ? (
+                      <>
+                        <Check className="w-4 h-4 mr-1" />
+                        Save
+                      </>
+                    ) : (
+                      <>
+                        <Edit className="w-4 h-4 mr-1" />
+                        Edit
+                      </>
+                    )}
+                  </Button>
+                </div>
                 <div className="flex gap-2 mb-3">
                   {TONE_OPTIONS.map((tone) => (
                     <Button
@@ -265,11 +313,20 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
                     </>
                   )}
                 </Button>
-                <div className="bg-gray-50 rounded-lg p-4 min-h-[200px] max-h-[400px] overflow-y-auto">
-                  <p className="text-sm text-gray-700 whitespace-pre-wrap">
-                    {enhancedDescription || vehicle.description || "No description available"}
-                  </p>
-                </div>
+                {editMode ? (
+                  <Textarea
+                    value={editedDescription}
+                    onChange={(e) => setEditedDescription(e.target.value)}
+                    className="min-h-[200px] max-h-[400px]"
+                    placeholder="Enter description..."
+                  />
+                ) : (
+                  <div className="bg-gray-50 rounded-lg p-4 min-h-[200px] max-h-[400px] overflow-y-auto">
+                    <p className="text-sm text-gray-700 whitespace-pre-wrap">
+                      {enhancedDescription || vehicle.description || "No description available"}
+                    </p>
+                  </div>
+                )}
               </CardContent>
             </Card>
 
