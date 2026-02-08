@@ -572,6 +572,109 @@ export const appRouter = router({
         await db.createGeneratedContent(input);
         return { success: true };
       }),
+
+    generateContent: protectedProcedure
+      .input(z.object({
+        facebookAdId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        // Get the Facebook ad and related data
+        const ad = await db.getFacebookAdById(input.facebookAdId);
+        if (!ad) throw new TRPCError({ code: 'NOT_FOUND', message: 'Facebook ad not found' });
+
+        const vehicle = await db.getInventoryItemById(ad.inventoryItemId);
+        if (!vehicle) throw new TRPCError({ code: 'NOT_FOUND', message: 'Vehicle not found' });
+
+        const dealer = await db.getDealerById(ad.dealerId);
+        if (!dealer) throw new TRPCError({ code: 'NOT_FOUND', message: 'Dealer not found' });
+
+        // Generate badge image with "As Seen On Facebook Marketplace" overlay
+        const { generateImage } = await import('./_core/imageGeneration');
+        const badgeResult = await generateImage({
+          prompt: `Add a professional "AS SEEN ON FACEBOOK MARKETPLACE" badge overlay to this vehicle image. The badge should be prominent but not obstruct the vehicle. Use a clean, modern design with white text on a semi-transparent dark background or blue Facebook-branded styling. The vehicle ${vehicle.year} ${vehicle.brand} ${vehicle.model} should remain the focal point. Professional automotive marketing style.`,
+          originalImages: [{
+            url: ad.imageUrl!,
+            mimeType: 'image/jpeg',
+          }],
+        });
+
+        await db.createGeneratedContent({
+          dealerId: ad.dealerId,
+          facebookAdId: input.facebookAdId,
+          contentType: 'badge_image',
+          badgeImageUrl: badgeResult.url,
+          exportFormat: 'json',
+        });
+
+        // Generate pillar page content using LLM
+        const { invokeLLM } = await import('./_core/llm');
+        const pillarResponse = await invokeLLM({
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert automotive content writer specializing in SEO-optimized pillar pages for car dealerships. Write comprehensive, engaging content that highlights vehicle features, history, and positive news.',
+            },
+            {
+              role: 'user',
+              content: `Write a comprehensive pillar page article (800-1200 words) about this vehicle currently featured on Facebook Marketplace:\n\nVehicle: ${vehicle.year} ${vehicle.brand} ${vehicle.model}\nPrice: $${vehicle.price}\nCondition: ${vehicle.condition}\nDescription: ${vehicle.description || 'N/A'}\nDealer: ${dealer.name}${dealer.tagline ? ` - ${dealer.tagline}` : ''}\n\nInclude:\n1. Engaging headline\n2. Vehicle overview and key features\n3. Performance and specifications highlights\n4. Safety and technology features\n5. Why this model is popular (include positive industry news if applicable)\n6. Value proposition\n7. Call-to-action mentioning it's featured on Facebook Marketplace\n\nFormat in Markdown with proper headings (##, ###). Make it SEO-friendly and engaging.`,
+            },
+          ],
+        });
+
+        const pillarContent = typeof pillarResponse.choices[0].message.content === 'string' 
+          ? pillarResponse.choices[0].message.content 
+          : JSON.stringify(pillarResponse.choices[0].message.content);
+        const pillarTitle = `${vehicle.year} ${vehicle.brand} ${vehicle.model} - Featured on Facebook Marketplace | ${dealer.name}`;
+
+        await db.createGeneratedContent({
+          dealerId: ad.dealerId,
+          facebookAdId: input.facebookAdId,
+          contentType: 'pillar_page',
+          title: pillarTitle,
+          content: pillarContent,
+          exportFormat: 'markdown',
+          metadata: JSON.stringify({
+            seoTitle: pillarTitle,
+            seoDescription: `Discover this ${vehicle.year} ${vehicle.brand} ${vehicle.model} now featured on Facebook Marketplace. ${vehicle.description?.substring(0, 100) || 'Great vehicle at a great price'}.`,
+            keywords: `${vehicle.brand} ${vehicle.model}, ${vehicle.year} ${vehicle.brand}, ${dealer.name}, Facebook Marketplace cars`,
+          }),
+        });
+
+        // Generate blog post using LLM
+        const blogResponse = await invokeLLM({
+          messages: [
+            {
+              role: 'system',
+              content: 'You are an expert automotive blogger writing engaging, conversational blog posts for car dealership websites.',
+            },
+            {
+              role: 'user',
+              content: `Write a short blog post (300-500 words) about this vehicle now featured on Facebook Marketplace:\n\nVehicle: ${vehicle.year} ${vehicle.brand} ${vehicle.model}\nPrice: $${vehicle.price}\nCondition: ${vehicle.condition}\nDescription: ${vehicle.description || 'N/A'}\nDealer: ${dealer.name}\n\nMake it conversational and engaging. Highlight what makes this vehicle special. Mention it's now available on Facebook Marketplace. Include a call-to-action. Format in Markdown.`,
+            },
+          ],
+        });
+
+        const blogContent = typeof blogResponse.choices[0].message.content === 'string' 
+          ? blogResponse.choices[0].message.content 
+          : JSON.stringify(blogResponse.choices[0].message.content);
+        const blogTitle = `Check Out This ${vehicle.year} ${vehicle.brand} ${vehicle.model} on Facebook Marketplace!`;
+
+        await db.createGeneratedContent({
+          dealerId: ad.dealerId,
+          facebookAdId: input.facebookAdId,
+          contentType: 'blog_post',
+          title: blogTitle,
+          content: blogContent,
+          exportFormat: 'markdown',
+        });
+
+        return {
+          success: true,
+          badgeImageUrl: badgeResult.url,
+          pillarTitle,
+          blogTitle,
+        };
+      }),
   }),
 });
 

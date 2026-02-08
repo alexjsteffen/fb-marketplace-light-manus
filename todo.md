@@ -230,3 +230,11 @@
 - [x] Add dealer branding fields (logo URL, primary color, tagline) to dealer management (added tagline field, logoUrl and brandColor already existed)
 - [x] Customize AI image generation prompts to include dealer-specific branding elements (enhanced prompts to include dealer name, tagline, and logo URL)
 - [ ] Test with Novlan Bros branding (logo, blue/white colors, tagline) - need to set these values in dealer settings
+
+## Feature - Automated Content Generation for Facebook Marketplace Ads
+- [x] Create "As Seen On Facebook Marketplace" badge image generator (overlay badge on vehicle image using AI image generation)
+- [x] Implement AI-powered pillar page content generator (comprehensive 800-1200 word article with SEO optimization, vehicle features, positive news)
+- [x] Implement AI-powered blog post generator (300-500 word conversational blog post about the vehicle)
+- [x] Create content preview UI with copy/paste workflow (ContentGenerator component with copy buttons for badge URL, pillar page content, and blog post content)
+- [ ] Integrate content generation into ad staging workflow (auto-generate when ad is staged)
+- [x] Add content storage in database (generatedContent table already exists with dealerId, facebookAdId, contentType, title, content, badgeImageUrl fields)

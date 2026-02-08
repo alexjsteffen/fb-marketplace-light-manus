@@ -8,6 +8,7 @@ import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
 import { Facebook, ExternalLink, Copy, Check, Trash2, Eye } from "lucide-react";
+import { ContentGenerator } from "@/components/ContentGenerator";
 import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
@@ -456,6 +457,17 @@ export default function AdStaging() {
               Close
             </Button>
           </DialogFooter>
+          
+          {/* Content Generation Section */}
+          {selectedAdData && (
+            <div className="mt-6 border-t pt-6">
+              <h3 className="text-lg font-semibold mb-4">Website Content</h3>
+              <p className="text-sm text-muted-foreground mb-4">
+                Generate badge image, pillar page article, and blog post for your dealer website
+              </p>
+              <ContentGenerator facebookAdId={selectedAdData.id} />
+            </div>
+          )}
         </DialogContent>
       </Dialog>
 
