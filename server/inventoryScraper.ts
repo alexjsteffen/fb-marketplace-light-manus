@@ -27,6 +27,7 @@ export async function scrapeInventoryFromUrl(
     // Launch headless browser
     browser = await puppeteer.launch({
       headless: true,
+      executablePath: '/usr/bin/chromium-browser',
       args: [
         '--no-sandbox',
         '--disable-setuid-sandbox',
@@ -46,8 +47,19 @@ export async function scrapeInventoryFromUrl(
     console.log(`[Scraper] Navigating to ${url}`);
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-    // Wait for content to load
+    // Wait for initial content to load
     await new Promise(resolve => setTimeout(resolve, 3000));
+    
+    // Scroll to bottom multiple times to trigger lazy loading
+    console.log('[Scraper] Scrolling to load all vehicles...');
+    for (let i = 0; i < 5; i++) {
+      await page.evaluate(() => window.scrollTo(0, document.body.scrollHeight));
+      await new Promise(resolve => setTimeout(resolve, 1500));
+    }
+    
+    // Scroll back to top
+    await page.evaluate(() => window.scrollTo(0, 0));
+    await new Promise(resolve => setTimeout(resolve, 1000));
 
     // Get page HTML
     const html = await page.content();
@@ -72,8 +84,8 @@ export async function scrapeInventoryFromUrl(
         
         const containerText = $container.text();
         
-        // Extract stock number
-        const stockMatch = containerText.match(/Stock\s*(?:Number)?:?\s*([A-Z0-9]+)/i);
+        // Extract stock number - match digits/letters but stop at word boundary
+        const stockMatch = containerText.match(/Stock\s*(?:Number)?:?\s*([A-Z0-9]+)(?=\s|V|$)/i);
         const stockNumber = stockMatch?.[1] || `STOCK-${items.length + 1}`;
         
         // Extract price - look for SALE PRICE or just price

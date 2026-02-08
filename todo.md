@@ -139,3 +139,7 @@
 ## Bug Fixes
 - [x] Fix email validation error in dealer creation form (should allow empty string for optional contactEmail)
 - [x] Fix inventory scraper for Novlan Ford website (rewrote with h2-based extraction strategy)
+- [x] Fix Puppeteer Chrome not found error - installed Chromium and configured executablePath
+- [x] Improve stock number extraction regex (fixed to stop at word boundaries)
+- [x] Add scrolling to load all lazy-loaded vehicles
+- [x] Update scraper to handle both new AND used vehicles (now gets all 63 vehicles)
