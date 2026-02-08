@@ -229,6 +229,60 @@ export const appRouter = router({
         await db.deleteInventoryItem(input.id);
         return { success: true };
       }),
+
+    batchEnhance: protectedProcedure
+      .input(z.object({
+        dealerId: z.number(),
+        template: z.enum(['flash_sale', 'premium', 'value', 'event', 'creator', 'trending']),
+      }))
+      .mutation(async ({ input }) => {
+        // Get all new vehicles for this dealer
+        const items = await db.getInventoryItemsByDealerId(input.dealerId);
+        const newVehicles = items.filter(item => item.condition === 'new' && item.imageUrl);
+
+        if (newVehicles.length === 0) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'No new vehicles with images to enhance' });
+        }
+
+        // Get dealer info for branding
+        const dealer = await db.getDealerById(input.dealerId);
+        if (!dealer) throw new TRPCError({ code: 'NOT_FOUND', message: 'Dealer not found' });
+
+        // Template-specific prompts
+        const getPrompt = (template: string, vehicle: any) => {
+          const templatePrompts: Record<string, string> = {
+            flash_sale: `Create a vibrant, eye-catching promotional image with a bold red and orange gradient background. The vehicle should be prominently featured in the center with dramatic lighting. Add a large "FLASH SALE" or "LIMITED TIME" text overlay in bold yellow/white text. Include the price $${vehicle.price} in large numbers. Add urgency elements like "ACT NOW" or countdown styling. Include dealer branding: ${dealer.name}${dealer.tagline ? ` - ${dealer.tagline}` : ''}${dealer.logoUrl ? '. Incorporate the dealer logo from ${dealer.logoUrl}' : ''}. Professional automotive advertising style with high energy and urgency.`,
+            premium: `Create an elegant, luxury promotional image with a sophisticated gold and black gradient background. The vehicle should be showcased with premium studio lighting, emphasizing its luxury features. Add subtle gold accent lines or borders. Include the price $${vehicle.price} in elegant serif font. Add "PREMIUM SELECTION" or "LUXURY COLLECTION" text in refined typography. Dealer: ${dealer.name}. High-end automotive advertising with sophisticated, upscale aesthetic.`,
+            value: `Create a friendly, appealing promotional image with a fresh green and white gradient background. The vehicle should be well-lit and inviting. Add "GREAT VALUE" or "BEST DEAL" text in bold, friendly font. Prominently display the price $${vehicle.price} with "SAVE" or "SPECIAL PRICE" messaging. Include value indicators like "LOW MILEAGE" or "CERTIFIED". Dealer: ${dealer.name}. Professional yet approachable automotive advertising emphasizing affordability and value.`,
+            event: `Create a festive, celebratory promotional image with a dynamic blue and purple gradient background with confetti or celebration elements. The vehicle should be featured with bright, energetic lighting. Add "SPECIAL EVENT" or "CLEARANCE SALE" text in bold, exciting font. Display the price $${vehicle.price} prominently. Include event messaging like "LIMITED TIME EVENT" or "CELEBRATION PRICING". Dealer: ${dealer.name}. Energetic automotive advertising with festive, promotional atmosphere.`,
+            creator: `Create a modern, artistic promotional image with a creative teal and pink gradient background with geometric patterns or abstract design elements. The vehicle should be showcased with contemporary, stylish lighting. Add modern typography for "FEATURED VEHICLE" or "EXCLUSIVE OFFER". Display the price $${vehicle.price} in trendy font. Include design-forward elements that appeal to creative, style-conscious buyers. Dealer: ${dealer.name}. Contemporary automotive advertising with artistic, Instagram-worthy aesthetic.`,
+            trending: `Create a bold, attention-grabbing promotional image with a striking orange and red gradient background with dynamic motion lines or energy effects. The vehicle should be dramatically lit to create maximum visual impact. Add "TRENDING NOW" or "HOT DEAL" text in bold, modern font. Prominently feature the price $${vehicle.price} with "DON'T MISS OUT" messaging. Include trending indicators like fire emojis or popularity badges. Dealer: ${dealer.name}. High-impact automotive advertising with viral, social media-ready styling.`,
+          };
+          return templatePrompts[template];
+        };
+
+        // Dynamic import to avoid circular dependency
+        const { generateImage } = await import('./_core/imageGeneration');
+
+        // Enhance each vehicle (sequentially to avoid rate limits)
+        const results = [];
+        for (const vehicle of newVehicles) {
+          try {
+            const result = await generateImage({
+              prompt: getPrompt(input.template, vehicle),
+              originalImages: [{
+                url: vehicle.imageUrl!,
+                mimeType: 'image/jpeg',
+              }],
+            });
+            results.push({ vehicleId: vehicle.id, imageUrl: result.url });
+          } catch (error) {
+            console.error(`Failed to enhance vehicle ${vehicle.id}:`, error);
+          }
+        }
+
+        return { success: true, enhanced: results.length, total: newVehicles.length, results };
+      }),
   }),
 
   // Facebook ads management
@@ -339,7 +393,7 @@ export const appRouter = router({
 
         // Template-specific prompts for AI image generation
         const templatePrompts: Record<string, string> = {
-          flash_sale: `Create a vibrant, eye-catching promotional image with a bold red and orange gradient background. The vehicle should be prominently featured in the center with dramatic lighting. Add a large "FLASH SALE" or "LIMITED TIME" text overlay in bold yellow/white text. Include the price $${item.price} in large numbers. Add urgency elements like "ACT NOW" or countdown styling. Dealer: ${dealer.name}. Professional automotive advertising style with high energy and urgency.`,
+          flash_sale: `Create a vibrant, eye-catching promotional image with a bold red and orange gradient background. The vehicle should be prominently featured in the center with dramatic lighting. Add a large "FLASH SALE" or "LIMITED TIME" text overlay in bold yellow/white text. Include the price $${item.price} in large numbers. Add urgency elements like "ACT NOW" or countdown styling. Include dealer branding: ${dealer.name}${dealer.tagline ? ` - ${dealer.tagline}` : ''}${dealer.logoUrl ? '. Incorporate the dealer logo from ${dealer.logoUrl}' : ''}. Professional automotive advertising style with high energy and urgency.`,
           premium: `Create an elegant, luxury promotional image with a sophisticated gold and black gradient background. The vehicle should be showcased with premium studio lighting, emphasizing its luxury features. Add subtle gold accent lines or borders. Include the price $${item.price} in elegant serif font. Add "PREMIUM SELECTION" or "LUXURY COLLECTION" text in refined typography. Dealer: ${dealer.name}. High-end automotive advertising with sophisticated, upscale aesthetic.`,
           value: `Create a friendly, appealing promotional image with a fresh green and white gradient background. The vehicle should be well-lit and inviting. Add "GREAT VALUE" or "BEST DEAL" text in bold, friendly font. Prominently display the price $${item.price} with "SAVE" or "SPECIAL PRICE" messaging. Include value indicators like "LOW MILEAGE" or "CERTIFIED". Dealer: ${dealer.name}. Professional yet approachable automotive advertising emphasizing affordability and value.`,
           event: `Create a festive, celebratory promotional image with a dynamic blue and purple gradient background with confetti or celebration elements. The vehicle should be featured with bright, energetic lighting. Add "SPECIAL EVENT" or "CLEARANCE SALE" text in bold, exciting font. Display the price $${item.price} prominently. Include event messaging like "LIMITED TIME EVENT" or "CELEBRATION PRICING". Dealer: ${dealer.name}. Energetic automotive advertising with festive, promotional atmosphere.`,

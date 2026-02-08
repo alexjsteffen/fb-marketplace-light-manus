@@ -10,7 +10,7 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Package, Plus, Upload, Search, Globe, Loader2, LayoutGrid, List } from "lucide-react";
+import { Package, Plus, Upload, Search, Globe, Loader2, LayoutGrid, List, Sparkles } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
@@ -27,6 +27,8 @@ export default function Inventory() {
   const [conditionFilter, setConditionFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"box" | "line">("box");
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [batchEnhancing, setBatchEnhancing] = useState(false);
+  const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
   
   // URL Scraping state
   const [scrapeUrl, setScrapeUrl] = useState("");
@@ -87,6 +89,35 @@ export default function Inventory() {
       toast.error(error.message || "Failed to delete vehicle");
     },
   });
+
+  const batchEnhanceMutation = trpc.inventory.batchEnhance.useMutation({
+    onSuccess: () => {
+      toast.success("All vehicles enhanced successfully!");
+      setBatchEnhancing(false);
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to enhance vehicles");
+      setBatchEnhancing(false);
+    },
+  });
+
+  const handleBatchEnhance = async () => {
+    const newVehicles = inventory?.filter((item: any) => item.condition === 'new') || [];
+    if (newVehicles.length === 0) {
+      toast.error("No new vehicles to enhance");
+      return;
+    }
+
+    setBatchEnhancing(true);
+    setBatchProgress({ current: 0, total: newVehicles.length });
+
+    // Call batch enhance mutation
+    batchEnhanceMutation.mutate({
+      dealerId: parseInt(dealerId || "0"),
+      template: "premium", // Default template
+    });
+  };
 
   const createItem = trpc.inventory.create.useMutation({
     onSuccess: () => {
@@ -644,6 +675,23 @@ export default function Inventory() {
               <Button variant="outline" onClick={() => setOpenBulk(true)}>
                 <Upload className="w-4 h-4 mr-2" />
                 Bulk Import
+              </Button>
+              <Button 
+                variant="default" 
+                onClick={handleBatchEnhance}
+                disabled={batchEnhancing || !inventory?.filter((item: any) => item.condition === 'new').length}
+              >
+                {batchEnhancing ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Enhancing {batchProgress.current}/{batchProgress.total}...
+                  </>
+                ) : (
+                  <>
+                    <Sparkles className="w-4 h-4 mr-2" />
+                    Enhance All New
+                  </>
+                )}
               </Button>
             </div>
           </div>

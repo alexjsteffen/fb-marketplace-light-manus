@@ -32,6 +32,7 @@ export const dealers = mysqlTable("dealers", {
   websiteUrl: text("websiteUrl"),
   logoUrl: text("logoUrl"),
   brandColor: varchar("brandColor", { length: 7 }).default("#3b82f6"), // hex color
+  tagline: varchar("tagline", { length: 255 }), // dealer tagline/slogan
   ownerId: int("ownerId").notNull(), // references users.id
   isActive: boolean("isActive").default(true).notNull(),
   createdAt: timestamp("createdAt").defaultNow().notNull(),

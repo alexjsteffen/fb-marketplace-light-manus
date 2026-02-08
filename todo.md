@@ -219,3 +219,14 @@
 - [x] Make desktop popup wider (changed from max-w-7xl to max-w-[90vw] for more breathing room)
 - [x] Add edit mode for price and description (added Edit/Save button with Input for price and Textarea for description, values are used when sending to staging)
 - [x] Fix ad staging navigation link (fixed route from /ad-staging to /ads/staging/:dealerId with proper dealer ID parameter)
+
+## Feature - Batch Image Enhancement
+- [x] Add "Enhance All New Vehicles" button to inventory page (added with progress indicator)
+- [x] Create backend procedure to batch enhance multiple vehicles with AI image generation (added batchEnhance mutation that processes new vehicles sequentially with AI)
+- [ ] Show progress indicator during batch enhancement (e.g., "Enhancing 5/10 vehicles...")
+- [ ] Allow template selection for batch enhancement
+
+## Feature - Dealer Branding Customization
+- [x] Add dealer branding fields (logo URL, primary color, tagline) to dealer management (added tagline field, logoUrl and brandColor already existed)
+- [x] Customize AI image generation prompts to include dealer-specific branding elements (enhanced prompts to include dealer name, tagline, and logo URL)
+- [ ] Test with Novlan Bros branding (logo, blue/white colors, tagline) - need to set these values in dealer settings

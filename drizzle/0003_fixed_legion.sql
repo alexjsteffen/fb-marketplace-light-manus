@@ -1,0 +1,1 @@
+ALTER TABLE `dealers` ADD `tagline` varchar(255);
