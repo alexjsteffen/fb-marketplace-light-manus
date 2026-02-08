@@ -36,6 +36,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
   const [selectedTemplate, setSelectedTemplate] = useState<"flash_sale" | "premium" | "value" | "event" | "creator" | "trending">("premium");
   const [enhancedDescription, setEnhancedDescription] = useState("");
   const [enhancedImageUrl, setEnhancedImageUrl] = useState("");
+  const [imageExpanded, setImageExpanded] = useState(false);
 
   // Sync state when vehicle changes
   useEffect(() => {
@@ -104,7 +105,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-5xl max-h-[90vh] overflow-y-auto">
+      <DialogContent className="max-w-7xl max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-2xl">
             {vehicle.year} {vehicle.brand} {vehicle.model}
@@ -119,7 +120,8 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
                 <img
                   src={enhancedImageUrl}
                   alt={`${vehicle.brand} ${vehicle.model}`}
-                  className="w-full h-80 object-cover rounded-lg"
+                  className="w-full h-80 object-cover rounded-lg cursor-pointer hover:opacity-90 transition-opacity"
+                  onClick={() => setImageExpanded(true)}
                 />
               ) : (
                 <div className="w-full h-80 bg-gray-200 flex items-center justify-center rounded-lg">
@@ -127,6 +129,17 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
                 </div>
               )}
             </div>
+
+            {/* Image Lightbox */}
+            <Dialog open={imageExpanded} onOpenChange={setImageExpanded}>
+              <DialogContent className="max-w-[95vw] max-h-[95vh] p-0">
+                <img
+                  src={enhancedImageUrl}
+                  alt={`${vehicle.brand} ${vehicle.model}`}
+                  className="w-full h-full object-contain"
+                />
+              </DialogContent>
+            </Dialog>
 
             <Card>
               <CardContent className="p-4">
