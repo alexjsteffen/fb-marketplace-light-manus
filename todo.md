@@ -143,3 +143,11 @@
 - [x] Improve stock number extraction regex (fixed to stop at word boundaries)
 - [x] Add scrolling to load all lazy-loaded vehicles
 - [x] Update scraper to handle both new AND used vehicles (now gets all 63 vehicles)
+
+## New Features - Multi-Tenant Access Control
+- [ ] Implement dealer-specific access control (dealers only see their own inventory/ads/data)
+- [ ] Add super admin role that can see all dealers
+- [ ] Add dealer assignment to users (link users to specific dealers)
+- [ ] Filter all queries by dealer ownership based on user role
+- [x] Add inventory count badges to dealer cards showing number of items
+

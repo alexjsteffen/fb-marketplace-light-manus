@@ -1,0 +1,31 @@
+{
+  "query": "SHOW TABLES;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SHOW TABLES;",
+  "rows": [
+    {
+      "Tables_in_RzTEWttBsCe6CWwBvFPaLT": "__drizzle_migrations"
+    },
+    {
+      "Tables_in_RzTEWttBsCe6CWwBvFPaLT": "backgroundTemplates"
+    },
+    {
+      "Tables_in_RzTEWttBsCe6CWwBvFPaLT": "dealers"
+    },
+    {
+      "Tables_in_RzTEWttBsCe6CWwBvFPaLT": "facebookAds"
+    },
+    {
+      "Tables_in_RzTEWttBsCe6CWwBvFPaLT": "generatedContent"
+    },
+    {
+      "Tables_in_RzTEWttBsCe6CWwBvFPaLT": "inventoryItems"
+    },
+    {
+      "Tables_in_RzTEWttBsCe6CWwBvFPaLT": "users"
+    }
+  ],
+  "messages": [],
+  "stdout": "Tables_in_RzTEWttBsCe6CWwBvFPaLT\n__drizzle_migrations\nbackgroundTemplates\ndealers\nfacebookAds\ngeneratedContent\ninventoryItems\nusers\n",
+  "stderr": "",
+  "execution_time_ms": 356
+}

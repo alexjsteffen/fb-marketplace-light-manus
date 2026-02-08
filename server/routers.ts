@@ -24,10 +24,22 @@ export const appRouter = router({
   // Dealer management
   dealers: router({
     list: protectedProcedure.query(async ({ ctx }) => {
+      let dealersList;
       if (ctx.user.role === 'admin') {
-        return await db.getAllDealers();
+        dealersList = await db.getAllDealers();
+      } else {
+        dealersList = await db.getDealersByOwnerId(ctx.user.id);
       }
-      return await db.getDealersByOwnerId(ctx.user.id);
+      
+      // Add inventory count for each dealer
+      const dealersWithCount = await Promise.all(
+        dealersList.map(async (dealer) => {
+          const count = await db.getInventoryCountByDealer(dealer.id);
+          return { ...dealer, inventoryCount: count };
+        })
+      );
+      
+      return dealersWithCount;
     }),
 
     getById: protectedProcedure

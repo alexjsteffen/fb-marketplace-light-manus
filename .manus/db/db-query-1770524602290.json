@@ -1,0 +1,31 @@
+{
+  "query": "SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE();",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT TABLE_NAME FROM information_schema.TABLES WHERE TABLE_SCHEMA = DATABASE();",
+  "rows": [
+    {
+      "TABLE_NAME": "__drizzle_migrations"
+    },
+    {
+      "TABLE_NAME": "users"
+    },
+    {
+      "TABLE_NAME": "backgroundTemplates"
+    },
+    {
+      "TABLE_NAME": "dealers"
+    },
+    {
+      "TABLE_NAME": "facebookAds"
+    },
+    {
+      "TABLE_NAME": "generatedContent"
+    },
+    {
+      "TABLE_NAME": "inventoryItems"
+    }
+  ],
+  "messages": [],
+  "stdout": "TABLE_NAME\n__drizzle_migrations\nusers\nbackgroundTemplates\ndealers\nfacebookAds\ngeneratedContent\ninventoryItems\n",
+  "stderr": "",
+  "execution_time_ms": 353
+}

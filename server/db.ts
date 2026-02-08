@@ -160,6 +160,20 @@ export async function getInventoryItemsByDealerId(dealerId: number) {
     .orderBy(desc(inventoryItems.createdAt));
 }
 
+export async function getInventoryCountByDealer(dealerId: number): Promise<number> {
+  const db = await getDb();
+  if (!db) return 0;
+  
+  const result = await db.select({ count: sql<number>`count(*)` })
+    .from(inventoryItems)
+    .where(and(
+      eq(inventoryItems.dealerId, dealerId),
+      eq(inventoryItems.status, 'active')
+    ));
+  
+  return result[0]?.count || 0;
+}
+
 export async function getInventoryItemById(id: number) {
   const db = await getDb();
   if (!db) return undefined;

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
-import { Building2, Plus, Settings } from "lucide-react";
+import { Building2, Plus, Settings, Package } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
@@ -187,7 +187,15 @@ export default function DealerManagement() {
                         <Building2 className="w-6 h-6 text-white" />
                       </div>
                       <div>
-                        <CardTitle>{dealer.name}</CardTitle>
+                        <CardTitle className="flex items-center gap-2">
+                          {dealer.name}
+                          {dealer.inventoryCount !== undefined && dealer.inventoryCount > 0 && (
+                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+                              <Package className="w-3 h-3" />
+                              {dealer.inventoryCount}
+                            </span>
+                          )}
+                        </CardTitle>
                         <CardDescription>@{dealer.slug}</CardDescription>
                       </div>
                     </div>
