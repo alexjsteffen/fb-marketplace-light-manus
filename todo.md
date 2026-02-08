@@ -187,3 +187,6 @@
 - [x] Fix scraper to extract full vehicle descriptions from detail pages (now visits each detail page and extracts ABOUT THIS VEHICLE section)
 - [x] Replace AI image generation with template-based composition (created Python compositor that overlays vehicle images onto templates with branding, price, and design elements)
 - [x] Create or source pre-designed templates for image enhancement (implemented programmatic gradient-based templates for all 6 styles: Flash Sale, Premium, Value, Event, Creator, Trending - custom designer templates can be added later)
+
+## Bug Fixes - Session 2
+- [x] Fix __dirname error in enhanceImage procedure (replaced with ES module compatible path resolution using import.meta.url and fileURLToPath)

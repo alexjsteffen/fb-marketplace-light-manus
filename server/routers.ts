@@ -342,9 +342,14 @@ export const appRouter = router({
         const { storagePut } = await import('./storage');
         const fs = await import('fs');
         const path = await import('path');
+        const { fileURLToPath } = await import('url');
         const os = await import('os');
         
         return new Promise((resolve, reject) => {
+          // Get current directory in ES modules
+          const __filename = fileURLToPath(import.meta.url);
+          const __dirname = path.dirname(__filename);
+          
           // Create temp output path
           const tempOutputPath = path.join(os.tmpdir(), `enhanced-${item.stockNumber}-${Date.now()}.png`);
           
