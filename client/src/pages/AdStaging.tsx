@@ -329,7 +329,33 @@ export default function AdStaging() {
                 </div>
 
                 <div className="border rounded-lg p-4">
-                  <h4 className="font-semibold mb-2">Step 3: Copy & Paste Title</h4>
+                  <h4 className="font-semibold mb-2">Step 3: Download Image</h4>
+                  <p className="text-sm text-gray-600 mb-2">
+                    Download the ad image to your computer, then drag it to Facebook's image upload area
+                  </p>
+                  {selectedAdData?.imageUrl && (
+                    <Button
+                      variant="outline"
+                      className="w-full"
+                      onClick={() => {
+                        const link = document.createElement('a');
+                        link.href = selectedAdData.imageUrl!;
+                        link.download = `ad-image-${selectedAdData.id}.jpg`;
+                        link.target = '_blank';
+                        document.body.appendChild(link);
+                        link.click();
+                        document.body.removeChild(link);
+                        toast.success('Image download started!');
+                      }}
+                    >
+                      <ExternalLink className="w-4 h-4 mr-2" />
+                      Download Image
+                    </Button>
+                  )}
+                </div>
+
+                <div className="border rounded-lg p-4">
+                  <h4 className="font-semibold mb-2">Step 4: Copy & Paste Title</h4>
                   <p className="text-sm text-gray-600 mb-2">
                     Click the copy button next to the title, then paste it into Facebook's "Title" field
                   </p>
@@ -349,7 +375,7 @@ export default function AdStaging() {
                 </div>
 
                 <div className="border rounded-lg p-4">
-                  <h4 className="font-semibold mb-2">Step 4: Set Price</h4>
+                  <h4 className="font-semibold mb-2">Step 5: Set Price</h4>
                   <p className="text-sm text-gray-600 mb-2">
                     Copy the price and enter it in Facebook's "Price" field
                   </p>
@@ -371,7 +397,7 @@ export default function AdStaging() {
                 </div>
 
                 <div className="border rounded-lg p-4">
-                  <h4 className="font-semibold mb-2">Step 5: Copy & Paste Description</h4>
+                  <h4 className="font-semibold mb-2">Step 6: Copy & Paste Description</h4>
                   <p className="text-sm text-gray-600 mb-2">
                     Copy the description and paste it into Facebook's "Description" field
                   </p>
@@ -397,26 +423,10 @@ export default function AdStaging() {
                 </div>
 
                 <div className="border rounded-lg p-4">
-                  <h4 className="font-semibold mb-2">Step 6: Upload Images</h4>
+                  <h4 className="font-semibold mb-2">Step 7: Complete & Publish</h4>
                   <p className="text-sm text-gray-600 mb-3">
-                    In Facebook Marketplace, upload the images shown on the left. You can:
+                    After filling in all the details and uploading the image, review your listing and click "Publish" on Facebook Marketplace.
                   </p>
-                  <ul className="text-sm text-gray-600 list-disc list-inside mb-3">
-                    <li>Right click each image and select "Save image"</li>
-                    <li>Drag the image directly to Facebook's upload area</li>
-                  </ul>
-                  {selectedAdData?.imageUrl && (
-                    <Button asChild variant="outline" className="w-full">
-                      <a
-                        href={selectedAdData.imageUrl}
-                        download
-                        target="_blank"
-                        rel="noopener noreferrer"
-                      >
-                        Download Image
-                      </a>
-                    </Button>
-                  )}
                 </div>
               </div>
             </div>

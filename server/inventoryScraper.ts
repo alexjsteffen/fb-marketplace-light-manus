@@ -1,5 +1,7 @@
 import puppeteer from "puppeteer";
 import * as cheerio from "cheerio";
+import { storagePut } from "./storage";
+import crypto from "crypto";
 
 export interface ScrapedInventoryItem {
   title: string;
@@ -12,6 +14,7 @@ export interface ScrapedInventoryItem {
   location?: string;
   imageUrl?: string;
   status?: string;
+  description?: string;
 }
 
 /**
@@ -101,6 +104,17 @@ export async function scrapeInventoryFromUrl(
         const imageUrl = $container.find('img').first().attr('src') || 
                         $container.find('img').first().attr('data-src');
         
+        // Extract description - look for paragraphs or description-like text
+        let description = '';
+        const $descContainer = $container.find('p, .description, [class*="desc"], .details').first();
+        if ($descContainer.length > 0) {
+          description = $descContainer.text().trim();
+        } else {
+          // Fallback: get all text and try to find description-like content
+          const allText = containerText.split('\n').map(line => line.trim()).filter(line => line.length > 20);
+          description = allText.slice(0, 3).join(' '); // Take first few meaningful lines
+        }
+        
         // Parse title for year, brand, model
         const titleMatch = title.match(/(\d{4})\s+(\w+)\s+(.+)/i);
         const year = titleMatch?.[1] ? parseInt(titleMatch[1]) : undefined;
@@ -117,6 +131,7 @@ export async function scrapeInventoryFromUrl(
             price,
             status,
             imageUrl: imageUrl?.startsWith('http') ? imageUrl : imageUrl ? new URL(imageUrl, url).href : undefined,
+            description: description || undefined,
           });
         }
       }
@@ -198,6 +213,37 @@ export async function scrapeInventoryFromUrl(
     }
 
     console.log(`[Scraper] Extracted ${items.length} inventory items`);
+    
+    // Download and upload images to S3
+    console.log('[Scraper] Downloading and uploading images to S3...');
+    for (const item of items) {
+      if (item.imageUrl) {
+        try {
+          // Download image
+          const response = await page.goto(item.imageUrl, { waitUntil: 'networkidle2', timeout: 10000 });
+          if (response && response.ok()) {
+            const buffer = await response.buffer();
+            
+            // Generate unique filename
+            const hash = crypto.createHash('md5').update(item.imageUrl).digest('hex').substring(0, 8);
+            const ext = item.imageUrl.split('.').pop()?.split('?')[0] || 'jpg';
+            const filename = `inventory/${item.stockNumber}-${hash}.${ext}`;
+            
+            // Upload to S3
+            const contentType = ext === 'jpg' || ext === 'jpeg' ? 'image/jpeg' : 
+                               ext === 'png' ? 'image/png' : 
+                               ext === 'webp' ? 'image/webp' : 'image/jpeg';
+            
+            const { url } = await storagePut(filename, buffer, contentType);
+            item.imageUrl = url;
+            console.log(`[Scraper] Uploaded image for ${item.stockNumber}`);
+          }
+        } catch (error) {
+          console.error(`[Scraper] Failed to download image for ${item.stockNumber}:`, error);
+          // Keep original URL if download fails
+        }
+      }
+    }
     return items;
 
   } catch (error) {

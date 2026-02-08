@@ -163,3 +163,8 @@
 - [x] Add "Send to Ad Staging" button in detail modal
 - [x] Preserve existing dashboard vehicle concentration summary feature
 - [x] Preserve existing new/used vehicle separation in dashboard
+
+## Scraper Fixes
+- [x] Fix scraper to extract vehicle descriptions from dealer websites
+- [x] Fix scraper to download and store vehicle images in S3
+- [x] Implement image download feature for dragging to Facebook Marketplace
