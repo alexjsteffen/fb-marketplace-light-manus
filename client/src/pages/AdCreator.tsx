@@ -3,6 +3,13 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { trpc } from "@/lib/trpc";
 import { Sparkles, Image as ImageIcon, ArrowRight, Loader2 } from "lucide-react";
 import { useState, useEffect } from "react";
@@ -15,6 +22,7 @@ export default function AdCreator() {
   const { loading: authLoading } = useAuth();
   
   const [selectedTemplate, setSelectedTemplate] = useState<number | null>(null);
+  const [tone, setTone] = useState("professional");
   const [originalText, setOriginalText] = useState("");
   const [enhancedText, setEnhancedText] = useState("");
   const [finalText, setFinalText] = useState("");
@@ -28,6 +36,23 @@ export default function AdCreator() {
   );
 
   const { data: templates, isLoading: templatesLoading } = trpc.templates.list.useQuery();
+
+  const TONE_OPTIONS = [
+    { value: "professional", label: "Professional Tone" },
+    { value: "casual", label: "Casual & Friendly" },
+    { value: "exciting", label: "Exciting & Energetic" },
+    { value: "luxury", label: "Luxury & Premium" },
+    { value: "value", label: "Value-Focused" },
+  ];
+
+  const TEMPLATE_ICONS: Record<string, { icon: string; description: string }> = {
+    "Flash Sale": { icon: "⚡", description: "Red/orange urgency with countdown timer" },
+    Premium: { icon: "✨", description: "Luxury styling with gold accents" },
+    Value: { icon: "💰", description: "Green background emphasizing savings" },
+    Event: { icon: "📅", description: "Professional event marketing style" },
+    Creator: { icon: "🎬", description: "Trendy social media aesthetic" },
+    Trending: { icon: "🚀", description: "Modern contemporary design" },
+  };
 
   const enhanceText = trpc.enhance.text.useMutation({
     onSuccess: (data) => {
@@ -211,6 +236,22 @@ export default function AdCreator() {
               </CardHeader>
               <CardContent className="space-y-4">
                 <div>
+                  <Label>Tone</Label>
+                  <Select value={tone} onValueChange={setTone}>
+                    <SelectTrigger className="mt-2">
+                      <SelectValue />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {TONE_OPTIONS.map((option) => (
+                        <SelectItem key={option.value} value={option.value}>
+                          {option.label}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                </div>
+
+                <div>
                   <Label>Original Description</Label>
                   <Textarea
                     value={originalText}
@@ -233,7 +274,7 @@ export default function AdCreator() {
                   ) : (
                     <>
                       <Sparkles className="w-4 h-4 mr-2" />
-                      Enhance with AI
+                      Regenerate
                     </>
                   )}
                 </Button>
@@ -297,21 +338,30 @@ export default function AdCreator() {
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
-                <div className="grid grid-cols-2 gap-4">
-                  {templates?.map((template) => (
-                    <button
-                      key={template.id}
-                      onClick={() => setSelectedTemplate(template.id)}
-                      className={`relative p-4 rounded-lg border-2 transition-all ${
-                        selectedTemplate === template.id
-                          ? "border-blue-600 bg-blue-50"
-                          : "border-gray-200 hover:border-gray-300"
-                      }`}
-                    >
-                      <div className="aspect-video bg-gradient-to-br from-gray-200 to-gray-300 rounded mb-2"></div>
-                      <p className="text-sm font-medium">{template.name}</p>
-                    </button>
-                  ))}
+                <div className="grid grid-cols-2 gap-3">
+                  {templates?.map((template) => {
+                    const iconData = TEMPLATE_ICONS[template.name] || {
+                      icon: "🎨",
+                      description: template.name,
+                    };
+                    return (
+                      <button
+                        key={template.id}
+                        onClick={() => setSelectedTemplate(template.id)}
+                        className={`p-4 border-2 rounded-lg text-left transition-all hover:border-blue-500 ${
+                          selectedTemplate === template.id
+                            ? "border-blue-500 bg-blue-50"
+                            : "border-gray-200"
+                        }`}
+                      >
+                        <div className="flex items-center gap-2 mb-1">
+                          <span className="text-2xl">{iconData.icon}</span>
+                          <span className="font-semibold text-sm">{template.name}</span>
+                        </div>
+                        <p className="text-xs text-gray-600">{iconData.description}</p>
+                      </button>
+                    );
+                  })}
                 </div>
 
                 <Button
@@ -335,22 +385,39 @@ export default function AdCreator() {
               </CardContent>
             </Card>
 
-            {generatedImageUrl && (
-              <Card>
-                <CardHeader>
-                  <CardTitle>Generated Ad Image</CardTitle>
-                  <CardDescription>
-                    Download this image to drag and drop to Facebook Marketplace
-                  </CardDescription>
-                </CardHeader>
-                <CardContent>
-                  <img
-                    src={generatedImageUrl}
-                    alt="Generated ad"
-                    className="w-full rounded-lg shadow-lg"
-                  />
-                  <div className="mt-4 flex gap-2">
-                    <Button asChild className="flex-1">
+            <Card>
+              <CardHeader>
+                <div className="flex items-center justify-between">
+                  <CardTitle>Enhanced Preview</CardTitle>
+                  {generatedImageUrl && (
+                    <span className="px-3 py-1 bg-green-100 text-green-700 text-xs font-semibold rounded-full">
+                      Ready
+                    </span>
+                  )}
+                </div>
+                <CardDescription>
+                  {generatedImageUrl
+                    ? "Download this image to drag and drop to Facebook Marketplace"
+                    : "Generate an enhanced image with your selected template"}
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden mb-4">
+                  {generatedImageUrl ? (
+                    <img
+                      src={generatedImageUrl}
+                      alt="Enhanced ad"
+                      className="w-full h-full object-cover"
+                    />
+                  ) : (
+                    <div className="flex items-center justify-center h-full text-gray-400">
+                      <p className="text-sm">Select a template and click Generate</p>
+                    </div>
+                  )}
+                </div>
+                {generatedImageUrl && (
+                  <div className="space-y-2">
+                    <Button asChild className="w-full">
                       <a href={generatedImageUrl} download target="_blank" rel="noopener noreferrer">
                         Download Image
                       </a>
@@ -359,10 +426,28 @@ export default function AdCreator() {
                       variant="outline"
                       onClick={handleGenerateImage}
                       disabled={isGenerating}
-                      className="flex-1"
+                      className="w-full"
                     >
                       Regenerate
                     </Button>
+                  </div>
+                )}
+              </CardContent>
+            </Card>
+
+            {/* Original Image for Comparison */}
+            {item.imageUrl && (
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-sm">Original Image</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="aspect-video bg-gray-100 rounded-lg overflow-hidden">
+                    <img
+                      src={item.imageUrl}
+                      alt="Original"
+                      className="w-full h-full object-contain"
+                    />
                   </div>
                 </CardContent>
               </Card>

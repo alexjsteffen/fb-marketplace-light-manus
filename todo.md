@@ -122,3 +122,16 @@
 - [x] Add template delete functionality with confirmation
 - [x] Support custom template configurations (gradients, opacity, text styles)
 - [x] Validate uploaded templates before saving
+
+## UX Improvements from Previous Version
+- [x] Add AI tone selector dropdown (Professional, Casual, Exciting, etc.)
+- [x] Create visual template gallery with icons and descriptions
+- [x] Implement side-by-side before/after preview (Original vs Enhanced)
+- [x] Add "Generate Enhanced Image" button with template selection
+- [x] Build "Prepare for Upload" preview showing final marketplace format
+- [x] Create split-screen staging interface (Ad Preview | Upload Instructions)
+- [x] Add step-by-step Facebook upload workflow with copy buttons
+- [x] Implement "Open Facebook Marketplace" button in staging
+- [x] Add template icons (⚡ Flash Sale, ✨ Premium, 💰 Value, 📅 Event, 🎬 Creator, 🚀 Trending)
+- [ ] Show dealer branding (logo) on enhanced images
+- [x] Add "Ready" badge on completed enhanced images
