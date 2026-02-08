@@ -10,10 +10,11 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Package, Plus, Upload, Search, Globe, Loader2 } from "lucide-react";
+import { Package, Plus, Upload, Search, Globe, Loader2, LayoutGrid, List } from "lucide-react";
 import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
+import { VehicleDetailModal } from "@/components/VehicleDetailModal";
 
 export default function Inventory() {
   const { dealerId } = useParams<{ dealerId: string }>();
@@ -23,6 +24,9 @@ export default function Inventory() {
   const [openScrape, setOpenScrape] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [conditionFilter, setConditionFilter] = useState<string>("all");
+  const [viewMode, setViewMode] = useState<"box" | "line">("box");
+  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
   
   // URL Scraping state
   const [scrapeUrl, setScrapeUrl] = useState("");
@@ -179,9 +183,16 @@ export default function Inventory() {
       item.model?.toLowerCase().includes(searchTerm.toLowerCase());
     
     const matchesStatus = statusFilter === "all" || item.status === statusFilter;
+    const matchesCondition = conditionFilter === "all" || item.condition === conditionFilter;
     
-    return matchesSearch && matchesStatus;
+    return matchesSearch && matchesStatus && matchesCondition;
   });
+
+  const inventoryCounts = {
+    total: inventory?.length || 0,
+    new: inventory?.filter(i => i.condition === 'new').length || 0,
+    used: inventory?.filter(i => i.condition === 'used').length || 0,
+  };
 
   if (authLoading || isLoading) {
     return (
@@ -494,6 +505,34 @@ export default function Inventory() {
             </div>
           </div>
 
+          {/* Inventory Counts Summary */}
+          <div className="flex gap-4 mb-4">
+            <Card className="flex-1">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-gray-900">{inventoryCounts.total}</p>
+                  <p className="text-sm text-gray-600">Total Vehicles</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="flex-1">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-blue-600">{inventoryCounts.new}</p>
+                  <p className="text-sm text-gray-600">New</p>
+                </div>
+              </CardContent>
+            </Card>
+            <Card className="flex-1">
+              <CardContent className="p-4">
+                <div className="text-center">
+                  <p className="text-2xl font-bold text-green-600">{inventoryCounts.used}</p>
+                  <p className="text-sm text-gray-600">Used</p>
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
           <div className="flex gap-4">
             <div className="flex-1 relative">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-gray-400 w-4 h-4" />
@@ -504,8 +543,18 @@ export default function Inventory() {
                 className="pl-10"
               />
             </div>
+            <Select value={conditionFilter} onValueChange={setConditionFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All Vehicles</SelectItem>
+                <SelectItem value="new">New Only</SelectItem>
+                <SelectItem value="used">Used Only</SelectItem>
+              </SelectContent>
+            </Select>
             <Select value={statusFilter} onValueChange={setStatusFilter}>
-              <SelectTrigger className="w-48">
+              <SelectTrigger className="w-40">
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
@@ -515,6 +564,24 @@ export default function Inventory() {
                 <SelectItem value="archived">Archived</SelectItem>
               </SelectContent>
             </Select>
+            <div className="flex border rounded-lg">
+              <Button
+                variant={viewMode === "box" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("box")}
+                className="rounded-r-none"
+              >
+                <LayoutGrid className="w-4 h-4" />
+              </Button>
+              <Button
+                variant={viewMode === "line" ? "default" : "ghost"}
+                size="sm"
+                onClick={() => setViewMode("line")}
+                className="rounded-l-none"
+              >
+                <List className="w-4 h-4" />
+              </Button>
+            </div>
           </div>
         </div>
       </header>
@@ -540,10 +607,14 @@ export default function Inventory() {
               </Button>
             </div>
           </div>
-        ) : (
+        ) : viewMode === "box" ? (
           <div className="grid md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
             {filteredInventory?.map((item) => (
-              <Card key={item.id} className="hover:shadow-lg transition-shadow">
+              <Card 
+                key={item.id} 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setSelectedVehicle(item)}
+              >
                 <CardHeader className="p-0">
                   {item.imageUrl ? (
                     <img
@@ -584,8 +655,70 @@ export default function Inventory() {
               </Card>
             ))}
           </div>
+        ) : (
+          <div className="space-y-4">
+            {filteredInventory?.map((item) => (
+              <Card 
+                key={item.id} 
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setSelectedVehicle(item)}
+              >
+                <CardContent className="p-4">
+                  <div className="flex gap-4">
+                    {item.imageUrl ? (
+                      <img
+                        src={item.imageUrl}
+                        alt={`${item.brand} ${item.model}`}
+                        className="w-32 h-32 object-cover rounded-lg flex-shrink-0"
+                      />
+                    ) : (
+                      <div className="w-32 h-32 bg-gray-200 flex items-center justify-center rounded-lg flex-shrink-0">
+                        <Package className="w-8 h-8 text-gray-400" />
+                      </div>
+                    )}
+                    <div className="flex-1">
+                      <div className="flex items-start justify-between mb-2">
+                        <div>
+                          <h3 className="font-semibold text-xl">
+                            {item.year} {item.brand} {item.model}
+                          </h3>
+                          <p className="text-sm text-gray-600">Stock: {item.stockNumber}</p>
+                          {item.category && (
+                            <p className="text-sm text-gray-600">{item.category}</p>
+                          )}
+                        </div>
+                        <div className="text-right">
+                          <Badge variant={item.status === "active" ? "default" : item.status === "sold" ? "secondary" : "outline"}>
+                            {item.status}
+                          </Badge>
+                          {item.price && (
+                            <p className="text-2xl font-bold text-blue-600 mt-2">
+                              ${parseFloat(item.price).toLocaleString()}
+                            </p>
+                          )}
+                        </div>
+                      </div>
+                      {item.description && (
+                        <p className="text-sm text-gray-700 line-clamp-2">{item.description}</p>
+                      )}
+                      {item.location && (
+                        <p className="text-xs text-gray-500 mt-2">{item.location}</p>
+                      )}
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+            ))}
+          </div>
         )}
       </main>
+
+      {/* Vehicle Detail Modal */}
+      <VehicleDetailModal
+        vehicle={selectedVehicle}
+        open={!!selectedVehicle}
+        onOpenChange={(open) => !open && setSelectedVehicle(null)}
+      />
     </div>
   );
 }

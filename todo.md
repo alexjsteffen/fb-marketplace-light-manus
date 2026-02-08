@@ -151,3 +151,15 @@
 - [ ] Filter all queries by dealer ownership based on user role
 - [x] Add inventory count badges to dealer cards showing number of items
 
+
+## Inventory Page Enhancements
+- [x] Add inventory count summary (Total / New / Used) at top of page
+- [x] Add condition filter toggle (All / New / Used)
+- [x] Add view mode switcher (Box view / Line view)
+- [x] Implement clickable inventory items that open detail modal
+- [x] Create vehicle detail modal with full vehicle information
+- [x] Add AI description regeneration with tone selector (Pro / Casual / Enthusiast)
+- [x] Add image enhancement template selector (Flash Sale, Premium, Value, Event, Creator, Trending)
+- [x] Add "Send to Ad Staging" button in detail modal
+- [x] Preserve existing dashboard vehicle concentration summary feature
+- [x] Preserve existing new/used vehicle separation in dashboard

@@ -257,6 +257,78 @@ export const appRouter = router({
       .query(async ({ input }) => {
         return await db.getPublishedAdsByDealerId(input.dealerId);
       }),
+
+    regenerateDescription: protectedProcedure
+      .input(z.object({
+        inventoryItemId: z.number(),
+        tone: z.enum(['professional', 'casual', 'enthusiast']),
+      }))
+      .mutation(async ({ input }) => {
+        const item = await db.getInventoryItemById(input.inventoryItemId);
+        if (!item) throw new TRPCError({ code: 'NOT_FOUND', message: 'Inventory item not found' });
+
+        const tonePrompts = {
+          professional: 'Write a professional, detailed description highlighting key features and specifications.',
+          casual: 'Write a friendly, conversational description that makes the vehicle sound appealing.',
+          enthusiast: 'Write an exciting, passionate description that captures the thrill of owning this vehicle.',
+        };
+
+        const { invokeLLM } = await import('./_core/llm');
+        const response = await invokeLLM({
+          messages: [
+            {
+              role: 'system',
+              content: `You are a professional automotive copywriter. ${tonePrompts[input.tone]}`,
+            },
+            {
+              role: 'user',
+              content: `Write a compelling Facebook Marketplace description for this vehicle:\n\nYear: ${item.year}\nBrand: ${item.brand}\nModel: ${item.model}\nCategory: ${item.category || 'N/A'}\nPrice: $${item.price}\nCondition: ${item.condition}\n\nOriginal description: ${item.description || 'No description provided'}`,
+            },
+          ],
+        });
+
+        const description = response.choices[0]?.message?.content || item.description;
+        return { description };
+      }),
+
+    enhanceImage: protectedProcedure
+      .input(z.object({
+        inventoryItemId: z.number(),
+        template: z.enum(['flash_sale', 'premium', 'value', 'event', 'creator', 'trending']),
+      }))
+      .mutation(async ({ input }) => {
+        const item = await db.getInventoryItemById(input.inventoryItemId);
+        if (!item) throw new TRPCError({ code: 'NOT_FOUND', message: 'Inventory item not found' });
+        if (!item.imageUrl) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No image to enhance' });
+
+        // For now, return the original image URL
+        // TODO: Implement actual image enhancement with background templates
+        return { imageUrl: item.imageUrl };
+      }),
+
+    sendToStaging: protectedProcedure
+      .input(z.object({
+        inventoryItemId: z.number(),
+        description: z.string(),
+        imageUrl: z.string(),
+        template: z.string(),
+      }))
+      .mutation(async ({ input }) => {
+        const item = await db.getInventoryItemById(input.inventoryItemId);
+        if (!item) throw new TRPCError({ code: 'NOT_FOUND', message: 'Inventory item not found' });
+
+        // Create a new Facebook ad in draft/staged status
+        await db.createFacebookAd({
+          dealerId: item.dealerId,
+          inventoryItemId: item.id,
+          originalText: item.description || '',
+          enhancedText: input.description,
+          imageUrl: input.imageUrl,
+          status: 'staged',
+        });
+
+        return { success: true };
+      }),
   }),
 
   // Background templates
