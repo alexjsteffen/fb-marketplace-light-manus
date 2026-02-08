@@ -1,0 +1,90 @@
+{
+  "query": "SELECT id, stockNumber, brand, model, LEFT(description, 100) as desc_preview, CHAR_LENGTH(description) as desc_length FROM inventoryItems WHERE dealerId = 60001 LIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT id, stockNumber, brand, model, LEFT(description, 100) as desc_preview, CHAR_LENGTH(description) as desc_length FROM inventoryItems WHERE dealerId = 60001 LIMIT 10;",
+  "rows": [
+    {
+      "id": "120001",
+      "stockNumber": "57025A",
+      "brand": "Cadillac",
+      "model": "Escalade Luxury  - Heated Seats",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120002",
+      "stockNumber": "10326A",
+      "brand": "Chevrolet",
+      "model": "Silverado 2500HD LTZ  - Sunroof",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120003",
+      "stockNumber": "14226A",
+      "brand": "Chevrolet",
+      "model": "Silverado 1500 LT  - Bucket Seats",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120004",
+      "stockNumber": "UVL19",
+      "brand": "Ford",
+      "model": "F-150 XLT  - Alloy Wheels",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120005",
+      "stockNumber": "62025A",
+      "brand": "Ford",
+      "model": "Escape ST-Line Elite  - Heated Seats",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120006",
+      "stockNumber": "17526",
+      "brand": "Ford",
+      "model": "Transit Passenger Wagon XL",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120007",
+      "stockNumber": "17326A",
+      "brand": "Ford",
+      "model": "F-350 Super Duty Lariat  - Power Stroke",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120008",
+      "stockNumber": "41125A",
+      "brand": "Ford",
+      "model": "Transit Passenger Wagon XLT  - Alloy Wheels",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120009",
+      "stockNumber": "17226",
+      "brand": "Ford",
+      "model": "Mustang GT Premium  - Leather Seats",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    },
+    {
+      "id": "120010",
+      "stockNumber": "CVB59",
+      "brand": "Ford",
+      "model": "F-150 Tremor  - 402A Package -  Remote Start",
+      "desc_preview": "NULL",
+      "desc_length": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstockNumber\tbrand\tmodel\tdesc_preview\tdesc_length\n120001\t57025A\tCadillac\tEscalade Luxury  - Heated Seats\tNULL\tNULL\n120002\t10326A\tChevrolet\tSilverado 2500HD LTZ  - Sunroof\tNULL\tNULL\n120003\t14226A\tChevrolet\tSilverado 1500 LT  - Bucket Seats\tNULL\tNULL\n120004\tUVL19\tFord\tF-150 XLT  - Alloy Wheels\tNULL\tNULL\n120005\t62025A\tFord\tEscape ST-Line Elite  - Heated Seats\tNULL\tNULL\n120006\t17526\tFord\tTransit Passenger Wagon XL\tNULL\tNULL\n120007\t17326A\tFord\tF-350 Super Duty Lariat  - Power Stroke\tNULL\tNULL\n120008\t41125A\tFord\tTransit Passenger Wagon XLT  - Alloy Wheels\tNULL\tNULL\n120009\t17226\tFord\tMustang GT Premium  - Leather Seats\tNULL\tNULL\n120010\tCVB59\tFord\tF-150 Tremor  - 402A Package -  Remote Start\tNULL\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 387
+}

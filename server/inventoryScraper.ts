@@ -149,7 +149,12 @@ export async function scrapeInventoryFromUrl(
                         $container.find('img').first().attr('data-src');
         
         // Extract detail page URL for full description
-        const detailLink = $container.find('a[href*="/inventory/details/"], a[href*="/details/"], a:contains("MORE DETAILS")').first();
+        // Check if h2 itself is inside an anchor (common pattern)
+        let detailLink = $h2.closest('a');
+        // Otherwise look for links in the container
+        if (!detailLink.length) {
+          detailLink = $container.find('a[href*="/inventory/details/"], a[href*="/details/"], a:contains("MORE DETAILS")').first();
+        }
         const detailHref = detailLink.attr('href');
         const detailUrl = detailHref?.startsWith('http') ? detailHref : detailHref ? new URL(detailHref, url).href : undefined;
         
@@ -286,16 +291,21 @@ export async function scrapeInventoryFromUrl(
           $detail('h1, h2, h3, h4').each((_, heading) => {
             const headingText = $detail(heading).text().trim();
             if (headingText.match(/ABOUT|DESCRIPTION|DETAILS/i)) {
-              // Get all following paragraphs until next heading
+              // Get all following content until next heading or dealership boilerplate
               let $next = $detail(heading).next();
               const paragraphs: string[] = [];
               while ($next.length > 0 && !$next.is('h1, h2, h3, h4')) {
                 const text = $next.text().trim();
-                if (text.length > 50) {
+                // Stop at dealership boilerplate
+                if (text.match(/The Novlan family is owned|Come by and check out our fleet/i)) {
+                  break;
+                }
+                // Include paragraphs with meaningful content
+                if (text.length > 30 && !text.match(/^Read more$/i)) {
                   paragraphs.push(text);
                 }
                 $next = $next.next();
-                if (paragraphs.length >= 5) break; // Limit to first 5 paragraphs
+                if (paragraphs.length >= 10) break; // Increased limit for full descriptions
               }
               fullDescription = paragraphs.join('\n\n');
             }
