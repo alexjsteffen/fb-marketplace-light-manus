@@ -177,6 +177,8 @@ export default function Inventory() {
         price: item.price?.replace(/[$,]/g, "") || "",
         location: item.location || "",
         imageUrl: item.imageUrl || "",
+        description: item.description || "",
+        mileage: item.mileage || "",
         condition: "used" as const,
       }));
 
