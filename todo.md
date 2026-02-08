@@ -171,3 +171,7 @@
 
 ## Bug - Vehicle Condition Detection
 - [x] Fix scraper to correctly identify new vs used vehicles (now uses odometer < 100km = new)
+
+## Scraper Issues to Fix
+- [x] Fix condition detection - updated threshold to 20,000km (was 100km)
+- [ ] Enhance description extraction - currently only gets subtitle from listing page, would need to visit each vehicle detail page for full descriptions (slower)

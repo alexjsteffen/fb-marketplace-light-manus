@@ -103,7 +103,8 @@ export async function scrapeInventoryFromUrl(
         // Extract odometer and determine condition (new vs used)
         const odometerMatch = containerText.match(/Odometer:?\s*([\d,]+)\s*kms?/i);
         const odometerKm = odometerMatch?.[1] ? parseInt(odometerMatch[1].replace(/,/g, '')) : 0;
-        const category = odometerKm < 100 ? 'new' : 'used';
+        // New vehicles typically have < 20,000km (includes test drives, dealer transfers)
+        const category = odometerKm < 20000 ? 'new' : 'used';
         
         // Extract image
         const imageUrl = $container.find('img').first().attr('src') || 
