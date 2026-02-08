@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
@@ -34,12 +34,21 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
   const [, setLocation] = useLocation();
   const [selectedTone, setSelectedTone] = useState<"professional" | "casual" | "enthusiast">("professional");
   const [selectedTemplate, setSelectedTemplate] = useState<"flash_sale" | "premium" | "value" | "event" | "creator" | "trending">("premium");
-  const [enhancedDescription, setEnhancedDescription] = useState(vehicle?.description || "");
-  const [enhancedImageUrl, setEnhancedImageUrl] = useState(vehicle?.imageUrl || "");
+  const [enhancedDescription, setEnhancedDescription] = useState("");
+  const [enhancedImageUrl, setEnhancedImageUrl] = useState("");
+
+  // Sync state when vehicle changes
+  useEffect(() => {
+    if (vehicle) {
+      setEnhancedDescription(vehicle.description || "");
+      setEnhancedImageUrl(vehicle.imageUrl || "");
+    }
+  }, [vehicle]);
 
   const regenerateDescription = trpc.ads.regenerateDescription.useMutation({
     onSuccess: (data) => {
-      setEnhancedDescription(data.description);
+      const desc = typeof data.description === 'string' ? data.description : '';
+      setEnhancedDescription(desc);
       toast.success("Description regenerated!");
     },
     onError: (error) => {

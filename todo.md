@@ -198,3 +198,6 @@
 
 ## Bug Fix - Image Enhancement Error
 - [x] Fix "Failed to enhance image" error when users try to enhance vehicle images with templates (fixed by using absolute path /usr/bin/python3.11 and clearing PYTHONPATH/PYTHONHOME in spawn environment to avoid Python 3.13/3.11 module mismatch - VERIFIED WORKING)
+
+## Bug Fix - Vehicle Images Not Displaying
+- [x] Fix vehicle detail modal to display vehicle images instead of blank placeholders (added useEffect to sync enhancedImageUrl state when vehicle prop changes)
