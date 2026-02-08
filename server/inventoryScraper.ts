@@ -46,12 +46,8 @@ export async function scrapeInventoryFromUrl(
     console.log(`[Scraper] Navigating to ${url}`);
     await page.goto(url, { waitUntil: 'networkidle2', timeout: 30000 });
 
-    // Wait for inventory items to load (adjust selector based on site)
-    await page.waitForSelector('.vehicle-card, .inventory-item, [class*="vehicle"], [class*="item"]', {
-      timeout: 15000,
-    }).catch(() => {
-      console.log('[Scraper] No standard selectors found, will try generic parsing');
-    });
+    // Wait a bit for JavaScript to render
+    await new Promise(resolve => setTimeout(resolve, 3000));
 
     // Get page HTML
     const html = await page.content();
@@ -60,95 +56,156 @@ export async function scrapeInventoryFromUrl(
     const $ = cheerio.load(html);
     const items: ScrapedInventoryItem[] = [];
 
-    // Try multiple common patterns for inventory items
-    const selectors = [
-      '.vehicle-card',
-      '.inventory-item',
-      '[class*="vehicle-"]',
-      'article',
-      '.product-card',
-      '[data-vehicle]',
+    // Novlan Bros specific selectors
+    // Look for vehicle listing containers
+    const vehicleSelectors = [
+      '.vehicle-list-item',
+      '.inventory-list-item',
+      '[class*="vehicle-item"]',
+      '[class*="inventory-item"]',
     ];
 
     let foundItems = false;
     
-    for (const selector of selectors) {
-      const elements = $(selector);
+    // Try Novlan Bros specific structure first
+    $('a').each((_, element) => {
+      const $el = $(element);
+      const href = $el.attr('href') || '';
+      const text = $el.text().trim();
       
-      if (elements.length > 0) {
-        console.log(`[Scraper] Found ${elements.length} items with selector: ${selector}`);
-        foundItems = true;
+      // Look for vehicle detail links (e.g., contains year and Ford model)
+      if (href.includes('/inventory/') && text.match(/\d{4}\s+Ford/i)) {
+        const title = text.trim();
         
-        elements.each((_, element) => {
-          const $el = $(element);
-          
-          // Extract text content
-          const text = $el.text().trim();
-          
-          // Try to extract structured data
-          const title = $el.find('h2, h3, h4, .title, [class*="title"]').first().text().trim() || 
-                       $el.find('a').first().text().trim();
-          
-          const priceText = $el.find('[class*="price"], .price, [data-price]').text().trim();
-          const price = priceText.match(/\$[\d,]+(?:\.\d{2})?/)?.[0];
-          
-          const stockText = text.match(/(?:Stock|Stock Number|#)\s*:?\s*([A-Z0-9]+)/i)?.[1] ||
-                           $el.find('[class*="stock"]').text().trim();
-          
-          const imageUrl = $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src');
-          
-          // Parse title for year, brand, model
-          const titleMatch = title.match(/(\d{4})?\s*([A-Z\s]+?)\s+([A-Z0-9.\-\s]+)/i);
-          const year = titleMatch?.[1] ? parseInt(titleMatch[1]) : undefined;
-          const brand = titleMatch?.[2]?.trim();
-          const model = titleMatch?.[3]?.trim();
-          
-          // Extract category
-          const category = $el.find('[class*="category"], .category').text().trim() ||
-                          text.match(/Category:\s*([^\n]+)/i)?.[1]?.trim();
-          
-          // Extract location
-          const location = $el.find('[class*="location"], .location').text().trim() ||
-                          text.match(/Location:\s*([^\n]+)/i)?.[1]?.trim();
-          
-          // Extract status
-          const status = $el.find('[class*="status"], .status, .badge').text().trim() ||
-                        (text.includes('In Stock') ? 'In Stock' : undefined);
-          
-          if (title && title.length > 3) {
-            items.push({
-              title,
-              stockNumber: stockText || `ITEM-${items.length + 1}`,
-              brand,
-              model,
-              year,
-              price,
-              category,
-              location,
-              imageUrl: imageUrl?.startsWith('http') ? imageUrl : imageUrl ? new URL(imageUrl, url).href : undefined,
-              status,
-            });
-          }
-        });
+        // Find the parent container that has all the vehicle info
+        const $parent = $el.closest('div').parent();
         
-        break; // Stop after finding items with first successful selector
+        // Extract price
+        const priceText = $parent.find('[class*="price"], .price').text() ||
+                         $parent.text().match(/\$[\d,]+(?:\.\d{2})?/)?.[0] || '';
+        
+        // Extract stock number
+        const stockMatch = $parent.text().match(/Stock\s*(?:Number)?:?\s*([A-Z0-9]+)/i) ||
+                          $parent.text().match(/Stock\s*#?\s*:?\s*([A-Z0-9]+)/i);
+        const stockNumber = stockMatch?.[1] || `STOCK-${items.length + 1}`;
+        
+        // Extract status
+        const status = $parent.text().match(/Status:?\s*([^\n]+)/i)?.[1]?.trim() || 'Available';
+        
+        // Extract image
+        const imageUrl = $parent.find('img').first().attr('src') || 
+                        $parent.find('img').first().attr('data-src') ||
+                        $el.find('img').attr('src');
+        
+        // Parse title for year, brand, model
+        const titleMatch = title.match(/(\d{4})\s+(Ford)\s+(.+)/i);
+        const year = titleMatch?.[1] ? parseInt(titleMatch[1]) : undefined;
+        const brand = titleMatch?.[2]?.trim() || 'Ford';
+        const model = titleMatch?.[3]?.trim();
+        
+        if (title && title.length > 5) {
+          items.push({
+            title,
+            stockNumber,
+            brand,
+            model,
+            year,
+            price: priceText,
+            status,
+            imageUrl: imageUrl?.startsWith('http') ? imageUrl : imageUrl ? new URL(imageUrl, url).href : undefined,
+          });
+          foundItems = true;
+        }
+      }
+    });
+
+    // If no items found with Novlan-specific approach, try generic selectors
+    if (!foundItems) {
+      console.log('[Scraper] Trying generic selectors...');
+      
+      for (const selector of vehicleSelectors) {
+        const elements = $(selector);
+        
+        if (elements.length > 0) {
+          console.log(`[Scraper] Found ${elements.length} items with selector: ${selector}`);
+          foundItems = true;
+          
+          elements.each((_, element) => {
+            const $el = $(element);
+            
+            // Extract text content
+            const text = $el.text().trim();
+            
+            // Try to extract structured data
+            const title = $el.find('h2, h3, h4, .title, [class*="title"]').first().text().trim() || 
+                         $el.find('a').first().text().trim();
+            
+            const priceText = $el.find('[class*="price"], .price, [data-price]').text().trim();
+            const price = priceText.match(/\$[\d,]+(?:\.\d{2})?/)?.[0];
+            
+            const stockText = text.match(/(?:Stock|Stock Number|#)\s*:?\s*([A-Z0-9]+)/i)?.[1] ||
+                             $el.find('[class*="stock"]').text().trim();
+            
+            const imageUrl = $el.find('img').first().attr('src') || $el.find('img').first().attr('data-src');
+            
+            // Parse title for year, brand, model
+            const titleMatch = title.match(/(\d{4})?\s*([A-Z\s]+?)\s+([A-Z0-9.\-\s]+)/i);
+            const year = titleMatch?.[1] ? parseInt(titleMatch[1]) : undefined;
+            const brand = titleMatch?.[2]?.trim();
+            const model = titleMatch?.[3]?.trim();
+            
+            // Extract category
+            const category = $el.find('[class*="category"], .category').text().trim() ||
+                            text.match(/Category:\s*([^\n]+)/i)?.[1]?.trim();
+            
+            // Extract location
+            const location = $el.find('[class*="location"], .location').text().trim() ||
+                            text.match(/Location:\s*([^\n]+)/i)?.[1]?.trim();
+            
+            // Extract status
+            const status = $el.find('[class*="status"], .status, .badge').text().trim() ||
+                          (text.includes('In Stock') ? 'In Stock' : undefined);
+            
+            if (title && title.length > 3) {
+              items.push({
+                title,
+                stockNumber: stockText || `ITEM-${items.length + 1}`,
+                brand,
+                model,
+                year,
+                price,
+                category,
+                location,
+                imageUrl: imageUrl?.startsWith('http') ? imageUrl : imageUrl ? new URL(imageUrl, url).href : undefined,
+                status,
+              });
+            }
+          });
+          
+          break; // Stop after finding items with first successful selector
+        }
       }
     }
 
+    // Final fallback: Look for any links with vehicle-like text
     if (!foundItems) {
-      console.log('[Scraper] No inventory items found with standard selectors, trying fallback');
+      console.log('[Scraper] Using fallback: looking for vehicle links');
       
-      // Fallback: Look for any links with vehicle-like text
       $('a').each((_, element) => {
         const $el = $(element);
         const text = $el.text().trim();
         const href = $el.attr('href');
         
         // Look for year + brand pattern
-        if (text.match(/\d{4}\s+[A-Z]/i) && href) {
+        if (text.match(/\d{4}\s+[A-Z]/i) && href && items.length < 50) {
+          const titleMatch = text.match(/(\d{4})\s+([A-Z][A-Za-z]+)\s+(.+)/i);
+          
           items.push({
             title: text,
             stockNumber: `AUTO-${items.length + 1}`,
+            year: titleMatch?.[1] ? parseInt(titleMatch[1]) : undefined,
+            brand: titleMatch?.[2],
+            model: titleMatch?.[3],
             imageUrl: $el.find('img').attr('src'),
           });
         }

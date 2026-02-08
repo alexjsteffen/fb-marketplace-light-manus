@@ -138,3 +138,4 @@
 
 ## Bug Fixes
 - [x] Fix email validation error in dealer creation form (should allow empty string for optional contactEmail)
+- [x] Fix inventory scraper for Novlan Ford website (not extracting inventory properly)
