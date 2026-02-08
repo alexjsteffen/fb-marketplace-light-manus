@@ -238,3 +238,6 @@
 - [x] Create content preview UI with copy/paste workflow (ContentGenerator component with copy buttons for badge URL, pillar page content, and blog post content)
 - [ ] Integrate content generation into ad staging workflow (auto-generate when ad is staged)
 - [x] Add content storage in database (generatedContent table already exists with dealerId, facebookAdId, contentType, title, content, badgeImageUrl fields)
+
+## Bug Fix - Modal Width Too Narrow
+- [x] Fix vehicle detail modal width - make it wider on desktop (increased from max-w-[90vw] to max-w-[95vw])
