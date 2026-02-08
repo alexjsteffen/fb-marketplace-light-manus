@@ -195,3 +195,6 @@
 - [x] Fix scraper to properly extract and save vehicle descriptions (fixed detail URL extraction, improved description parsing, AND fixed frontend import mapping to include description field)
 - [x] Verify descriptions are stored in database after scraping (COMPLETE - all 62 vehicles have descriptions >100 chars)
 - [x] Ensure descriptions are displayed in vehicle detail modal and ad staging (COMPLETE - verified descriptions showing in UI)
+
+## Bug Fix - Image Enhancement Error
+- [x] Fix "Failed to enhance image" error when users try to enhance vehicle images with templates (fixed by using absolute path /usr/bin/python3.11 and clearing PYTHONPATH/PYTHONHOME in spawn environment to avoid Python 3.13/3.11 module mismatch - VERIFIED WORKING)

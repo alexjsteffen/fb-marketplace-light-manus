@@ -365,10 +365,12 @@ export const appRouter = router({
             output_path: tempOutputPath,
           });
           
-          const python = spawn('python3', [
+          const python = spawn('/usr/bin/python3.11', [
             path.join(__dirname, 'image-compositor.py'),
             inputData
-          ]);
+          ], {
+            env: { ...process.env, PYTHONPATH: '', PYTHONHOME: '' }
+          });
           
           let stdout = '';
           let stderr = '';

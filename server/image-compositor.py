@@ -1,4 +1,4 @@
-#!/usr/bin/env python3
+#!/usr/bin/env python3.11
 """
 Image Compositor for Facebook Ad Accelerator
 Composites vehicle images onto professional templates with branding and pricing
