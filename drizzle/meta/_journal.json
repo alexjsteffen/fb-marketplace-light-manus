@@ -15,6 +15,13 @@
       "when": 1770485920060,
       "tag": "0001_busy_pepper_potts",
       "breakpoints": true
+    },
+    {
+      "idx": 2,
+      "version": "5",
+      "when": 1770531792911,
+      "tag": "0002_lush_captain_cross",
+      "breakpoints": true
     }
   ]
 }

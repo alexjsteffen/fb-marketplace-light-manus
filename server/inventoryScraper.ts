@@ -15,6 +15,44 @@ export interface ScrapedInventoryItem {
   imageUrl?: string;
   status?: string;
   description?: string;
+  detailUrl?: string;
+}
+
+/**
+ * Extract full description from a vehicle detail page
+ */
+async function extractDetailDescription(browser: any, detailUrl: string): Promise<string> {
+  const page = await browser.newPage();
+  try {
+    await page.goto(detailUrl, { waitUntil: 'networkidle2', timeout: 10000 });
+    const html = await page.content();
+    const $ = cheerio.load(html);
+    
+    // Look for description in common locations
+    const descSelectors = [
+      '.vehicle-description',
+      '.description',
+      '[class*="description"]',
+      '[class*="details"]',
+      '.comments',
+      '#vehicle-comments',
+      'p'
+    ];
+    
+    for (const selector of descSelectors) {
+      const desc = $(selector).text().trim();
+      if (desc.length > 100) {
+        return desc;
+      }
+    }
+    
+    return '';
+  } catch (error) {
+    console.log(`[Scraper] Failed to extract description from ${detailUrl}:`, error);
+    return '';
+  } finally {
+    await page.close();
+  }
 }
 
 /**

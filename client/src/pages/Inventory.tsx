@@ -68,6 +68,26 @@ export default function Inventory() {
     },
   });
 
+  const deleteAllMutation = trpc.inventory.deleteAll.useMutation({
+    onSuccess: () => {
+      toast.success("All inventory deleted successfully");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete inventory");
+    },
+  });
+
+  const deleteSingleMutation = trpc.inventory.deleteSingle.useMutation({
+    onSuccess: () => {
+      toast.success("Vehicle deleted successfully");
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to delete vehicle");
+    },
+  });
+
   const createItem = trpc.inventory.create.useMutation({
     onSuccess: () => {
       toast.success("Inventory item added successfully");
@@ -220,6 +240,24 @@ export default function Inventory() {
               </div>
             </div>
             <div className="flex gap-2">
+              <Button
+                variant="destructive"
+                onClick={() => {
+                  if (confirm(`Delete all ${inventoryCounts.total} vehicles from ${dealer?.name}? This cannot be undone.`)) {
+                    deleteAllMutation.mutate({ dealerId: parseInt(dealerId || "0") });
+                  }
+                }}
+                disabled={!inventory || inventory.length === 0 || deleteAllMutation.isPending}
+              >
+                {deleteAllMutation.isPending ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Deleting...
+                  </>
+                ) : (
+                  "Delete All"
+                )}
+              </Button>
               <Dialog open={openScrape} onOpenChange={setOpenScrape}>
                 <DialogTrigger asChild>
                   <Button variant="outline">
@@ -636,9 +674,24 @@ export default function Inventory() {
                       </h3>
                       <p className="text-sm text-gray-600">Stock: {item.stockNumber}</p>
                     </div>
-                    <Badge variant={item.status === "active" ? "default" : item.status === "sold" ? "secondary" : "outline"}>
-                      {item.status}
-                    </Badge>
+                    <div className="flex gap-2">
+                      <Badge variant={item.status === "active" ? "default" : item.status === "sold" ? "secondary" : "outline"}>
+                        {item.status}
+                      </Badge>
+                      <Button
+                        size="sm"
+                        variant="ghost"
+                        className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          if (confirm(`Delete ${item.year} ${item.brand} ${item.model}?`)) {
+                            deleteSingleMutation.mutate({ id: item.id });
+                          }
+                        }}
+                      >
+                        ×
+                      </Button>
+                    </div>
                   </div>
                   {item.category && (
                     <p className="text-sm text-gray-600 mb-2">{item.category}</p>
@@ -687,12 +740,27 @@ export default function Inventory() {
                             <p className="text-sm text-gray-600">{item.category}</p>
                           )}
                         </div>
-                        <div className="text-right">
-                          <Badge variant={item.status === "active" ? "default" : item.status === "sold" ? "secondary" : "outline"}>
-                            {item.status}
-                          </Badge>
+                        <div className="text-right flex flex-col items-end gap-2">
+                          <div className="flex gap-2 items-center">
+                            <Badge variant={item.status === "active" ? "default" : item.status === "sold" ? "secondary" : "outline"}>
+                              {item.status}
+                            </Badge>
+                            <Button
+                              size="sm"
+                              variant="ghost"
+                              className="h-6 w-6 p-0 text-red-600 hover:text-red-700 hover:bg-red-50"
+                              onClick={(e) => {
+                                e.stopPropagation();
+                                if (confirm(`Delete ${item.year} ${item.brand} ${item.model}?`)) {
+                                  deleteSingleMutation.mutate({ id: item.id });
+                                }
+                              }}
+                            >
+                              ×
+                            </Button>
+                          </div>
                           {item.price && (
-                            <p className="text-2xl font-bold text-blue-600 mt-2">
+                            <p className="text-2xl font-bold text-blue-600">
                               ${parseFloat(item.price).toLocaleString()}
                             </p>
                           )}

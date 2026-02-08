@@ -25,10 +25,14 @@ export const appRouter = router({
   dealers: router({
     list: protectedProcedure.query(async ({ ctx }) => {
       let dealersList;
-      if (ctx.user.role === 'admin') {
+      
+      // Super admin (dealerId = null) sees all dealers
+      // Dealer-specific users only see their assigned dealer
+      if (ctx.user.dealerId === null || ctx.user.dealerId === undefined) {
         dealersList = await db.getAllDealers();
       } else {
-        dealersList = await db.getDealersByOwnerId(ctx.user.id);
+        const dealer = await db.getDealerById(ctx.user.dealerId);
+        dealersList = dealer ? [dealer] : [];
       }
       
       // Add inventory count for each dealer
@@ -44,7 +48,11 @@ export const appRouter = router({
 
     getById: protectedProcedure
       .input(z.object({ id: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        // Check access: super admin can access any dealer, others only their own
+        if (ctx.user.dealerId !== null && ctx.user.dealerId !== undefined && ctx.user.dealerId !== input.id) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied to this dealer' });
+        }
         return await db.getDealerById(input.id);
       }),
 
@@ -87,7 +95,11 @@ export const appRouter = router({
   inventory: router({
     list: protectedProcedure
       .input(z.object({ dealerId: z.number() }))
-      .query(async ({ input }) => {
+      .query(async ({ ctx, input }) => {
+        // Check access: dealer-specific users can only access their own dealer's inventory
+        if (ctx.user.dealerId !== null && ctx.user.dealerId !== undefined && ctx.user.dealerId !== input.dealerId) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Access denied to this dealer\'s inventory' });
+        }
         return await db.getInventoryItemsByDealerId(input.dealerId);
       }),
 
@@ -198,6 +210,24 @@ export const appRouter = router({
             message: error instanceof Error ? error.message : 'Failed to scrape URL',
           });
         }
+      }),
+
+    deleteAll: protectedProcedure
+      .input(z.object({
+        dealerId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.deleteAllInventoryByDealer(input.dealerId);
+        return { success: true };
+      }),
+
+    deleteSingle: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.deleteInventoryItem(input.id);
+        return { success: true };
       }),
   }),
 

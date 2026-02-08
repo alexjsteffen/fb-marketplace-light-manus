@@ -224,6 +224,20 @@ export async function updateLastSeenAt(dealerId: number, stockNumbers: string[])
   }
 }
 
+export async function deleteAllInventoryByDealer(dealerId: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(inventoryItems).where(eq(inventoryItems.dealerId, dealerId));
+}
+
+export async function deleteInventoryItem(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(inventoryItems).where(eq(inventoryItems.id, id));
+}
+
 // Background template functions
 export async function createBackgroundTemplate(template: InsertBackgroundTemplate) {
   const db = await getDb();

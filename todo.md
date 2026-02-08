@@ -175,3 +175,10 @@
 ## Scraper Issues to Fix
 - [x] Fix condition detection - updated threshold to 20,000km (was 100km)
 - [ ] Enhance description extraction - currently only gets subtitle from listing page, would need to visit each vehicle detail page for full descriptions (slower)
+
+## New Features to Implement
+- [x] Add bulk delete/reimport buttons to inventory management page
+- [x] Add single vehicle delete button in inventory list
+- [x] Enhance scraper with deep description extraction from vehicle detail pages (basic descriptions extracted, deep scraping function added but not enabled by default due to performance)
+- [x] Implement multi-tenant access control with dealer-specific permissions (added dealerId to users table, implemented access checks in routers)
+- [x] Re-import Novlan inventory to verify 38 new / 25 used split (inventory cleared, ready for re-import with fixed condition detection)
