@@ -49,7 +49,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
 
   const enhanceImage = trpc.ads.enhanceImage.useMutation({
     onSuccess: (data) => {
-      setEnhancedImageUrl(data.imageUrl);
+      setEnhancedImageUrl((data as { imageUrl: string }).imageUrl);
       toast.success("Image enhanced!");
     },
     onError: (error) => {

@@ -328,14 +328,82 @@ export const appRouter = router({
         inventoryItemId: z.number(),
         template: z.enum(['flash_sale', 'premium', 'value', 'event', 'creator', 'trending']),
       }))
-      .mutation(async ({ input }) => {
+      .mutation(async ({ input, ctx }) => {
         const item = await db.getInventoryItemById(input.inventoryItemId);
         if (!item) throw new TRPCError({ code: 'NOT_FOUND', message: 'Inventory item not found' });
         if (!item.imageUrl) throw new TRPCError({ code: 'BAD_REQUEST', message: 'No image to enhance' });
 
-        // For now, return the original image URL
-        // TODO: Implement actual image enhancement with background templates
-        return { imageUrl: item.imageUrl };
+        // Get dealer info for branding
+        const dealer = await db.getDealerById(item.dealerId);
+        if (!dealer) throw new TRPCError({ code: 'NOT_FOUND', message: 'Dealer not found' });
+
+        // Call Python image compositor
+        const { spawn } = await import('child_process');
+        const { storagePut } = await import('./storage');
+        const fs = await import('fs');
+        const path = await import('path');
+        const os = await import('os');
+        
+        return new Promise((resolve, reject) => {
+          // Create temp output path
+          const tempOutputPath = path.join(os.tmpdir(), `enhanced-${item.stockNumber}-${Date.now()}.png`);
+          
+          const inputData = JSON.stringify({
+            vehicle_image_url: item.imageUrl,
+            template_name: input.template,
+            price: item.price || 0,
+            dealer_name: dealer.name,
+            stock_number: item.stockNumber,
+            year: item.year,
+            make: item.brand || 'Vehicle',
+            model: item.model,
+            output_path: tempOutputPath,
+          });
+          
+          const python = spawn('python3', [
+            path.join(__dirname, 'image-compositor.py'),
+            inputData
+          ]);
+          
+          let stdout = '';
+          let stderr = '';
+          
+          python.stdout.on('data', (data) => {
+            stdout += data.toString();
+          });
+          
+          python.stderr.on('data', (data) => {
+            stderr += data.toString();
+          });
+          
+          python.on('close', async (code) => {
+            if (code !== 0) {
+              console.error('[Image Compositor] Error:', stderr);
+              reject(new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to enhance image' }));
+              return;
+            }
+            
+            try {
+              const result = JSON.parse(stdout);
+              if (!result.success) {
+                throw new Error(result.error);
+              }
+              
+              // Upload to S3
+              const imageBuffer = fs.readFileSync(result.output_path);
+              const filename = `enhanced/${item.stockNumber}-${input.template}-${Date.now()}.png`;
+              const { url } = await storagePut(filename, imageBuffer, 'image/png');
+              
+              // Clean up temp file
+              fs.unlinkSync(result.output_path);
+              
+              resolve({ imageUrl: url });
+            } catch (error) {
+              console.error('[Image Compositor] Parse error:', error);
+              reject(new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to process enhanced image' }));
+            }
+          });
+        });
       }),
 
     sendToStaging: protectedProcedure

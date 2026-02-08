@@ -182,3 +182,8 @@
 - [x] Enhance scraper with deep description extraction from vehicle detail pages (basic descriptions extracted, deep scraping function added but not enabled by default due to performance)
 - [x] Implement multi-tenant access control with dealer-specific permissions (added dealerId to users table, implemented access checks in routers)
 - [x] Re-import Novlan inventory to verify 38 new / 25 used split (inventory cleared, ready for re-import with fixed condition detection)
+
+## Critical Fixes Needed
+- [x] Fix scraper to extract full vehicle descriptions from detail pages (now visits each detail page and extracts ABOUT THIS VEHICLE section)
+- [x] Replace AI image generation with template-based composition (created Python compositor that overlays vehicle images onto templates with branding, price, and design elements)
+- [x] Create or source pre-designed templates for image enhancement (implemented programmatic gradient-based templates for all 6 styles: Flash Sale, Premium, Value, Event, Creator, Trending - custom designer templates can be added later)

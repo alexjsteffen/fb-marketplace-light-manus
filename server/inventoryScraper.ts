@@ -148,7 +148,12 @@ export async function scrapeInventoryFromUrl(
         const imageUrl = $container.find('img').first().attr('src') || 
                         $container.find('img').first().attr('data-src');
         
-        // Extract description - look for paragraphs or description-like text
+        // Extract detail page URL for full description
+        const detailLink = $container.find('a[href*="/inventory/details/"], a[href*="/details/"], a:contains("MORE DETAILS")').first();
+        const detailHref = detailLink.attr('href');
+        const detailUrl = detailHref?.startsWith('http') ? detailHref : detailHref ? new URL(detailHref, url).href : undefined;
+        
+        // Extract basic description from listing page (fallback)
         let description = '';
         const $descContainer = $container.find('p, .description, [class*="desc"], .details').first();
         if ($descContainer.length > 0) {
@@ -177,6 +182,7 @@ export async function scrapeInventoryFromUrl(
             category,
             imageUrl: imageUrl?.startsWith('http') ? imageUrl : imageUrl ? new URL(imageUrl, url).href : undefined,
             description: description || undefined,
+            detailUrl,
           });
         }
       }
@@ -258,6 +264,74 @@ export async function scrapeInventoryFromUrl(
     }
 
     console.log(`[Scraper] Extracted ${items.length} inventory items`);
+    
+    // Extract full descriptions from detail pages
+    console.log('[Scraper] Extracting full descriptions from detail pages...');
+    for (let i = 0; i < items.length; i++) {
+      const item = items[i];
+      if (item.detailUrl) {
+        try {
+          console.log(`[Scraper] Fetching description ${i + 1}/${items.length} from ${item.detailUrl}`);
+          const detailPage = await browser.newPage();
+          await detailPage.goto(item.detailUrl, { waitUntil: 'networkidle2', timeout: 15000 });
+          const detailHtml = await detailPage.content();
+          await detailPage.close();
+          
+          const $detail = cheerio.load(detailHtml);
+          
+          // Look for "ABOUT THIS VEHICLE" section or similar
+          let fullDescription = '';
+          
+          // Strategy 1: Find heading containing "ABOUT" then get following content
+          $detail('h1, h2, h3, h4').each((_, heading) => {
+            const headingText = $detail(heading).text().trim();
+            if (headingText.match(/ABOUT|DESCRIPTION|DETAILS/i)) {
+              // Get all following paragraphs until next heading
+              let $next = $detail(heading).next();
+              const paragraphs: string[] = [];
+              while ($next.length > 0 && !$next.is('h1, h2, h3, h4')) {
+                const text = $next.text().trim();
+                if (text.length > 50) {
+                  paragraphs.push(text);
+                }
+                $next = $next.next();
+                if (paragraphs.length >= 5) break; // Limit to first 5 paragraphs
+              }
+              fullDescription = paragraphs.join('\n\n');
+            }
+          });
+          
+          // Strategy 2: If no "ABOUT" section, look for long paragraphs
+          if (!fullDescription) {
+            const paragraphs: string[] = [];
+            $detail('p').each((_, p) => {
+              const text = $detail(p).text().trim();
+              if (text.length > 100) {
+                paragraphs.push(text);
+              }
+            });
+            fullDescription = paragraphs.slice(0, 3).join('\n\n');
+          }
+          
+          // Clean up HTML entities
+          fullDescription = fullDescription
+            .replace(/â€™/g, "'")
+            .replace(/â€"/g, '"')
+            .replace(/â€œ/g, '"')
+            .replace(/â€¢/g, '•')
+            .replace(/\s+/g, ' ')
+            .trim();
+          
+          if (fullDescription.length > 100) {
+            item.description = fullDescription;
+            console.log(`[Scraper] Extracted ${fullDescription.length} chars for ${item.stockNumber}`);
+          }
+        } catch (error) {
+          console.error(`[Scraper] Failed to extract description for ${item.stockNumber}:`, error);
+          // Keep basic description if detail extraction fails
+        }
+      }
+    }
     
     // Download and upload images to S3
     console.log('[Scraper] Downloading and uploading images to S3...');
