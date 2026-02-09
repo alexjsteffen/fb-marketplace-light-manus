@@ -1,0 +1,22 @@
+{
+  "query": "SELECT inventoryItemId, COUNT(*) as adCount \nFROM facebookAds \nGROUP BY inventoryItemId \nLIMIT 10;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT inventoryItemId, COUNT(*) as adCount \nFROM facebookAds \nGROUP BY inventoryItemId \nLIMIT 10;",
+  "rows": [
+    {
+      "inventoryItemId": "150123",
+      "adCount": "3"
+    },
+    {
+      "inventoryItemId": "150119",
+      "adCount": "1"
+    },
+    {
+      "inventoryItemId": "150124",
+      "adCount": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "inventoryItemId\tadCount\n150123\t3\n150119\t1\n150124\t2\n",
+  "stderr": "",
+  "execution_time_ms": 349
+}

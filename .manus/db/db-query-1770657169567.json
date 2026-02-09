@@ -1,0 +1,50 @@
+{
+  "query": "SELECT \n  id, stockNumber, brand, model, year,\n  (SELECT COUNT(*) FROM facebookAds WHERE facebookAds.inventoryItemId = inventoryItems.id) as adCount\nFROM inventoryItems \nWHERE dealerId = 60001 \nLIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT \n  id, stockNumber, brand, model, year,\n  (SELECT COUNT(*) FROM facebookAds WHERE facebookAds.inventoryItemId = inventoryItems.id) as adCount\nFROM inventoryItems \nWHERE dealerId = 60001 \nLIMIT 5;",
+  "rows": [
+    {
+      "id": "150063",
+      "stockNumber": "57025A",
+      "brand": "Cadillac",
+      "model": "Escalade Luxury  - Heated Seats",
+      "year": "2024",
+      "adCount": "0"
+    },
+    {
+      "id": "150064",
+      "stockNumber": "10326A",
+      "brand": "Chevrolet",
+      "model": "Silverado 2500HD LTZ  - Sunroof",
+      "year": "2016",
+      "adCount": "0"
+    },
+    {
+      "id": "150065",
+      "stockNumber": "14226A",
+      "brand": "Chevrolet",
+      "model": "Silverado 1500 LT  - Bucket Seats",
+      "year": "2018",
+      "adCount": "0"
+    },
+    {
+      "id": "150066",
+      "stockNumber": "UVL19",
+      "brand": "Ford",
+      "model": "F-150 XLT  - Alloy Wheels",
+      "year": "2021",
+      "adCount": "0"
+    },
+    {
+      "id": "150067",
+      "stockNumber": "62025A",
+      "brand": "Ford",
+      "model": "Escape ST-Line Elite  - Heated Seats",
+      "year": "2023",
+      "adCount": "0"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstockNumber\tbrand\tmodel\tyear\tadCount\n150063\t57025A\tCadillac\tEscalade Luxury  - Heated Seats\t2024\t0\n150064\t10326A\tChevrolet\tSilverado 2500HD LTZ  - Sunroof\t2016\t0\n150065\t14226A\tChevrolet\tSilverado 1500 LT  - Bucket Seats\t2018\t0\n150066\tUVL19\tFord\tF-150 XLT  - Alloy Wheels\t2021\t0\n150067\t62025A\tFord\tEscape ST-Line Elite  - Heated Seats\t2023\t0\n",
+  "stderr": "",
+  "execution_time_ms": 357
+}

@@ -728,6 +728,11 @@ export default function Inventory() {
                       <Badge variant={item.status === "active" ? "default" : item.status === "sold" ? "secondary" : "outline"}>
                         {item.status}
                       </Badge>
+                      {item.adCount > 0 && (
+                        <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+                          {item.adCount} {item.adCount === 1 ? 'Ad' : 'Ads'}
+                        </Badge>
+                      )}
                       <Button
                         size="sm"
                         variant="ghost"
@@ -795,6 +800,11 @@ export default function Inventory() {
                             <Badge variant={item.status === "active" ? "default" : item.status === "sold" ? "secondary" : "outline"}>
                               {item.status}
                             </Badge>
+                            {item.adCount > 0 && (
+                              <Badge variant="outline" className="bg-blue-50 text-blue-700 border-blue-300">
+                                {item.adCount} {item.adCount === 1 ? 'Ad' : 'Ads'}
+                              </Badge>
+                            )}
                             <Button
                               size="sm"
                               variant="ghost"

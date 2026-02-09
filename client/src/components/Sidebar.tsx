@@ -17,10 +17,10 @@ interface NavItem {
   description: string;
 }
 
-const navItems: NavItem[] = [
+const getNavItems = (dealerId?: string): NavItem[] => [
   {
     title: "Dashboard",
-    href: "/dealers",
+    href: dealerId ? `/dashboard/${dealerId}` : "/dealers",
     icon: LayoutDashboard,
     description: "Overview and analytics"
   },
@@ -32,7 +32,7 @@ const navItems: NavItem[] = [
   },
   {
     title: "Inventory",
-    href: "/dealers",
+    href: dealerId ? `/inventory/${dealerId}` : "/dealers",
     icon: Package,
     description: "Vehicle inventory"
   },
@@ -44,7 +44,7 @@ const navItems: NavItem[] = [
   },
   {
     title: "Facebook Ad Staging",
-    href: "/dealers",
+    href: dealerId ? `/ads/staging/${dealerId}` : "/dealers",
     icon: Facebook,
     description: "Stage and publish ads"
   },
@@ -62,7 +62,11 @@ const navItems: NavItem[] = [
   }
 ];
 
-export function Sidebar() {
+interface SidebarProps {
+  dealerId?: string;
+}
+
+export function Sidebar({ dealerId }: SidebarProps) {
   const [location] = useLocation();
 
   return (
@@ -78,7 +82,7 @@ export function Sidebar() {
       {/* Navigation */}
       <nav className="flex-1 p-4">
         <div className="space-y-1">
-          {navItems.map((item) => {
+          {getNavItems(dealerId).map((item) => {
             const Icon = item.icon;
             const isActive = location === item.href || 
                            (item.href !== "/" && location.startsWith(item.href));

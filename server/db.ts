@@ -155,9 +155,36 @@ export async function getInventoryItemsByDealerId(dealerId: number) {
   const db = await getDb();
   if (!db) return [];
   
-  return await db.select().from(inventoryItems)
+  // Get inventory items with ad count
+  const items = await db.select({
+    id: inventoryItems.id,
+    dealerId: inventoryItems.dealerId,
+    stockNumber: inventoryItems.stockNumber,
+    brand: inventoryItems.brand,
+    category: inventoryItems.category,
+    year: inventoryItems.year,
+    model: inventoryItems.model,
+    description: inventoryItems.description,
+    price: inventoryItems.price,
+    location: inventoryItems.location,
+    imageUrl: inventoryItems.imageUrl,
+    status: inventoryItems.status,
+    condition: inventoryItems.condition,
+    soldAt: inventoryItems.soldAt,
+    lastSeenAt: inventoryItems.lastSeenAt,
+    createdAt: inventoryItems.createdAt,
+    updatedAt: inventoryItems.updatedAt,
+    adCount: sql<number>`(
+      SELECT COUNT(*) 
+      FROM ${facebookAds} 
+      WHERE ${facebookAds.inventoryItemId} = ${inventoryItems.id}
+    )`
+  })
+    .from(inventoryItems)
     .where(eq(inventoryItems.dealerId, dealerId))
     .orderBy(desc(inventoryItems.createdAt));
+  
+  return items;
 }
 
 export async function getInventoryCountByDealer(dealerId: number): Promise<number> {

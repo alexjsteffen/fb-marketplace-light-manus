@@ -294,3 +294,42 @@
 - [x] Add delete button to remove ads with errors (Delete button with confirmation)
 - [x] Confirm before deleting to prevent accidents (browser confirm dialog)
 - [x] Added Edit and Delete buttons to both Unprocessed and All tabs
+
+## Major Feature - Persistent Sidebar Navigation & Workflow Management
+- [x] Make sidebar persistent across all dealer-specific pages (Inventory, Ad Staging, Dashboard)
+- [x] Update navigation flow: Home → Select Dealer → Sidebar visible → Easy access to all tools
+- [x] Store selected dealer in URL params so sidebar links work correctly (dealerId prop passed to Sidebar)
+
+## Feature - Inventory Status Tracking
+- [ ] Add `hasActiveAd` boolean field to inventoryItems table
+- [ ] Update field when ads are created/deleted
+- [ ] Show visual indicator (badge/icon) on inventory cards for items with ads
+- [ ] Add filter dropdown: "All" / "With Ads" / "Without Ads"
+- [ ] Display ad count on inventory items
+
+## Feature - Multi-Select & Bulk Operations
+- [ ] Add checkboxes to inventory item cards
+- [ ] Add "Select All" / "Deselect All" buttons
+- [ ] Show selection count: "5 items selected"
+- [ ] Add "Create Ads for Selected (5)" button
+- [ ] Implement bulk ad creation for selected items
+
+## Feature - Smart Inventory Filtering
+- [ ] Add filter by make/model dropdown (Ford, Chevrolet, etc.)
+- [ ] Add filter by specific model (F-150, Bronco, Explorer, etc.)
+- [ ] Add filter by year range
+- [ ] Add filter by price range
+- [ ] Add search box for stock number
+- [ ] Combine filters (e.g., "Ford F-150 without ads")
+
+## Bug Fix - Ad Count Not Showing in Inventory
+- [ ] Fix backend query - adCount field not being returned by getInventoryItemsByDealerId (Drizzle SQL subquery not working)
+- [ ] Test ad count badges display correctly for vehicles with ads
+
+## Feature - Workflow Management Enhancements
+- [ ] Add filtering by ad status ("With Ads" / "Without Ads" / "All")
+- [ ] Add filtering by make/model (dropdown or search)
+- [ ] Add filtering by price range
+- [ ] Add multi-select checkboxes for inventory items
+- [ ] Add "Create Ads for Selected (X)" bulk action button
+- [ ] Add "Delete Selected" bulk action button

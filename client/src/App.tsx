@@ -12,16 +12,35 @@ import AdStaging from "@/pages/AdStaging";
 import Dashboard from "@/pages/Dashboard";
 import ContentGenerator from "@/pages/ContentGenerator";
 import Templates from "@/pages/Templates";
+import { DealerLayout } from "@/components/DealerLayout";
 
 function Router() {
   return (
     <Switch>
       <Route path={"/"} component={Home} />
       <Route path="/dealers" component={DealerManagement} />
-      <Route path="/inventory/:dealerId" component={Inventory} />
+      <Route path="/inventory/:dealerId">
+        {(params) => (
+          <DealerLayout dealerId={params.dealerId}>
+            <Inventory />
+          </DealerLayout>
+        )}
+      </Route>
       <Route path="/ads/create/:inventoryId" component={AdCreator} />
-      <Route path="/ads/staging/:dealerId" component={AdStaging} />
-      <Route path="/dashboard/:dealerId" component={Dashboard} />
+      <Route path="/ads/staging/:dealerId">
+        {(params) => (
+          <DealerLayout dealerId={params.dealerId}>
+            <AdStaging />
+          </DealerLayout>
+        )}
+      </Route>
+      <Route path="/dashboard/:dealerId">
+        {(params) => (
+          <DealerLayout dealerId={params.dealerId}>
+            <Dashboard />
+          </DealerLayout>
+        )}
+      </Route>
       <Route path="/content/:adId" component={ContentGenerator} />
       <Route path="/templates" component={Templates} />
       <Route path={"/404"} component={NotFound} />
