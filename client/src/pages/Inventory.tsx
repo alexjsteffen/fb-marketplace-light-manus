@@ -25,10 +25,8 @@ export default function Inventory() {
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
   const [conditionFilter, setConditionFilter] = useState<string>("all");
-  const [adStatusFilter, setAdStatusFilter] = useState<string>("all"); // "all" | "with-ads" | "without-ads"
   const [viewMode, setViewMode] = useState<"box" | "line">("box");
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
-  const [selectedForAds, setSelectedForAds] = useState<Set<number>>(new Set());
   const [batchEnhancing, setBatchEnhancing] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
   
@@ -198,27 +196,6 @@ export default function Inventory() {
     setSelectedItems(newSelected);
   };
 
-  const handleToggleSelection = (itemId: number) => {
-    const newSelection = new Set(selectedForAds);
-    if (newSelection.has(itemId)) {
-      newSelection.delete(itemId);
-    } else {
-      newSelection.add(itemId);
-    }
-    setSelectedForAds(newSelection);
-  };
-
-  const handleSelectAll = () => {
-    if (filteredInventory) {
-      const allIds = new Set(filteredInventory.map((item: any) => item.id));
-      setSelectedForAds(allIds);
-    }
-  };
-
-  const handleDeselectAll = () => {
-    setSelectedForAds(new Set());
-  };
-
   const handleImportSelected = () => {
     const itemsToImport = scrapedItems
       .filter((_, index) => selectedItems.has(index))
@@ -261,13 +238,7 @@ export default function Inventory() {
     const matchesStatus = statusFilter === "all" || item.status === statusFilter;
     const matchesCondition = conditionFilter === "all" || item.condition === conditionFilter;
     
-    // Filter by ad status
-    const matchesAdStatus = 
-      adStatusFilter === "all" ||
-      (adStatusFilter === "with-ads" && (item.adCount || 0) > 0) ||
-      (adStatusFilter === "without-ads" && (item.adCount || 0) === 0);
-    
-    return matchesSearch && matchesStatus && matchesCondition && matchesAdStatus;
+    return matchesSearch && matchesStatus && matchesCondition;
   });
 
   const inventoryCounts = {
@@ -475,40 +446,6 @@ export default function Inventory() {
                 </DialogContent>
               </Dialog>
 
-              {selectedForAds.size > 0 && (
-                <div className="flex items-center gap-2 px-3 py-1.5 bg-blue-50 border border-blue-200 rounded-lg">
-                  <span className="text-sm font-medium text-blue-900">
-                    {selectedForAds.size} selected
-                  </span>
-                  <Button 
-                    size="sm" 
-                    onClick={() => {
-                      // TODO: Implement bulk ad creation
-                      toast.success(`Creating ads for ${selectedForAds.size} vehicles...`);
-                    }}
-                  >
-                    Create Ads for Selected
-                  </Button>
-                  <Button 
-                    size="sm" 
-                    variant="outline"
-                    onClick={handleDeselectAll}
-                  >
-                    Deselect All
-                  </Button>
-                </div>
-              )}
-
-              {selectedForAds.size === 0 && filteredInventory && filteredInventory.length > 0 && (
-                <Button 
-                  size="sm" 
-                  variant="outline"
-                  onClick={handleSelectAll}
-                >
-                  Select All ({filteredInventory.length})
-                </Button>
-              )}
-
               <Dialog open={openManual} onOpenChange={setOpenManual}>
                 <DialogTrigger asChild>
                   <Button>
@@ -698,16 +635,6 @@ export default function Inventory() {
                 <SelectItem value="archived">Archived</SelectItem>
               </SelectContent>
             </Select>
-            <Select value={adStatusFilter} onValueChange={setAdStatusFilter}>
-              <SelectTrigger className="w-44">
-                <SelectValue />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Ads</SelectItem>
-                <SelectItem value="with-ads">With Ads</SelectItem>
-                <SelectItem value="without-ads">Without Ads</SelectItem>
-              </SelectContent>
-            </Select>
             <div className="flex border rounded-lg">
               <Button
                 variant={viewMode === "box" ? "default" : "ghost"}
@@ -773,19 +700,9 @@ export default function Inventory() {
             {filteredInventory?.map((item) => (
               <Card 
                 key={item.id} 
-                className="hover:shadow-lg transition-shadow relative"
+                className="hover:shadow-lg transition-shadow cursor-pointer"
+                onClick={() => setSelectedVehicle(item)}
               >
-                <div 
-                  className="absolute top-2 left-2 z-10"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Checkbox 
-                    checked={selectedForAds.has(item.id)}
-                    onCheckedChange={() => handleToggleSelection(item.id)}
-                    className="bg-white border-2"
-                  />
-                </div>
-                <div onClick={() => setSelectedVehicle(item)} className="cursor-pointer">
                 <CardHeader className="p-0">
                   {item.imageUrl ? (
                     <img
@@ -843,7 +760,6 @@ export default function Inventory() {
                     <p className="text-xs text-gray-500">{item.location}</p>
                   )}
                 </CardContent>
-                </div>
               </Card>
             ))}
           </div>
