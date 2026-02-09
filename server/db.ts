@@ -292,9 +292,40 @@ export async function getFacebookAdsByDealerId(dealerId: number) {
   const db = await getDb();
   if (!db) return [];
   
-  return await db.select().from(facebookAds)
+  const results = await db
+    .select({
+      id: facebookAds.id,
+      dealerId: facebookAds.dealerId,
+      inventoryItemId: facebookAds.inventoryItemId,
+      templateId: facebookAds.templateId,
+      originalText: facebookAds.originalText,
+      enhancedText: facebookAds.enhancedText,
+      finalText: facebookAds.finalText,
+      imageUrl: facebookAds.imageUrl,
+      imageFileKey: facebookAds.imageFileKey,
+      status: facebookAds.status,
+      facebookMarketplaceUrl: facebookAds.facebookMarketplaceUrl,
+      publishedAt: facebookAds.publishedAt,
+      createdAt: facebookAds.createdAt,
+      updatedAt: facebookAds.updatedAt,
+      // Join inventory item data
+      inventoryItem: {
+        id: inventoryItems.id,
+        stockNumber: inventoryItems.stockNumber,
+        brand: inventoryItems.brand,
+        model: inventoryItems.model,
+        year: inventoryItems.year,
+        price: inventoryItems.price,
+        imageUrl: inventoryItems.imageUrl,
+        condition: inventoryItems.condition,
+      }
+    })
+    .from(facebookAds)
+    .leftJoin(inventoryItems, eq(facebookAds.inventoryItemId, inventoryItems.id))
     .where(eq(facebookAds.dealerId, dealerId))
     .orderBy(desc(facebookAds.createdAt));
+  
+  return results;
 }
 
 export async function getFacebookAdById(id: number) {

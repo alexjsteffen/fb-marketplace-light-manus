@@ -1,0 +1,8 @@
+{
+  "query": "SELECT id, dealerId, inventoryId, title, price, status, createdAt FROM facebook_ad LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT id, dealerId, inventoryId, title, price, status, createdAt FROM facebook_ad LIMIT 5;",
+  "returncode": 1,
+  "logs": [
+    "ERROR 1146 (42S02) at line 1: Table 'rztewttbsce6cwwbvfpalt.facebook_ad' doesn't exist"
+  ]
+}

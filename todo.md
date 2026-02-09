@@ -271,3 +271,16 @@
 - [x] Replace Quick Access card grid on home page with sidebar
 - [x] Ensure all existing routes and functionality remain intact
 - [x] Test navigation to all pages works correctly - verified Dealer Management and Inventory navigation
+
+## Bug Fix - Ad Staging Showing "Untitled Ad"
+- [x] Investigate why ads in Facebook Ad Staging show "Untitled Ad" instead of vehicle information - found getFacebookAdsByDealerId wasn't joining inventory table
+- [x] Fix ad title generation to pull vehicle brand, model, year from inventory - updated db.ts to join inventoryItems
+- [x] Fix frontend to display vehicle title (year brand model) and price from inventory data
+- [x] Verified: inventory status does NOT currently update when ads are created/staged/published
+
+## Feature Request - Inventory Status Tracking for Ads
+- [ ] Add `hasActiveAd` boolean field to inventoryItems table
+- [ ] Update field when ads are created/staged/published/deleted
+- [ ] Show visual indicator in Inventory page for items with active ads
+- [ ] Prevent creating duplicate ads for the same inventory item
+- [ ] Add filter in Inventory page to show "With Active Ads" / "Without Ads"
