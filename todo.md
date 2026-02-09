@@ -254,3 +254,9 @@
 ## Data Cleanup - Remove Test Dealers
 - [x] Delete all test dealers from database except Novlan Ford (@https---novlanbros-com-ford-)
 - [x] Verify Novlan Ford data is preserved (confirmed: 1 dealer remains with all inventory and ads)
+
+## Bug Fix - Vehicle Descriptions Missing
+- [x] CRITICAL: All vehicles showing same disclaimer instead of unique descriptions
+- [x] Investigate if this is data issue or display issue - confirmed: dealer disclaimer was imported as description
+- [x] Batch-regenerate AI descriptions for all 62 vehicles - 100% success rate (62/62 updated)
+- [x] Replace generic disclaimer with unique vehicle descriptions - verified working

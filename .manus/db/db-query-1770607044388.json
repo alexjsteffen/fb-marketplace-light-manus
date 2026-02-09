@@ -1,0 +1,40 @@
+{
+  "query": "SELECT stockNumber, brand, model, description FROM inventoryItems WHERE dealerId = 60001 LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT stockNumber, brand, model, description FROM inventoryItems WHERE dealerId = 60001 LIMIT 5;",
+  "rows": [
+    {
+      "stockNumber": "57025A",
+      "brand": "Cadillac",
+      "model": "Escalade Luxury  - Heated Seats",
+      "description": "* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers."
+    },
+    {
+      "stockNumber": "10326A",
+      "brand": "Chevrolet",
+      "model": "Silverado 2500HD LTZ  - Sunroof",
+      "description": "* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers."
+    },
+    {
+      "stockNumber": "14226A",
+      "brand": "Chevrolet",
+      "model": "Silverado 1500 LT  - Bucket Seats",
+      "description": "* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers."
+    },
+    {
+      "stockNumber": "UVL19",
+      "brand": "Ford",
+      "model": "F-150 XLT  - Alloy Wheels",
+      "description": "* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers."
+    },
+    {
+      "stockNumber": "62025A",
+      "brand": "Ford",
+      "model": "Escape ST-Line Elite  - Heated Seats",
+      "description": "* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers."
+    }
+  ],
+  "messages": [],
+  "stdout": "stockNumber\tbrand\tmodel\tdescription\n57025A\tCadillac\tEscalade Luxury  - Heated Seats\t* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers.\n10326A\tChevrolet\tSilverado 2500HD LTZ  - Sunroof\t* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers.\n14226A\tChevrolet\tSilverado 1500 LT  - Bucket Seats\t* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers.\nUVL19\tFord\tF-150 XLT  - Alloy Wheels\t* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers.\n62025A\tFord\tEscape ST-Line Elite  - Heated Seats\t* While every reasonable effort is made to ensure the accuracy of these data, we are not responsible for any errors or omissions contained on these pages. Please verify any information in question with a dealership sales representative. For all new vehicles, the prices are net of all incentives and any equipment added on. Since our inception in 1929, Novlan Brothers has proudly grown to serve as an important part of our community. As a full service Ford and New Holland dealership, we offer first class sales, financing, service and parts to our valued customers.\n",
+  "stderr": "",
+  "execution_time_ms": 353
+}

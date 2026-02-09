@@ -1,0 +1,28 @@
+{
+  "query": "SELECT stockNumber, brand, model, LEFT(description, 200) as description_preview FROM inventoryItems WHERE dealerId = 60001 AND stockNumber IN ('57025A', '10326A', '14226A') LIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT stockNumber, brand, model, LEFT(description, 200) as description_preview FROM inventoryItems WHERE dealerId = 60001 AND stockNumber IN ('57025A', '10326A', '14226A') LIMIT 3;",
+  "rows": [
+    {
+      "stockNumber": "57025A",
+      "brand": "Cadillac",
+      "model": "Escalade Luxury  - Heated Seats",
+      "description_preview": "Experience the pinnacle of American luxury and commanding presence with this exceptional 2024 Cadillac Escalade Luxury, stock number 57025A. This meticulously maintained used Escalade offers an unpara"
+    },
+    {
+      "stockNumber": "10326A",
+      "brand": "Chevrolet",
+      "model": "Silverado 2500HD LTZ  - Sunroof",
+      "description_preview": "Unleash serious capability and premium comfort with this exceptional 2016 Chevrolet Silverado 2500HD LTZ. This robust truck, stock number 10326A, is engineered for demanding tasks while providing a re"
+    },
+    {
+      "stockNumber": "14226A",
+      "brand": "Chevrolet",
+      "model": "Silverado 1500 LT  - Bucket Seats",
+      "description_preview": "Experience the perfect blend of power, comfort, and capability with this exceptional 2018 Chevrolet Silverado 1500 LT. This robust, used truck is ready to tackle any challenge, from daily commutes to "
+    }
+  ],
+  "messages": [],
+  "stdout": "stockNumber\tbrand\tmodel\tdescription_preview\n57025A\tCadillac\tEscalade Luxury  - Heated Seats\tExperience the pinnacle of American luxury and commanding presence with this exceptional 2024 Cadillac Escalade Luxury, stock number 57025A. This meticulously maintained used Escalade offers an unpara\n10326A\tChevrolet\tSilverado 2500HD LTZ  - Sunroof\tUnleash serious capability and premium comfort with this exceptional 2016 Chevrolet Silverado 2500HD LTZ. This robust truck, stock number 10326A, is engineered for demanding tasks while providing a re\n14226A\tChevrolet\tSilverado 1500 LT  - Bucket Seats\tExperience the perfect blend of power, comfort, and capability with this exceptional 2018 Chevrolet Silverado 1500 LT. This robust, used truck is ready to tackle any challenge, from daily commutes to \n",
+  "stderr": "",
+  "execution_time_ms": 346
+}
