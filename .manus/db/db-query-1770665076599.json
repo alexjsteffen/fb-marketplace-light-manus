@@ -1,0 +1,64 @@
+{
+  "query": "SELECT fa.id, fa.inventoryItemId, fa.status, ii.stockNumber, ii.brand, ii.model, ii.year \nFROM facebookAds fa \nLEFT JOIN inventoryItems ii ON fa.inventoryItemId = ii.id \nWHERE fa.dealerId = 60001;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT fa.id, fa.inventoryItemId, fa.status, ii.stockNumber, ii.brand, ii.model, ii.year \nFROM facebookAds fa \nLEFT JOIN inventoryItems ii ON fa.inventoryItemId = ii.id \nWHERE fa.dealerId = 60001;",
+  "rows": [
+    {
+      "id": "60002",
+      "inventoryItemId": "150119",
+      "status": "staged",
+      "stockNumber": "44425A",
+      "brand": "Ford",
+      "model": "F-150 Lariat  - Leather Seats - Low Mileage",
+      "year": "2022"
+    },
+    {
+      "id": "120003",
+      "inventoryItemId": "150123",
+      "status": "staged",
+      "stockNumber": "24225",
+      "brand": "Ford",
+      "model": "F-350 Super Duty Harley Davidson",
+      "year": "2025"
+    },
+    {
+      "id": "120002",
+      "inventoryItemId": "150123",
+      "status": "staged",
+      "stockNumber": "24225",
+      "brand": "Ford",
+      "model": "F-350 Super Duty Harley Davidson",
+      "year": "2025"
+    },
+    {
+      "id": "60001",
+      "inventoryItemId": "150123",
+      "status": "staged",
+      "stockNumber": "24225",
+      "brand": "Ford",
+      "model": "F-350 Super Duty Harley Davidson",
+      "year": "2025"
+    },
+    {
+      "id": "120001",
+      "inventoryItemId": "150124",
+      "status": "staged",
+      "stockNumber": "11625",
+      "brand": "Ford",
+      "model": "F-150 Shelby Off Road  - SHELBY OFF ROAD",
+      "year": "2025"
+    },
+    {
+      "id": "90001",
+      "inventoryItemId": "150124",
+      "status": "staged",
+      "stockNumber": "11625",
+      "brand": "Ford",
+      "model": "F-150 Shelby Off Road  - SHELBY OFF ROAD",
+      "year": "2025"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tinventoryItemId\tstatus\tstockNumber\tbrand\tmodel\tyear\n60002\t150119\tstaged\t44425A\tFord\tF-150 Lariat  - Leather Seats - Low Mileage\t2022\n120003\t150123\tstaged\t24225\tFord\tF-350 Super Duty Harley Davidson\t2025\n120002\t150123\tstaged\t24225\tFord\tF-350 Super Duty Harley Davidson\t2025\n60001\t150123\tstaged\t24225\tFord\tF-350 Super Duty Harley Davidson\t2025\n120001\t150124\tstaged\t11625\tFord\tF-150 Shelby Off Road  - SHELBY OFF ROAD\t2025\n90001\t150124\tstaged\t11625\tFord\tF-150 Shelby Off Road  - SHELBY OFF ROAD\t2025\n",
+  "stderr": "",
+  "execution_time_ms": 375
+}

@@ -1,0 +1,31 @@
+{
+  "query": "SELECT \n  ii.id, \n  ii.stockNumber, \n  ii.brand, \n  ii.model,\n  (SELECT COUNT(*) FROM facebookAds WHERE inventoryItemId = ii.id) as adCount\nFROM inventoryItems ii\nWHERE ii.dealerId = 60001\nAND (SELECT COUNT(*) FROM facebookAds WHERE inventoryItemId = ii.id) > 0;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT \n  ii.id, \n  ii.stockNumber, \n  ii.brand, \n  ii.model,\n  (SELECT COUNT(*) FROM facebookAds WHERE inventoryItemId = ii.id) as adCount\nFROM inventoryItems ii\nWHERE ii.dealerId = 60001\nAND (SELECT COUNT(*) FROM facebookAds WHERE inventoryItemId = ii.id) > 0;",
+  "rows": [
+    {
+      "id": "150123",
+      "stockNumber": "24225",
+      "brand": "Ford",
+      "model": "F-350 Super Duty Harley Davidson",
+      "adCount": "3"
+    },
+    {
+      "id": "150119",
+      "stockNumber": "44425A",
+      "brand": "Ford",
+      "model": "F-150 Lariat  - Leather Seats - Low Mileage",
+      "adCount": "1"
+    },
+    {
+      "id": "150124",
+      "stockNumber": "11625",
+      "brand": "Ford",
+      "model": "F-150 Shelby Off Road  - SHELBY OFF ROAD",
+      "adCount": "2"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tstockNumber\tbrand\tmodel\tadCount\n150123\t24225\tFord\tF-350 Super Duty Harley Davidson\t3\n150119\t44425A\tFord\tF-150 Lariat  - Leather Seats - Low Mileage\t1\n150124\t11625\tFord\tF-150 Shelby Off Road  - SHELBY OFF ROAD\t2\n",
+  "stderr": "",
+  "execution_time_ms": 361
+}

@@ -333,3 +333,15 @@
 - [ ] Add multi-select checkboxes for inventory items
 - [ ] Add "Create Ads for Selected (X)" bulk action button
 - [ ] Add "Delete Selected" bulk action button
+
+## Feature - Re-implement Ad Count Badges (Without Multi-Select)
+- [ ] Update backend getInventoryItemsByDealerId to include ad count using LEFT JOIN
+- [ ] Add ad count badges to inventory cards showing "X Ads" for vehicles with ads
+- [ ] Add "With Ads" / "Without Ads" / "All Ads" filter dropdown
+- [ ] Test that 3 vehicles show ad count badges (stocks 24225, 24229, P8031)
+- [ ] Verify filter works correctly (3 vehicles when "With Ads", 59 when "Without Ads")
+
+## Bug Fix - Ad Count Subquery Not Returning Data
+- [x] Rewrite getInventoryItemsByDealerId to use LEFT JOIN with COUNT instead of subquery in SELECT
+- [x] Test that adCount field is properly returned to frontend (WORKING - returns correct counts)
+- [x] Verify ad count badges display on inventory items (VERIFIED - showing "3 Ads", "2 Ads", "1 Ad" for stocks 24225, 11625, 44425A)
