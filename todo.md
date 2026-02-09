@@ -243,8 +243,9 @@
 - [x] CRITICAL: Fixed vehicle detail modal width - removed sm:max-w-lg constraint from Dialog component that was overriding custom max-w-[95vw] class
 
 ## Bug Fix - Deployment/Publish Failure
-- [ ] Investigate why publish keeps failing
-- [ ] Fix deployment issues (likely media files causing timeout)
+- [x] Investigate why publish keeps failing - canvas package requires native dependencies (pixman, cairo)
+- [x] Remove canvas dependency - replaced with AI image generation for better quality ad images
+- [x] Removed canvas from package.json dependencies
 
 ## Bug Fix - Quick Access Panel Links Not Working
 - [x] Fix Quick Access panel - wrapped all cards with Link components

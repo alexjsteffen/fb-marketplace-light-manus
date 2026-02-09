@@ -1,6 +1,6 @@
 import { invokeLLM } from "./_core/llm";
 import { storagePut } from "./storage";
-import { createCanvas, loadImage, Image } from "canvas";
+import { generateImage } from "./_core/imageGeneration";
 
 /**
  * Enhance ad text using AI
@@ -86,7 +86,7 @@ export const TEMPLATE_CONFIGS = {
 };
 
 /**
- * Generate ad image with background template and text overlays
+ * Generate ad image with background template and text overlays using AI
  */
 export async function generateAdImage(params: {
   vehicleImageUrl: string;
@@ -103,106 +103,51 @@ export async function generateAdImage(params: {
 }): Promise<{ url: string; fileKey: string; filename: string }> {
   const { vehicleImageUrl, templateType, brandColor, overlayText } = params;
 
-  // Canvas dimensions (optimized for Facebook)
-  const width = 1200;
-  const height = 630;
-
-  const canvas = createCanvas(width, height);
-  const ctx = canvas.getContext("2d");
-
   // Get template config
   const template = TEMPLATE_CONFIGS[templateType];
 
-  // Draw background
+  // Build AI prompt based on template type
+  let backgroundDescription = "";
   if (template.type === "gradient" && "colors" in template) {
-    const gradient = ctx.createLinearGradient(0, 0, width, height);
-    gradient.addColorStop(0, template.colors[0]);
-    gradient.addColorStop(1, template.colors[1]);
-    ctx.fillStyle = gradient;
+    backgroundDescription = `gradient background transitioning from ${template.colors[0]} to ${template.colors[1]}`;
   } else if (template.type === "solid" && "color" in template) {
-    ctx.fillStyle = brandColor || template.color;
+    backgroundDescription = `solid ${brandColor || template.color} background`;
   } else if (template.type === "texture") {
-    ctx.fillStyle = "baseColor" in template ? template.baseColor : "#0f172a";
-  }
-  ctx.fillRect(0, 0, width, height);
-
-  // Add texture pattern if needed
-  if (template.type === "texture" && "pattern" in template && template.pattern === "diagonal-lines") {
-    ctx.strokeStyle = "rgba(255, 255, 255, 0.05)";
-    ctx.lineWidth = 2;
-    for (let i = -height; i < width; i += 20) {
-      ctx.beginPath();
-      ctx.moveTo(i, 0);
-      ctx.lineTo(i + height, height);
-      ctx.stroke();
-    }
+    backgroundDescription = `textured dark background with subtle diagonal line pattern`;
   }
 
-  // Load and draw vehicle image
-  try {
-    const vehicleImage = await loadImage(vehicleImageUrl);
-    
-    // Calculate dimensions to fit vehicle image (centered, with padding)
-    const padding = 100;
-    const maxVehicleWidth = width - padding * 2;
-    const maxVehicleHeight = height - padding * 2 - 150; // Reserve space for text
-
-    let vehicleWidth = vehicleImage.width;
-    let vehicleHeight = vehicleImage.height;
-
-    // Scale to fit
-    const scale = Math.min(
-      maxVehicleWidth / vehicleWidth,
-      maxVehicleHeight / vehicleHeight
-    );
-    vehicleWidth *= scale;
-    vehicleHeight *= scale;
-
-    // Center the vehicle image
-    const vehicleX = (width - vehicleWidth) / 2;
-    const vehicleY = padding;
-
-    // Draw white background for vehicle (makes it pop)
-    ctx.fillStyle = "rgba(255, 255, 255, 0.95)";
-    ctx.fillRect(
-      vehicleX - 20,
-      vehicleY - 20,
-      vehicleWidth + 40,
-      vehicleHeight + 40
-    );
-
-    // Draw vehicle image
-    ctx.drawImage(vehicleImage, vehicleX, vehicleY, vehicleWidth, vehicleHeight);
-  } catch (error) {
-    console.error("Failed to load vehicle image:", error);
-    // Continue without vehicle image
-  }
-
-  // Draw text overlays at bottom
-  const textY = height - 120;
-
-  // Title
-  ctx.fillStyle = "#ffffff";
-  ctx.font = "bold 48px Arial";
-  ctx.textAlign = "center";
-  ctx.fillText(overlayText.title, width / 2, textY);
-
-  // Price (if provided)
+  // Build text overlay description
+  const textOverlays = [];
+  textOverlays.push(`large bold white text "${overlayText.title}" at the bottom`);
   if (overlayText.price) {
-    ctx.font = "bold 56px Arial";
-    ctx.fillStyle = "#fbbf24"; // Gold color for price
-    ctx.fillText(overlayText.price, width / 2, textY + 60);
+    textOverlays.push(`prominent gold/yellow price text "${overlayText.price}" below the title`);
   }
-
-  // Subtitle (if provided)
   if (overlayText.subtitle) {
-    ctx.font = "24px Arial";
-    ctx.fillStyle = "#ffffff";
-    ctx.fillText(overlayText.subtitle, width / 2, textY + (overlayText.price ? 100 : 50));
+    textOverlays.push(`smaller white subtitle "${overlayText.subtitle}"`);
   }
 
-  // Convert canvas to buffer
-  const buffer = canvas.toBuffer("image/png");
+  const prompt = `Create a professional Facebook Marketplace ad image (1200x630px) with the following specifications:
+
+- ${backgroundDescription}
+- The vehicle from the provided image should be prominently displayed in the center with a white card/frame background to make it stand out
+- ${textOverlays.join(", ")}
+- Professional automotive marketing style
+- Clean, modern design optimized for social media
+- Ensure all text is clearly readable
+- Maintain the vehicle as the focal point`;
+
+  // Generate image using AI
+  const { url: generatedUrl } = await generateImage({
+    prompt,
+    originalImages: [{
+      url: vehicleImageUrl,
+      mimeType: "image/jpeg"
+    }]
+  });
+
+  if (!generatedUrl) {
+    throw new Error("Failed to generate ad image - no URL returned");
+  }
 
   // Generate descriptive filename
   const timestamp = Date.now();
@@ -218,11 +163,8 @@ export async function generateAdImage(params: {
   
   const fileKey = `ads/${timestamp}-${random}-${filename}`;
 
-  // Upload to S3
-  const result = await storagePut(fileKey, buffer, "image/png");
-
   return {
-    url: result.url,
+    url: generatedUrl,
     fileKey,
     filename,
   };
