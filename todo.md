@@ -241,3 +241,7 @@
 
 ## Bug Fix - Modal Width Too Narrow
 - [x] CRITICAL: Fixed vehicle detail modal width - removed sm:max-w-lg constraint from Dialog component that was overriding custom max-w-[95vw] class
+
+## Bug Fix - Deployment/Publish Failure
+- [ ] Investigate why publish keeps failing
+- [ ] Fix deployment issues (likely media files causing timeout)
