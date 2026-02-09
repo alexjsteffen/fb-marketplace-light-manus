@@ -323,13 +323,13 @@
 - [ ] Combine filters (e.g., "Ford F-150 without ads")
 
 ## Bug Fix - Ad Count Not Showing in Inventory
-- [ ] Fix backend query - adCount field not being returned by getInventoryItemsByDealerId (Drizzle SQL subquery not working)
+- [ ] Fix backend query - rewrite getInventoryItemsByDealerId to use proper LEFT JOIN with COUNT
 - [ ] Test ad count badges display correctly for vehicles with ads
 
-## Feature - Workflow Management Enhancements
-- [ ] Add filtering by ad status ("With Ads" / "Without Ads" / "All")
-- [ ] Add filtering by make/model (dropdown or search)
-- [ ] Add filtering by price range
-- [ ] Add multi-select checkboxes for inventory items
-- [ ] Add "Create Ads for Selected (X)" bulk action button
-- [ ] Add "Delete Selected" bulk action button
+## Feature - Workflow Management Enhancements (PRIORITY)
+- [ ] Add filtering by ad status ("With Ads" / "Without Ads" / "All") - dropdown filter
+- [ ] Add filtering by make/model - search input with real-time filtering
+- [ ] Add multi-select checkboxes for inventory items (box and list view)
+- [ ] Add "Create Ads for Selected (X)" bulk action button in toolbar
+- [ ] Show selection count in toolbar ("5 selected")
+- [ ] Add "Select All" / "Deselect All" buttons
