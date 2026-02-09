@@ -240,4 +240,4 @@
 - [x] Add content storage in database (generatedContent table already exists with dealerId, facebookAdId, contentType, title, content, badgeImageUrl fields)
 
 ## Bug Fix - Modal Width Too Narrow
-- [x] Fix vehicle detail modal width - make it wider on desktop (increased from max-w-[90vw] to max-w-[95vw])
+- [x] CRITICAL: Fixed vehicle detail modal width - removed sm:max-w-lg constraint from Dialog component that was overriding custom max-w-[95vw] class
