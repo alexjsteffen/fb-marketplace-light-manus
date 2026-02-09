@@ -355,3 +355,8 @@
 - [x] Fix duplicate key error for /dealers route in Sidebar component (used title as key)
 - [x] Fix nested anchor tag errors in Link+Button patterns (converted to Button asChild pattern)
 - [x] Test that all React errors are resolved (no more duplicate key or nested anchor errors)ser console
+
+## Bug Fix - Chromium Browser Path Error
+- [x] Find correct Chromium executable path in sandbox (/usr/bin/chromium-browser)
+- [x] Update scraper configuration to use correct path (already configured correctly)
+- [x] Test scraper with new dealer to verify fix (Chromium working, server restarted)
