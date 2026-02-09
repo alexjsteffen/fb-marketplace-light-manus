@@ -1,0 +1,9 @@
+{
+  "query": "-- First, get the Novlan Ford dealer ID\nSET @novlan_id = (SELECT id FROM dealers WHERE slug = 'https---novlanbros-com-ford-' LIMIT 1);\n\n-- Delete generated content for other dealers\nDELETE FROM generatedContent WHERE dealerId != @novlan_id;\n\n-- Delete Facebook ads for other dealers\nDELETE FROM facebookAds WHERE dealerId != @novlan_id;\n\n-- Delete inventory items for other dealers\nDELETE FROM inventoryItems WHERE dealerId != @novlan_id;\n\n-- Delete other dealers\nDELETE FROM dealers WHERE id != @novlan_id;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute -- First, get the Novlan Ford dealer ID\nSET @novlan_id = (SELECT id FROM dealers WHERE slug = 'https---novlanbros-com-ford-' LIMIT 1);\n\n-- Delete generated content for other dealers\nDELETE FROM generatedContent WHERE dealerId != @novlan_id;\n\n-- Delete Facebook ads for other dealers\nDELETE FROM facebookAds WHERE dealerId != @novlan_id;\n\n-- Delete inventory items for other dealers\nDELETE FROM inventoryItems WHERE dealerId != @novlan_id;\n\n-- Delete other dealers\nDELETE FROM dealers WHERE id != @novlan_id;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 547
+}

@@ -1,0 +1,15 @@
+{
+  "query": "SELECT id, name, slug FROM dealers WHERE slug = 'https---novlanbros-com-ford-' OR name LIKE '%Novlan%';",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT id, name, slug FROM dealers WHERE slug = 'https---novlanbros-com-ford-' OR name LIKE '%Novlan%';",
+  "rows": [
+    {
+      "id": "60001",
+      "name": "Novlan Ford",
+      "slug": "https---novlanbros-com-ford-"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\n60001\tNovlan Ford\thttps---novlanbros-com-ford-\n",
+  "stderr": "",
+  "execution_time_ms": 362
+}

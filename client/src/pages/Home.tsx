@@ -107,65 +107,75 @@ export default function Home() {
               </Card>
             </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer opacity-75">
-              <CardHeader>
-                <Package className="w-10 h-10 text-blue-600 mb-2" />
-                <CardTitle>Inventory</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  View and manage inventory items. Select a dealer first to access inventory.
-                </CardDescription>
-              </CardContent>
-            </Card>
+            <Link href="/dealers">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <Package className="w-10 h-10 text-blue-600 mb-2" />
+                  <CardTitle>Inventory</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    View and manage inventory items. Click to select a dealer first.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer opacity-75">
-              <CardHeader>
-                <Image className="w-10 h-10 text-blue-600 mb-2" />
-                <CardTitle>Ad Creator</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Create Facebook ads with AI text enhancement and professional templates
-                </CardDescription>
-              </CardContent>
-            </Card>
+            <Link href="/dealers">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <Image className="w-10 h-10 text-blue-600 mb-2" />
+                  <CardTitle>Ad Creator</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Create Facebook ads with AI text enhancement. Click to select a dealer first.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer opacity-75">
-              <CardHeader>
-                <Facebook className="w-10 h-10 text-blue-600 mb-2" />
-                <CardTitle>Ad Staging</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Stage and publish ads with split-screen interface for Facebook Marketplace
-                </CardDescription>
-              </CardContent>
-            </Card>
+            <Link href="/dealers">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <Facebook className="w-10 h-10 text-blue-600 mb-2" />
+                  <CardTitle>Ad Staging</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Stage and publish ads with split-screen interface. Click to select a dealer first.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer opacity-75">
-              <CardHeader>
-                <BarChart3 className="w-10 h-10 text-blue-600 mb-2" />
-                <CardTitle>Dashboard</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Track published ads, inventory status, and performance analytics
-                </CardDescription>
-              </CardContent>
-            </Card>
+            <Link href="/dealers">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <BarChart3 className="w-10 h-10 text-blue-600 mb-2" />
+                  <CardTitle>Dashboard</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Track published ads, inventory status, and performance analytics. Click to select a dealer first.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </Link>
 
-            <Card className="hover:shadow-lg transition-shadow cursor-pointer opacity-75">
-              <CardHeader>
-                <FileText className="w-10 h-10 text-blue-600 mb-2" />
-                <CardTitle>Content Generator</CardTitle>
-              </CardHeader>
-              <CardContent>
-                <CardDescription>
-                  Generate "As Seen On Facebook" content for your dealer website
-                </CardDescription>
-              </CardContent>
-            </Card>
+            <Link href="/dealers">
+              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+                <CardHeader>
+                  <FileText className="w-10 h-10 text-blue-600 mb-2" />
+                  <CardTitle>Content Generator</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <CardDescription>
+                    Generate "As Seen On Facebook" content. Click to select a dealer first.
+                  </CardDescription>
+                </CardContent>
+              </Card>
+            </Link>
 
             <Link href="/templates">
               <Card className="hover:shadow-lg transition-shadow cursor-pointer">

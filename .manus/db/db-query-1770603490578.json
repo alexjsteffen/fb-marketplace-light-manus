@@ -1,0 +1,220 @@
+{
+  "query": "SELECT id, name, slug, websiteUrl, createdAt FROM dealers ORDER BY createdAt;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT id, name, slug, websiteUrl, createdAt FROM dealers ORDER BY createdAt;",
+  "rows": [
+    {
+      "id": "1",
+      "name": "Test Dealer",
+      "slug": "test-dealer-1770486824437",
+      "websiteUrl": "https://testdealer.com",
+      "createdAt": "2026-02-07 17:53:44"
+    },
+    {
+      "id": "2",
+      "name": "Inventory Test Dealer",
+      "slug": "inv-test-1770486824870",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 17:53:44"
+    },
+    {
+      "id": "3",
+      "name": "List Test Dealer",
+      "slug": "list-test-1770486824925",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 17:53:44"
+    },
+    {
+      "id": "4",
+      "name": "Test Dealer",
+      "slug": "test-dealer-1770486854465",
+      "websiteUrl": "https://testdealer.com",
+      "createdAt": "2026-02-07 17:54:14"
+    },
+    {
+      "id": "5",
+      "name": "Inventory Test Dealer",
+      "slug": "inv-test-1770486854887",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 17:54:14"
+    },
+    {
+      "id": "6",
+      "name": "List Test Dealer",
+      "slug": "list-test-1770486854945",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 17:54:14"
+    },
+    {
+      "id": "7",
+      "name": "Test Dealer",
+      "slug": "test-dealer-1770486870775",
+      "websiteUrl": "https://testdealer.com",
+      "createdAt": "2026-02-07 17:54:31"
+    },
+    {
+      "id": "8",
+      "name": "Inventory Test Dealer",
+      "slug": "inv-test-1770486871181",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 17:54:31"
+    },
+    {
+      "id": "9",
+      "name": "List Test Dealer",
+      "slug": "list-test-1770486871240",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 17:54:31"
+    },
+    {
+      "id": "10",
+      "name": "Test Dealer",
+      "slug": "test-dealer-1770486903575",
+      "websiteUrl": "https://testdealer.com",
+      "createdAt": "2026-02-07 17:55:03"
+    },
+    {
+      "id": "11",
+      "name": "Inventory Test Dealer",
+      "slug": "inv-test-1770486904060",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 17:55:04"
+    },
+    {
+      "id": "12",
+      "name": "List Test Dealer",
+      "slug": "list-test-1770486904287",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 17:55:04"
+    },
+    {
+      "id": "30001",
+      "name": "Test Dealer",
+      "slug": "test-dealer-1770507662152",
+      "websiteUrl": "https://testdealer.com",
+      "createdAt": "2026-02-07 23:41:02"
+    },
+    {
+      "id": "30002",
+      "name": "Inventory Test Dealer",
+      "slug": "inv-test-1770507662628",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 23:41:02"
+    },
+    {
+      "id": "30003",
+      "name": "List Test Dealer",
+      "slug": "list-test-1770507662847",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-07 23:41:02"
+    },
+    {
+      "id": "60001",
+      "name": "Novlan Ford",
+      "slug": "https---novlanbros-com-ford-",
+      "websiteUrl": "https://novlanbros.com/ford/",
+      "createdAt": "2026-02-08 03:33:11"
+    },
+    {
+      "id": "60002",
+      "name": "Test Dealer for Inventory",
+      "slug": "test-dealer-inventory-1770525932012",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 04:45:32"
+    },
+    {
+      "id": "60003",
+      "name": "Test Dealer for Inventory",
+      "slug": "test-dealer-inventory-1770525982062",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 04:46:22"
+    },
+    {
+      "id": "90001",
+      "name": "Test Dealer for Inventory",
+      "slug": "test-dealer-inventory-1770569073791",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:44:34"
+    },
+    {
+      "id": "90002",
+      "name": "Test Dealer",
+      "slug": "test-dealer-1770569073813",
+      "websiteUrl": "https://testdealer.com",
+      "createdAt": "2026-02-08 16:44:34"
+    },
+    {
+      "id": "90003",
+      "name": "Inventory Test Dealer",
+      "slug": "inv-test-1770569074635",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:44:34"
+    },
+    {
+      "id": "90004",
+      "name": "List Test Dealer",
+      "slug": "list-test-1770569074839",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:44:34"
+    },
+    {
+      "id": "90005",
+      "name": "Test Dealer for Inventory",
+      "slug": "test-dealer-inventory-1770569136811",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:45:37"
+    },
+    {
+      "id": "90006",
+      "name": "Test Dealer for Inventory",
+      "slug": "test-dealer-inventory-1770569170767",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:46:11"
+    },
+    {
+      "id": "90007",
+      "name": "Test Dealer for Inventory",
+      "slug": "test-dealer-inventory-1770569192886",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:46:33"
+    },
+    {
+      "id": "90008",
+      "name": "Test Dealer for Inventory",
+      "slug": "test-dealer-inventory-1770569205447",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:46:45"
+    },
+    {
+      "id": "90009",
+      "name": "Test Dealer",
+      "slug": "test-dealer-1770569205473",
+      "websiteUrl": "https://testdealer.com",
+      "createdAt": "2026-02-08 16:46:45"
+    },
+    {
+      "id": "90010",
+      "name": "Inventory Test Dealer",
+      "slug": "inv-test-1770569206347",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:46:46"
+    },
+    {
+      "id": "90011",
+      "name": "List Test Dealer",
+      "slug": "list-test-1770569206550",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:46:46"
+    },
+    {
+      "id": "90012",
+      "name": "Test Dealer for Inventory",
+      "slug": "test-dealer-inventory-1770569660918",
+      "websiteUrl": "NULL",
+      "createdAt": "2026-02-08 16:54:21"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\twebsiteUrl\tcreatedAt\n1\tTest Dealer\ttest-dealer-1770486824437\thttps://testdealer.com\t2026-02-07 17:53:44\n2\tInventory Test Dealer\tinv-test-1770486824870\tNULL\t2026-02-07 17:53:44\n3\tList Test Dealer\tlist-test-1770486824925\tNULL\t2026-02-07 17:53:44\n4\tTest Dealer\ttest-dealer-1770486854465\thttps://testdealer.com\t2026-02-07 17:54:14\n5\tInventory Test Dealer\tinv-test-1770486854887\tNULL\t2026-02-07 17:54:14\n6\tList Test Dealer\tlist-test-1770486854945\tNULL\t2026-02-07 17:54:14\n7\tTest Dealer\ttest-dealer-1770486870775\thttps://testdealer.com\t2026-02-07 17:54:31\n8\tInventory Test Dealer\tinv-test-1770486871181\tNULL\t2026-02-07 17:54:31\n9\tList Test Dealer\tlist-test-1770486871240\tNULL\t2026-02-07 17:54:31\n10\tTest Dealer\ttest-dealer-1770486903575\thttps://testdealer.com\t2026-02-07 17:55:03\n11\tInventory Test Dealer\tinv-test-1770486904060\tNULL\t2026-02-07 17:55:04\n12\tList Test Dealer\tlist-test-1770486904287\tNULL\t2026-02-07 17:55:04\n30001\tTest Dealer\ttest-dealer-1770507662152\thttps://testdealer.com\t2026-02-07 23:41:02\n30002\tInventory Test Dealer\tinv-test-1770507662628\tNULL\t2026-02-07 23:41:02\n30003\tList Test Dealer\tlist-test-1770507662847\tNULL\t2026-02-07 23:41:02\n60001\tNovlan Ford\thttps---novlanbros-com-ford-\thttps://novlanbros.com/ford/\t2026-02-08 03:33:11\n60002\tTest Dealer for Inventory\ttest-dealer-inventory-1770525932012\tNULL\t2026-02-08 04:45:32\n60003\tTest Dealer for Inventory\ttest-dealer-inventory-1770525982062\tNULL\t2026-02-08 04:46:22\n90001\tTest Dealer for Inventory\ttest-dealer-inventory-1770569073791\tNULL\t2026-02-08 16:44:34\n90002\tTest Dealer\ttest-dealer-1770569073813\thttps://testdealer.com\t2026-02-08 16:44:34\n90003\tInventory Test Dealer\tinv-test-1770569074635\tNULL\t2026-02-08 16:44:34\n90004\tList Test Dealer\tlist-test-1770569074839\tNULL\t2026-02-08 16:44:34\n90005\tTest Dealer for Inventory\ttest-dealer-inventory-1770569136811\tNULL\t2026-02-08 16:45:37\n90006\tTest Dealer for Inventory\ttest-dealer-inventory-1770569170767\tNULL\t2026-02-08 16:46:11\n90007\tTest Dealer for Inventory\ttest-dealer-inventory-1770569192886\tNULL\t2026-02-08 16:46:33\n90008\tTest Dealer for Inventory\ttest-dealer-inventory-1770569205447\tNULL\t2026-02-08 16:46:45\n90009\tTest Dealer\ttest-dealer-1770569205473\thttps://testdealer.com\t2026-02-08 16:46:45\n90010\tInventory Test Dealer\tinv-test-1770569206347\tNULL\t2026-02-08 16:46:46\n90011\tList Test Dealer\tlist-test-1770569206550\tNULL\t2026-02-08 16:46:46\n90012\tTest Dealer for Inventory\ttest-dealer-inventory-1770569660918\tNULL\t2026-02-08 16:54:21\n",
+  "stderr": "",
+  "execution_time_ms": 356
+}

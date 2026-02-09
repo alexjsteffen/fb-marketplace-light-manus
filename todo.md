@@ -245,3 +245,11 @@
 ## Bug Fix - Deployment/Publish Failure
 - [ ] Investigate why publish keeps failing
 - [ ] Fix deployment issues (likely media files causing timeout)
+
+## Bug Fix - Quick Access Panel Links Not Working
+- [x] Fix Quick Access panel - wrapped all cards with Link components
+- [x] All links now work: Inventory, Ad Creator, Ad Staging, Dashboard, Content Generator, Templates
+
+## Data Cleanup - Remove Test Dealers
+- [x] Delete all test dealers from database except Novlan Ford (@https---novlanbros-com-ford-)
+- [x] Verify Novlan Ford data is preserved (confirmed: 1 dealer remains with all inventory and ads)
