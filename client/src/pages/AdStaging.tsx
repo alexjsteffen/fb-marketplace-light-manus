@@ -8,7 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
-import { Facebook, ExternalLink, Copy, Check, Trash2, Eye, Pencil } from "lucide-react";
+import { Facebook, ExternalLink, Copy, Check, Trash2, Eye, Pencil, Sparkles, Link as LinkIcon } from "lucide-react";
 import { ContentGenerator } from "@/components/ContentGenerator";
 import { useState } from "react";
 import { Link, useParams } from "wouter";
@@ -25,7 +25,10 @@ export default function AdStaging() {
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
+  const [showContentDialog, setShowContentDialog] = useState(false);
   const [editedText, setEditedText] = useState("");
+  const [editingFbUrl, setEditingFbUrl] = useState<number | null>(null);
+  const [tempFbUrl, setTempFbUrl] = useState("");
 
   const { data: ads, isLoading, refetch } = trpc.ads.list.useQuery(
     { dealerId: parseInt(dealerId || "0") },
@@ -246,12 +249,100 @@ export default function AdStaging() {
                           Publish
                         </Button>
                         <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAd(ad.id);
+                            setShowContentDialog(true);
+                          }}
+                        >
+                          <Sparkles className="w-4 h-4 mr-2" />
+                          Content
+                        </Button>
+                        <Button
                           variant="destructive"
                           size="sm"
                           onClick={() => handleDelete(ad.id)}
                         >
                           <Trash2 className="w-4 h-4" />
                         </Button>
+                      </div>
+                      
+                      {/* Facebook URL Field */}
+                      <div className="mt-4 pt-4 border-t">
+                        <Label className="text-xs text-gray-600 mb-2 block">Facebook Marketplace URL</Label>
+                        {editingFbUrl === ad.id ? (
+                          <div className="flex gap-2">
+                            <Input
+                              placeholder="https://www.facebook.com/marketplace/item/..."
+                              value={tempFbUrl}
+                              onChange={(e) => setTempFbUrl(e.target.value)}
+                              className="text-sm"
+                            />
+                            <Button
+                              size="sm"
+                              onClick={() => {
+                                updateAd.mutate({
+                                  id: ad.id,
+                                  facebookMarketplaceUrl: tempFbUrl,
+                                });
+                                setEditingFbUrl(null);
+                                setTempFbUrl("");
+                              }}
+                            >
+                              Save
+                            </Button>
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              onClick={() => {
+                                setEditingFbUrl(null);
+                                setTempFbUrl("");
+                              }}
+                            >
+                              Cancel
+                            </Button>
+                          </div>
+                        ) : (
+                          <div className="flex gap-2">
+                            {ad.facebookMarketplaceUrl ? (
+                              <>
+                                <a
+                                  href={ad.facebookMarketplaceUrl}
+                                  target="_blank"
+                                  rel="noopener noreferrer"
+                                  className="text-sm text-blue-600 hover:underline flex items-center gap-1 flex-1 truncate"
+                                >
+                                  <LinkIcon className="w-3 h-3" />
+                                  {ad.facebookMarketplaceUrl}
+                                </a>
+                                <Button
+                                  size="sm"
+                                  variant="outline"
+                                  onClick={() => {
+                                    setEditingFbUrl(ad.id);
+                                    setTempFbUrl(ad.facebookMarketplaceUrl || "");
+                                  }}
+                                >
+                                  Edit
+                                </Button>
+                              </>
+                            ) : (
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                className="w-full"
+                                onClick={() => {
+                                  setEditingFbUrl(ad.id);
+                                  setTempFbUrl("");
+                                }}
+                              >
+                                <LinkIcon className="w-4 h-4 mr-2" />
+                                Add Facebook URL
+                              </Button>
+                            )}
+                          </div>
+                        )}
                       </div>
                     </CardContent>
                   </Card>
@@ -339,12 +430,100 @@ export default function AdStaging() {
                         </Button>
                       )}
                       <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedAd(ad.id);
+                          setShowContentDialog(true);
+                        }}
+                      >
+                        <Sparkles className="w-4 h-4 mr-2" />
+                        Content
+                      </Button>
+                      <Button
                         variant="destructive"
                         size="sm"
                         onClick={() => handleDelete(ad.id)}
                       >
                         <Trash2 className="w-4 h-4" />
                       </Button>
+                    </div>
+                    
+                    {/* Facebook URL Field */}
+                    <div className="mt-4 pt-4 border-t">
+                      <Label className="text-xs text-gray-600 mb-2 block">Facebook Marketplace URL</Label>
+                      {editingFbUrl === ad.id ? (
+                        <div className="flex gap-2">
+                          <Input
+                            placeholder="https://www.facebook.com/marketplace/item/..."
+                            value={tempFbUrl}
+                            onChange={(e) => setTempFbUrl(e.target.value)}
+                            className="text-sm"
+                          />
+                          <Button
+                            size="sm"
+                            onClick={() => {
+                              updateAd.mutate({
+                                id: ad.id,
+                                facebookMarketplaceUrl: tempFbUrl,
+                              });
+                              setEditingFbUrl(null);
+                              setTempFbUrl("");
+                            }}
+                          >
+                            Save
+                          </Button>
+                          <Button
+                            size="sm"
+                            variant="outline"
+                            onClick={() => {
+                              setEditingFbUrl(null);
+                              setTempFbUrl("");
+                            }}
+                          >
+                            Cancel
+                          </Button>
+                        </div>
+                      ) : (
+                        <div className="flex gap-2">
+                          {ad.facebookMarketplaceUrl ? (
+                            <>
+                              <a
+                                href={ad.facebookMarketplaceUrl}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-sm text-blue-600 hover:underline flex items-center gap-1 flex-1 truncate"
+                              >
+                                <LinkIcon className="w-3 h-3" />
+                                {ad.facebookMarketplaceUrl}
+                              </a>
+                              <Button
+                                size="sm"
+                                variant="outline"
+                                onClick={() => {
+                                  setEditingFbUrl(ad.id);
+                                  setTempFbUrl(ad.facebookMarketplaceUrl || "");
+                                }}
+                              >
+                                Edit
+                              </Button>
+                            </>
+                          ) : (
+                            <Button
+                              size="sm"
+                              variant="outline"
+                              className="w-full"
+                              onClick={() => {
+                                setEditingFbUrl(ad.id);
+                                setTempFbUrl("");
+                              }}
+                            >
+                              <LinkIcon className="w-4 h-4 mr-2" />
+                              Add Facebook URL
+                            </Button>
+                          )}
+                        </div>
+                      )}
                     </div>
                   </CardContent>
                 </Card>
@@ -590,6 +769,26 @@ export default function AdStaging() {
           <DialogFooter>
             <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
             <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
+      {/* Content Generator Dialog */}
+      <Dialog open={showContentDialog} onOpenChange={setShowContentDialog}>
+        <DialogContent className="max-w-4xl max-h-[90vh] overflow-y-auto">
+          <DialogHeader>
+            <DialogTitle>Generate Website Content</DialogTitle>
+            <DialogDescription>
+              Generate badge image, pillar page article, and blog post for your dealer website
+            </DialogDescription>
+          </DialogHeader>
+          {selectedAdData && (
+            <div className="py-4">
+              <ContentGenerator facebookAdId={selectedAdData.id} />
+            </div>
+          )}
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowContentDialog(false)}>Close</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

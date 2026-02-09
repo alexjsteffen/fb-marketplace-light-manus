@@ -320,7 +320,7 @@ export const appRouter = router({
         imageUrl: z.string().optional(),
         imageFileKey: z.string().optional(),
         status: z.enum(['draft', 'staged', 'published']).optional(),
-        facebookMarketplaceUrl: z.string().url().optional(),
+        facebookMarketplaceUrl: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
         const { id, ...updates } = input;

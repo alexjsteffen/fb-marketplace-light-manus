@@ -24,6 +24,7 @@ export default function Inventory() {
   const [openScrape, setOpenScrape] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [statusFilter, setStatusFilter] = useState<string>("all");
+  const [adStatusFilter, setAdStatusFilter] = useState<string>("all");
   const [conditionFilter, setConditionFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"box" | "line">("box");
   const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
@@ -237,8 +238,12 @@ export default function Inventory() {
     
     const matchesStatus = statusFilter === "all" || item.status === statusFilter;
     const matchesCondition = conditionFilter === "all" || item.condition === conditionFilter;
+    const matchesAdStatus = 
+      adStatusFilter === "all" ||
+      (adStatusFilter === "with-ads" && (item.adCount || 0) > 0) ||
+      (adStatusFilter === "without-ads" && (item.adCount || 0) === 0);
     
-    return matchesSearch && matchesStatus && matchesCondition;
+    return matchesSearch && matchesStatus && matchesCondition && matchesAdStatus;
   });
 
   const inventoryCounts = {
@@ -633,6 +638,16 @@ export default function Inventory() {
                 <SelectItem value="active">Active</SelectItem>
                 <SelectItem value="sold">Sold</SelectItem>
                 <SelectItem value="archived">Archived</SelectItem>
+              </SelectContent>
+            </Select>
+            <Select value={adStatusFilter} onValueChange={setAdStatusFilter}>
+              <SelectTrigger className="w-40">
+                <SelectValue />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="all">All</SelectItem>
+                <SelectItem value="with-ads">With Ads</SelectItem>
+                <SelectItem value="without-ads">Without Ads</SelectItem>
               </SelectContent>
             </Select>
             <div className="flex border rounded-lg">

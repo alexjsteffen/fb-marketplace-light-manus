@@ -335,11 +335,18 @@
 - [ ] Add "Delete Selected" bulk action button
 
 ## Feature - Re-implement Ad Count Badges (Without Multi-Select)
-- [ ] Update backend getInventoryItemsByDealerId to include ad count using LEFT JOIN
-- [ ] Add ad count badges to inventory cards showing "X Ads" for vehicles with ads
-- [ ] Add "With Ads" / "Without Ads" / "All Ads" filter dropdown
-- [ ] Test that 3 vehicles show ad count badges (stocks 24225, 24229, P8031)
-- [ ] Verify filter works correctly (3 vehicles when "With Ads", 59 when "Without Ads")
+- [x] Update backend getInventoryItemsByDealerId to include ad count using LEFT JOIN
+- [x] Add ad count badges to inventory cards showing "X Ads" for vehicles with ads
+- [x] Add "With Ads" / "Without Ads" / "All" filter dropdown
+- [x] Test that filter works correctly (3 vehicles when "With Ads", 59 when "Without Ads")
+
+## Ad Staging Improvements - Content Generation & FB Links
+- [x] Move "Generate Content" button from upload dialog to each ad card
+- [x] Add Facebook Marketplace URL input field to each ad card
+- [x] Update database schema to add facebookUrl field to facebookAds table (already existed)
+- [x] Update backend API to save/retrieve Facebook URLs (fixed validation to allow optional string)
+- [x] Test that URL can be saved and displayed on ad cards
+- [x] Test that Content button opens dialog correctly
 
 ## Bug Fix - Ad Count Subquery Not Returning Data
 - [x] Rewrite getInventoryItemsByDealerId to use LEFT JOIN with COUNT instead of subquery in SELECT
