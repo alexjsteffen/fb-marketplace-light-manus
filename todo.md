@@ -260,3 +260,14 @@
 - [x] Investigate if this is data issue or display issue - confirmed: dealer disclaimer was imported as description
 - [x] Batch-regenerate AI descriptions for all 62 vehicles - 100% success rate (62/62 updated)
 - [x] Replace generic disclaimer with unique vehicle descriptions - verified working
+
+## Investigation - Content Generation Location
+- [ ] Check Ad Staging page - user says there's nothing there for content generation
+- [ ] Find where "Generate All Content" button actually is (or should be)
+- [ ] Verify ContentGenerator component is properly integrated
+
+## UI Improvement - Replace Quick Access with Sidebar Navigation
+- [x] Create persistent left sidebar navigation component (like reference screenshot)
+- [x] Replace Quick Access card grid on home page with sidebar
+- [x] Ensure all existing routes and functionality remain intact
+- [x] Test navigation to all pages works correctly - verified Dealer Management and Inventory navigation

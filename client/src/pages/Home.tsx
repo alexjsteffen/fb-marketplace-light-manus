@@ -1,9 +1,9 @@
 import { useAuth } from "@/_core/hooks/useAuth";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Sidebar } from "@/components/Sidebar";
 import { getLoginUrl } from "@/const";
-import { Building2, Package, Image, BarChart3, FileText, Facebook, Palette } from "lucide-react";
-import { Link } from "wouter";
+import { Package, Image, Facebook } from "lucide-react";
 
 export default function Home() {
   const { user, loading, isAuthenticated } = useAuth();
@@ -78,121 +78,95 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      <header className="bg-white shadow-sm border-b">
-        <div className="container mx-auto px-4 py-4 flex justify-between items-center">
-          <h1 className="text-2xl font-bold text-gray-900">Facebook Ad Accelerator</h1>
-          <div className="flex items-center gap-4">
-            <span className="text-sm text-gray-600">Welcome, {user?.name}</span>
+    <div className="flex min-h-screen bg-gray-50">
+      <Sidebar />
+      
+      <div className="flex-1">
+        <header className="bg-white shadow-sm border-b">
+          <div className="px-8 py-4 flex justify-between items-center">
+            <div>
+              <h1 className="text-2xl font-bold text-gray-900">Dashboard Overview</h1>
+              <p className="text-sm text-gray-600">Welcome back, {user?.name}</p>
+            </div>
           </div>
-        </div>
-      </header>
+        </header>
 
-      <main className="container mx-auto px-4 py-8">
-        <div className="max-w-6xl mx-auto">
-          <h2 className="text-3xl font-bold text-gray-900 mb-8">Quick Access</h2>
-
-          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-6">
-            <Link href="/dealers">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+        <main className="p-8">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid md:grid-cols-3 gap-6 mb-8">
+              <Card>
                 <CardHeader>
-                  <Building2 className="w-10 h-10 text-blue-600 mb-2" />
-                  <CardTitle>Dealer Management</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Dealers</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
-                    Manage dealer accounts, branding, and settings for multi-tenant operations
-                  </CardDescription>
+                  <div className="text-3xl font-bold">1</div>
+                  <p className="text-xs text-gray-500 mt-1">Active dealerships</p>
                 </CardContent>
               </Card>
-            </Link>
 
-            <Link href="/dealers">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card>
                 <CardHeader>
-                  <Package className="w-10 h-10 text-blue-600 mb-2" />
-                  <CardTitle>Inventory</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Inventory</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
-                    View and manage inventory items. Click to select a dealer first.
-                  </CardDescription>
+                  <div className="text-3xl font-bold">62</div>
+                  <p className="text-xs text-gray-500 mt-1">Vehicles available</p>
                 </CardContent>
               </Card>
-            </Link>
 
-            <Link href="/dealers">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
+              <Card>
                 <CardHeader>
-                  <Image className="w-10 h-10 text-blue-600 mb-2" />
-                  <CardTitle>Ad Creator</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600">Staged Ads</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <CardDescription>
-                    Create Facebook ads with AI text enhancement. Click to select a dealer first.
-                  </CardDescription>
+                  <div className="text-3xl font-bold">4</div>
+                  <p className="text-xs text-gray-500 mt-1">Ready for Facebook</p>
                 </CardContent>
               </Card>
-            </Link>
+            </div>
 
-            <Link href="/dealers">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <Facebook className="w-10 h-10 text-blue-600 mb-2" />
-                  <CardTitle>Ad Staging</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Stage and publish ads with split-screen interface. Click to select a dealer first.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/dealers">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <BarChart3 className="w-10 h-10 text-blue-600 mb-2" />
-                  <CardTitle>Dashboard</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Track published ads, inventory status, and performance analytics. Click to select a dealer first.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/dealers">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <FileText className="w-10 h-10 text-blue-600 mb-2" />
-                  <CardTitle>Content Generator</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Generate "As Seen On Facebook" content. Click to select a dealer first.
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </Link>
-
-            <Link href="/templates">
-              <Card className="hover:shadow-lg transition-shadow cursor-pointer">
-                <CardHeader>
-                  <Palette className="w-10 h-10 text-blue-600 mb-2" />
-                  <CardTitle>Templates</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription>
-                    Manage background templates - upload, edit, and customize ad designs
-                  </CardDescription>
-                </CardContent>
-              </Card>
-            </Link>
+            <Card>
+              <CardHeader>
+                <CardTitle>Getting Started</CardTitle>
+                <CardDescription>
+                  Use the navigation on the left to access different features
+                </CardDescription>
+              </CardHeader>
+              <CardContent>
+                <div className="space-y-4">
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold flex-shrink-0">
+                      1
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Manage Dealers</h4>
+                      <p className="text-sm text-gray-600">Start by selecting or adding a dealer from Dealer Management</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold flex-shrink-0">
+                      2
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">View Inventory</h4>
+                      <p className="text-sm text-gray-600">Check your vehicle inventory and create ads for individual items</p>
+                    </div>
+                  </div>
+                  <div className="flex items-start gap-3">
+                    <div className="w-8 h-8 rounded-full bg-blue-100 text-blue-600 flex items-center justify-center font-semibold flex-shrink-0">
+                      3
+                    </div>
+                    <div>
+                      <h4 className="font-semibold">Stage & Publish</h4>
+                      <p className="text-sm text-gray-600">Use Facebook Ad Staging to prepare and publish ads to Facebook Marketplace</p>
+                    </div>
+                  </div>
+                </div>
+              </CardContent>
+            </Card>
           </div>
-        </div>
-      </main>
+        </main>
+      </div>
     </div>
   );
 }
