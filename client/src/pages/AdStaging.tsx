@@ -4,10 +4,11 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { trpc } from "@/lib/trpc";
-import { Facebook, ExternalLink, Copy, Check, Trash2, Eye } from "lucide-react";
+import { Facebook, ExternalLink, Copy, Check, Trash2, Eye, Pencil } from "lucide-react";
 import { ContentGenerator } from "@/components/ContentGenerator";
 import { useState } from "react";
 import { Link, useParams } from "wouter";
@@ -23,6 +24,8 @@ export default function AdStaging() {
   const [copiedDescription, setCopiedDescription] = useState(false);
   const [showUploadDialog, setShowUploadDialog] = useState(false);
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
+  const [showEditDialog, setShowEditDialog] = useState(false);
+  const [editedText, setEditedText] = useState("");
 
   const { data: ads, isLoading, refetch } = trpc.ads.list.useQuery(
     { dealerId: parseInt(dealerId || "0") },
@@ -47,7 +50,39 @@ export default function AdStaging() {
     },
   });
 
-  // Delete functionality removed - use status update instead
+  const deleteAd = trpc.ads.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Ad deleted successfully!");
+      setSelectedAd(null);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to delete ad");
+    },
+  });
+
+  const handleDelete = (adId: number) => {
+    if (confirm("Are you sure you want to delete this ad? This action cannot be undone.")) {
+      deleteAd.mutate({ id: adId });
+    }
+  };
+
+  const handleEdit = (ad: typeof selectedAdData) => {
+    if (!ad) return;
+    setSelectedAd(ad.id);
+    setEditedText(ad.finalText || ad.enhancedText || ad.originalText || "");
+    setShowEditDialog(true);
+  };
+
+  const handleSaveEdit = () => {
+    if (!selectedAd) return;
+    updateAd.mutate({
+      id: selectedAd,
+      finalText: editedText,
+    });
+    setShowEditDialog(false);
+    toast.success("Ad updated successfully!");
+  };
 
   const handleCopy = (text: string, type: "title" | "price" | "description") => {
     navigator.clipboard.writeText(text);
@@ -172,7 +207,7 @@ export default function AdStaging() {
                       <p className="text-xs text-gray-500 mb-4">
                         Created: {new Date(ad.createdAt).toLocaleDateString()}
                       </p>
-                      <div className="flex gap-2">
+                      <div className="flex gap-2 flex-wrap">
                         <Button
                           variant="outline"
                           size="sm"
@@ -183,6 +218,14 @@ export default function AdStaging() {
                         >
                           <Eye className="w-4 h-4 mr-2" />
                           Preview
+                        </Button>
+                        <Button
+                          variant="outline"
+                          size="sm"
+                          onClick={() => handleEdit(ad)}
+                        >
+                          <Pencil className="w-4 h-4 mr-2" />
+                          Edit
                         </Button>
                         <Button
                           size="sm"
@@ -201,6 +244,13 @@ export default function AdStaging() {
                           onClick={() => handlePublish()}
                         >
                           Publish
+                        </Button>
+                        <Button
+                          variant="destructive"
+                          size="sm"
+                          onClick={() => handleDelete(ad.id)}
+                        >
+                          <Trash2 className="w-4 h-4" />
                         </Button>
                       </div>
                     </CardContent>
@@ -253,9 +303,49 @@ export default function AdStaging() {
                         View on Facebook Marketplace
                       </a>
                     )}
-                    <p className="text-xs text-gray-500">
+                    <p className="text-xs text-gray-500 mb-4">
                       Created: {new Date(ad.createdAt).toLocaleDateString()}
                     </p>
+                    <div className="flex gap-2 flex-wrap">
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => {
+                          setSelectedAd(ad.id);
+                          setShowPreviewDialog(true);
+                        }}
+                      >
+                        <Eye className="w-4 h-4 mr-2" />
+                        Preview
+                      </Button>
+                      <Button
+                        variant="outline"
+                        size="sm"
+                        onClick={() => handleEdit(ad)}
+                      >
+                        <Pencil className="w-4 h-4 mr-2" />
+                        Edit
+                      </Button>
+                      {ad.status !== 'published' && (
+                        <Button
+                          size="sm"
+                          onClick={() => {
+                            setSelectedAd(ad.id);
+                            setShowUploadDialog(true);
+                          }}
+                        >
+                          <ExternalLink className="w-4 h-4 mr-2" />
+                          Upload
+                        </Button>
+                      )}
+                      <Button
+                        variant="destructive"
+                        size="sm"
+                        onClick={() => handleDelete(ad.id)}
+                      >
+                        <Trash2 className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </CardContent>
                 </Card>
               ))}
@@ -477,33 +567,62 @@ export default function AdStaging() {
         </DialogContent>
       </Dialog>
 
+      {/* Edit Dialog */}
+      <Dialog open={showEditDialog} onOpenChange={setShowEditDialog}>
+        <DialogContent className="max-w-2xl">
+          <DialogHeader>
+            <DialogTitle>Edit Ad Text</DialogTitle>
+            <DialogDescription>Make changes to your ad description</DialogDescription>
+          </DialogHeader>
+          <div className="space-y-4">
+            <div>
+              <Label htmlFor="ad-text">Ad Description</Label>
+              <Textarea
+                id="ad-text"
+                value={editedText}
+                onChange={(e) => setEditedText(e.target.value)}
+                rows={15}
+                className="mt-2"
+                placeholder="Enter your ad description..."
+              />
+            </div>
+          </div>
+          <DialogFooter>
+            <Button variant="outline" onClick={() => setShowEditDialog(false)}>Cancel</Button>
+            <Button onClick={handleSaveEdit}>Save Changes</Button>
+          </DialogFooter>
+        </DialogContent>
+      </Dialog>
+
       {/* Preview Dialog */}
       <Dialog open={showPreviewDialog} onOpenChange={setShowPreviewDialog}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className="max-w-2xl max-h-[90vh] flex flex-col">
           <DialogHeader>
             <DialogTitle>Ad Preview</DialogTitle>
             <DialogDescription>Preview how your ad will appear</DialogDescription>
           </DialogHeader>
-          {selectedAdData && (
-            <div className="bg-white border rounded-lg overflow-hidden">
-              {selectedAdData.imageUrl && (
-                <img
-                  src={selectedAdData.imageUrl}
-                  alt="Preview"
-                  className="w-full h-96 object-cover"
-                />
-              )}
-              <div className="p-6">
-                <h3 className="text-2xl font-bold mb-2">
-                  {selectedAdData.inventoryItem ? `${selectedAdData.inventoryItem.year} ${selectedAdData.inventoryItem.brand} ${selectedAdData.inventoryItem.model}` : 'Untitled Ad'}
-                </h3>
-                <p className="text-3xl font-bold text-green-600 mb-4">
-                  {selectedAdData.inventoryItem?.price ? `$${parseFloat(selectedAdData.inventoryItem.price).toLocaleString()}` : 'Price: Contact Seller'}
-                </p>
-                <p className="text-gray-700 whitespace-pre-wrap">{selectedAdData.finalText || selectedAdData.enhancedText || selectedAdData.originalText}</p>
+          <div className="overflow-y-auto flex-1">
+            {selectedAdData && (
+              <div className="bg-white border rounded-lg overflow-hidden">
+                {selectedAdData.imageUrl && (
+                  <img
+                    src={selectedAdData.imageUrl}
+                    alt="Preview"
+                    className="w-full h-96 object-cover"
+                  />
+                )}
+                <div className="p-6">
+                  <h3 className="text-2xl font-bold mb-2">
+                    {selectedAdData.inventoryItem ? `${selectedAdData.inventoryItem.year} ${selectedAdData.inventoryItem.brand} ${selectedAdData.inventoryItem.model}` : 'Untitled Ad'}
+                  </h3>
+                  <p className="text-3xl font-bold text-green-600 mb-4">
+                    {selectedAdData.inventoryItem?.price ? `$${parseFloat(selectedAdData.inventoryItem.price).toLocaleString()}` : 'Price: Contact Seller'}
+                  </p>
+                  <p className="text-gray-700 whitespace-pre-wrap">{selectedAdData.finalText || selectedAdData.enhancedText || selectedAdData.originalText}</p>
+                </div>
               </div>
-            </div>
-          )}
+            )}
+          </div>
           <DialogFooter>
             <Button onClick={() => setShowPreviewDialog(false)}>Close</Button>
           </DialogFooter>

@@ -343,6 +343,13 @@ export async function updateFacebookAd(id: number, updates: Partial<InsertFacebo
   await db.update(facebookAds).set(updates).where(eq(facebookAds.id, id));
 }
 
+export async function deleteFacebookAd(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  await db.delete(facebookAds).where(eq(facebookAds.id, id));
+}
+
 export async function getPublishedAdsByDealerId(dealerId: number) {
   const db = await getDb();
   if (!db) return [];

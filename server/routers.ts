@@ -338,6 +338,13 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ input }) => {
+        await db.deleteFacebookAd(input.id);
+        return { success: true };
+      }),
+
     published: protectedProcedure
       .input(z.object({ dealerId: z.number() }))
       .query(async ({ input }) => {

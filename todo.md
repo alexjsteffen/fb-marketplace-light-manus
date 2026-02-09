@@ -284,3 +284,13 @@
 - [ ] Show visual indicator in Inventory page for items with active ads
 - [ ] Prevent creating duplicate ads for the same inventory item
 - [ ] Add filter in Inventory page to show "With Active Ads" / "Without Ads"
+
+## Bug Fix - Ad Staging Preview Dialog Not Scrollable
+- [x] Fix preview dialog so content is scrollable (added max-h-[90vh] and overflow-y-auto)
+- [x] Ensure full ad content is visible in preview
+
+## Feature Request - Edit and Delete Ads
+- [x] Add ability to edit ad text before publishing (Edit button + dialog with textarea)
+- [x] Add delete button to remove ads with errors (Delete button with confirmation)
+- [x] Confirm before deleting to prevent accidents (browser confirm dialog)
+- [x] Added Edit and Delete buttons to both Unprocessed and All tabs
