@@ -360,3 +360,5 @@
 - [x] Find correct Chromium executable path in sandbox (/usr/bin/chromium-browser)
 - [x] Update scraper configuration to use correct path (already configured correctly)
 - [x] Test scraper with new dealer to verify fix (Chromium working, server restarted)
+- [x] Add missing puppeteer import statement to inventoryScraper.ts
+- [ ] Test scraper with actual dealer URL to verify fix (waiting for user to test)
