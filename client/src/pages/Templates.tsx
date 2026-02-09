@@ -147,9 +147,9 @@ export default function Templates() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/">
-                <Button variant="ghost">← Back to Home</Button>
-              </Link>
+              <Button variant="ghost" asChild>
+                <Link href="/">← Back to Home</Link>
+              </Button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Background Templates</h1>
                 <p className="text-sm text-gray-600">Manage ad background templates</p>

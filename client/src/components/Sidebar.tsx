@@ -88,10 +88,10 @@ export function Sidebar({ dealerId }: SidebarProps) {
                            (item.href !== "/" && location.startsWith(item.href));
             
             return (
-              <Link key={item.href} href={item.href}>
-                <a
+              <Link key={item.title} href={item.href}>
+                <div
                   className={cn(
-                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors",
+                    "flex items-center gap-3 px-3 py-2.5 rounded-lg transition-colors cursor-pointer",
                     "hover:bg-gray-800",
                     isActive && "bg-blue-600 hover:bg-blue-700"
                   )}
@@ -103,7 +103,7 @@ export function Sidebar({ dealerId }: SidebarProps) {
                       {item.description}
                     </div>
                   </div>
-                </a>
+                </div>
               </Link>
             );
           })}

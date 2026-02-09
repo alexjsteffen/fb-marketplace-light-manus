@@ -351,4 +351,7 @@
 ## Bug Fix - Ad Count Subquery Not Returning Data
 - [x] Rewrite getInventoryItemsByDealerId to use LEFT JOIN with COUNT instead of subquery in SELECT
 - [x] Test that adCount field is properly returned to frontend (WORKING - returns correct counts)
-- [x] Verify ad count badges display on inventory items (VERIFIED - showing "3 Ads", "2 Ads", "1 Ad" for stocks 24225, 11625, 44425A)
+- [x] Verify ad count badges display on inventory items (VERIFIED - showing "3 Ads", "2 Ads", "1 Ad" for stocks 24225, 11625, 4## Bug Fix - React Errors in Navigation
+- [x] Fix duplicate key error for /dealers route in Sidebar component (used title as key)
+- [x] Fix nested anchor tag errors in Link+Button patterns (converted to Button asChild pattern)
+- [x] Test that all React errors are resolved (no more duplicate key or nested anchor errors)ser console

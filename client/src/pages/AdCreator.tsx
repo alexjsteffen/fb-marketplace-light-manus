@@ -175,9 +175,9 @@ export default function AdCreator() {
       <div className="min-h-screen flex items-center justify-center">
         <div className="text-center">
           <p className="text-xl text-gray-600">Inventory item not found</p>
-          <Link href="/dealers">
-            <Button className="mt-4">Back to Dealers</Button>
-          </Link>
+          <Button className="mt-4" asChild>
+            <Link href="/dealers">Back to Dealers</Link>
+          </Button>
         </div>
       </div>
     );
@@ -189,9 +189,9 @@ export default function AdCreator() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href={`/inventory/${item.dealerId}`}>
-                <Button variant="ghost">← Back to Inventory</Button>
-              </Link>
+              <Button variant="ghost" asChild>
+                <Link href={`/inventory/${item.dealerId}`}>← Back to Inventory</Link>
+              </Button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Create Facebook Ad</h1>
                 <p className="text-sm text-gray-600">

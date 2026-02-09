@@ -63,9 +63,9 @@ export default function DealerManagement() {
       <header className="bg-white shadow-sm border-b">
         <div className="container mx-auto px-4 py-4 flex justify-between items-center">
           <div className="flex items-center gap-4">
-            <Link href="/">
-              <Button variant="ghost">← Back</Button>
-            </Link>
+            <Button variant="ghost" asChild>
+              <Link href="/">← Back</Link>
+            </Button>
             <h1 className="text-2xl font-bold text-gray-900">Dealer Management</h1>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
@@ -226,16 +226,16 @@ export default function DealerManagement() {
                     )}
                   </div>
                   <div className="mt-4 flex gap-2">
-                    <Link href={`/inventory/${dealer.id}`}>
-                      <Button variant="outline" size="sm" className="w-full">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={`/inventory/${dealer.id}`}>
                         View Inventory
-                      </Button>
-                    </Link>
-                    <Link href={`/dashboard/${dealer.id}`}>
-                      <Button variant="outline" size="sm" className="w-full">
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={`/dashboard/${dealer.id}`}>
                         Dashboard
-                      </Button>
-                    </Link>
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

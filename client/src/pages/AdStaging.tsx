@@ -136,9 +136,9 @@ export default function AdStaging() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href={`/inventory/${dealerId}`}>
-                <Button variant="ghost">← Back to Inventory</Button>
-              </Link>
+              <Button variant="ghost" asChild>
+                <Link href={`/inventory/${dealerId}`}>← Back to Inventory</Link>
+              </Button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Facebook Ad Staging</h1>
                 <p className="text-sm text-gray-600">
@@ -174,9 +174,9 @@ export default function AdStaging() {
               <Card>
                 <CardContent className="py-12 text-center">
                   <p className="text-gray-500">No staged ads yet. Create ads from your inventory.</p>
-                  <Link href={`/inventory/${dealerId}`}>
-                    <Button className="mt-4">Go to Inventory</Button>
-                  </Link>
+                  <Button className="mt-4" asChild>
+                    <Link href={`/inventory/${dealerId}`}>Go to Inventory</Link>
+                  </Button>
                 </CardContent>
               </Card>
             ) : (

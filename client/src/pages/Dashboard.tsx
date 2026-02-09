@@ -45,21 +45,21 @@ export default function Dashboard() {
         <div className="container mx-auto px-4 py-4">
           <div className="flex items-center justify-between">
             <div className="flex items-center gap-4">
-              <Link href="/dealers">
-                <Button variant="ghost">← Back to Dealers</Button>
-              </Link>
+              <Button variant="ghost" asChild>
+                <Link href="/dealers">← Back to Dealers</Link>
+              </Button>
               <div>
                 <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
                 <p className="text-sm text-gray-600">{dealer?.name}</p>
               </div>
             </div>
             <div className="flex gap-2">
-              <Link href={`/inventory/${dealerId}`}>
-                <Button variant="outline">View Inventory</Button>
-              </Link>
-              <Link href={`/ads/staging/${dealerId}`}>
-                <Button>Ad Staging</Button>
-              </Link>
+              <Button variant="outline" asChild>
+                <Link href={`/inventory/${dealerId}`}>View Inventory</Link>
+              </Button>
+              <Button asChild>
+                <Link href={`/ads/staging/${dealerId}`}>Ad Staging</Link>
+              </Button>
             </div>
           </div>
         </div>
@@ -176,9 +176,9 @@ export default function Dashboard() {
                 <p className="text-gray-600 mb-6">
                   Create and publish your first Facebook Marketplace ad
                 </p>
-                <Link href={`/inventory/${dealerId}`}>
-                  <Button>Go to Inventory</Button>
-                </Link>
+                <Button asChild>
+                  <Link href={`/inventory/${dealerId}`}>Go to Inventory</Link>
+                </Button>
               </CardContent>
             </Card>
           )}
