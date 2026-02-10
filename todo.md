@@ -444,3 +444,9 @@
 - [x] Test full import with all 36 vehicles from Maple Ridge Chrysler - SUCCESS! All 36 vehicles imported with zero errors
 - [ ] Document D2C Media scraper template for reuse across their 1000s of dealer locations
 - [ ] Create scraper template library system for different dealer website providers (D2C Media, WebStager, etc.)
+
+## Display New Vehicle Fields in UI
+- [x] Update getInventoryItemsByDealerId query to return new fields (trim, vin, mileage, colors, engine, transmission, drivetrain, fuel, cylinders, doors, detailUrl)
+- [x] Update VehicleDetailModal component to display all new vehicle specifications
+- [x] Organize specs into logical sections (Overview, Specifications, Colors, Drivetrain)
+- [ ] Test that all imported data displays correctly in the modal

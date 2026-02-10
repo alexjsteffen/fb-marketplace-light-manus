@@ -198,50 +198,118 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
 
             {/* Vehicle Details */}
             <Card>
-              <CardContent className="p-4 space-y-2">
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Stock Number:</span>
-                  <span className="font-medium">{vehicle.stockNumber}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Condition:</span>
-                  <Badge>{vehicle.condition}</Badge>
-                </div>
-                <div className="flex justify-between">
-                  <span className="text-sm text-gray-600">Status:</span>
-                  <Badge variant={vehicle.status === "active" ? "default" : "secondary"}>
-                    {vehicle.status}
-                  </Badge>
-                </div>
-                {vehicle.price && (
-                  <div className="flex justify-between items-center">
-                    <span className="text-sm text-gray-600">Price:</span>
-                    {editMode ? (
-                      <Input
-                        type="number"
-                        value={editedPrice}
-                        onChange={(e) => setEditedPrice(e.target.value)}
-                        className="w-32 h-8 text-right"
-                      />
-                    ) : (
-                      <span className="text-xl font-bold text-blue-600">
-                        ${parseFloat(editedPrice || vehicle.price).toLocaleString()}
-                      </span>
-                    )}
+              <CardContent className="p-4 space-y-3">
+                <h3 className="font-semibold text-lg mb-2">Vehicle Overview</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  <div>
+                    <span className="text-sm text-gray-600">Stock Number</span>
+                    <p className="font-medium">{vehicle.stockNumber}</p>
                   </div>
-                )}
-                {vehicle.category && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Category:</span>
-                    <span className="font-medium">{vehicle.category}</span>
+                  <div>
+                    <span className="text-sm text-gray-600">Condition</span>
+                    <p><Badge>{vehicle.condition}</Badge></p>
                   </div>
-                )}
-                {vehicle.location && (
-                  <div className="flex justify-between">
-                    <span className="text-sm text-gray-600">Location:</span>
-                    <span className="font-medium">{vehicle.location}</span>
-                  </div>
-                )}
+                  {vehicle.price && (
+                    <div className="col-span-2">
+                      <span className="text-sm text-gray-600">Price</span>
+                      {editMode ? (
+                        <Input
+                          type="number"
+                          value={editedPrice}
+                          onChange={(e) => setEditedPrice(e.target.value)}
+                          className="w-full h-8 mt-1"
+                        />
+                      ) : (
+                        <p className="text-2xl font-bold text-blue-600">
+                          ${parseFloat(editedPrice || vehicle.price).toLocaleString()}
+                        </p>
+                      )}
+                    </div>
+                  )}
+                  {vehicle.trim && (
+                    <div className="col-span-2">
+                      <span className="text-sm text-gray-600">Trim</span>
+                      <p className="font-medium">{vehicle.trim}</p>
+                    </div>
+                  )}
+                  {vehicle.mileage && (
+                    <div>
+                      <span className="text-sm text-gray-600">Mileage</span>
+                      <p className="font-medium">{vehicle.mileage} km</p>
+                    </div>
+                  )}
+                  {vehicle.vin && (
+                    <div>
+                      <span className="text-sm text-gray-600">VIN</span>
+                      <p className="font-mono text-xs">{vehicle.vin}</p>
+                    </div>
+                  )}
+                </div>
+
+                <hr className="my-3" />
+                <h3 className="font-semibold text-lg mb-2">Specifications</h3>
+                <div className="grid grid-cols-2 gap-3">
+                  {vehicle.engine && (
+                    <div className="col-span-2">
+                      <span className="text-sm text-gray-600">Engine</span>
+                      <p className="font-medium">{vehicle.engine}</p>
+                    </div>
+                  )}
+                  {vehicle.transmission && (
+                    <div>
+                      <span className="text-sm text-gray-600">Transmission</span>
+                      <p className="font-medium">{vehicle.transmission}</p>
+                    </div>
+                  )}
+                  {vehicle.drivetrain && (
+                    <div>
+                      <span className="text-sm text-gray-600">Drivetrain</span>
+                      <p className="font-medium">{vehicle.drivetrain}</p>
+                    </div>
+                  )}
+                  {vehicle.fuel && (
+                    <div>
+                      <span className="text-sm text-gray-600">Fuel Type</span>
+                      <p className="font-medium">{vehicle.fuel}</p>
+                    </div>
+                  )}
+                  {vehicle.cylinders && (
+                    <div>
+                      <span className="text-sm text-gray-600">Cylinders</span>
+                      <p className="font-medium">{vehicle.cylinders}</p>
+                    </div>
+                  )}
+                  {vehicle.doors && (
+                    <div>
+                      <span className="text-sm text-gray-600">Doors</span>
+                      <p className="font-medium">{vehicle.doors}</p>
+                    </div>
+                  )}
+                  {vehicle.exteriorColor && (
+                    <div>
+                      <span className="text-sm text-gray-600">Exterior Color</span>
+                      <p className="font-medium">{vehicle.exteriorColor}</p>
+                    </div>
+                  )}
+                  {vehicle.interiorColor && (
+                    <div>
+                      <span className="text-sm text-gray-600">Interior Color</span>
+                      <p className="font-medium">{vehicle.interiorColor}</p>
+                    </div>
+                  )}
+                  {vehicle.category && (
+                    <div>
+                      <span className="text-sm text-gray-600">Category</span>
+                      <p className="font-medium">{vehicle.category}</p>
+                    </div>
+                  )}
+                  {vehicle.location && (
+                    <div>
+                      <span className="text-sm text-gray-600">Location</span>
+                      <p className="font-medium">{vehicle.location}</p>
+                    </div>
+                  )}
+                </div>
               </CardContent>
             </Card>
           </div>
