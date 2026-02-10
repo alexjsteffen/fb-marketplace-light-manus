@@ -1,0 +1,52 @@
+{
+  "query": "SELECT stockNumber, brand, model, year, trim, vin, mileage, exteriorColor, interiorColor, engine, transmission, price FROM inventoryItems WHERE dealerId = 120001 LIMIT 3;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT stockNumber, brand, model, year, trim, vin, mileage, exteriorColor, interiorColor, engine, transmission, price FROM inventoryItems WHERE dealerId = 120001 LIMIT 3;",
+  "rows": [
+    {
+      "stockNumber": "UT159888",
+      "brand": "Jeep",
+      "model": "Gladiator",
+      "year": "2022",
+      "trim": "Rubicon | Fresh Trade-In!",
+      "vin": "1C6JJTBM9NL159888",
+      "mileage": "61277",
+      "exteriorColor": "Grey",
+      "interiorColor": "Black",
+      "engine": "Intercooled Turbo Diesel V-6 3.0 L/182",
+      "transmission": "Auto.",
+      "price": "NULL"
+    },
+    {
+      "stockNumber": "UT747590",
+      "brand": "Jeep",
+      "model": "Grand Cherokee",
+      "year": "2025",
+      "trim": "Summit Reserve | Fresh Trade-In!",
+      "vin": "1C4RJHEG3S8747590",
+      "mileage": "2812",
+      "exteriorColor": "White",
+      "interiorColor": "Black",
+      "engine": "Regular Unleaded V-6 3.6 L/220",
+      "transmission": "Auto.",
+      "price": "NULL"
+    },
+    {
+      "stockNumber": "UT161837",
+      "brand": "Jeep",
+      "model": "Wrangler",
+      "year": "2022",
+      "trim": "Unlimited High Altitude | Fresh Trade-In!",
+      "vin": "1C4HJXEN0NW161837",
+      "mileage": "66611",
+      "exteriorColor": "Black",
+      "interiorColor": "Black",
+      "engine": "Intercooled Turbo Premium Unleaded I-4 2.0 L/122",
+      "transmission": "Auto.",
+      "price": "NULL"
+    }
+  ],
+  "messages": [],
+  "stdout": "stockNumber\tbrand\tmodel\tyear\ttrim\tvin\tmileage\texteriorColor\tinteriorColor\tengine\ttransmission\tprice\nUT159888\tJeep\tGladiator\t2022\tRubicon | Fresh Trade-In!\t1C6JJTBM9NL159888\t61277\tGrey\tBlack\tIntercooled Turbo Diesel V-6 3.0 L/182\tAuto.\tNULL\nUT747590\tJeep\tGrand Cherokee\t2025\tSummit Reserve | Fresh Trade-In!\t1C4RJHEG3S8747590\t2812\tWhite\tBlack\tRegular Unleaded V-6 3.6 L/220\tAuto.\tNULL\nUT161837\tJeep\tWrangler\t2022\tUnlimited High Altitude | Fresh Trade-In!\t1C4HJXEN0NW161837\t66611\tBlack\tBlack\tIntercooled Turbo Premium Unleaded I-4 2.0 L/122\tAuto.\tNULL\n",
+  "stderr": "",
+  "execution_time_ms": 347
+}

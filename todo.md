@@ -436,3 +436,11 @@
 - [x] Add auto-detection of scraper based on URL
 - [x] Package extension v4 with scraper library
 - [ ] Test with Maple Ridge Chrysler inventory page (requires user to test)
+
+## Browser Extension Import - Critical Fixes
+- [x] Expand inventoryItems schema to include VIN, mileage, trim, exteriorColor, interiorColor, engine, transmission, drivetrain, fuel, cylinders, doors, detailUrl
+- [x] Fix extension API price parsing to handle decimal type (convert to string)
+- [x] Update extension API to pass all vehicle fields to database
+- [x] Test full import with all 36 vehicles from Maple Ridge Chrysler - SUCCESS! All 36 vehicles imported with zero errors
+- [ ] Document D2C Media scraper template for reuse across their 1000s of dealer locations
+- [ ] Create scraper template library system for different dealer website providers (D2C Media, WebStager, etc.)

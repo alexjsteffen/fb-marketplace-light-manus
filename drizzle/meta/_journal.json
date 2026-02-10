@@ -29,6 +29,13 @@
       "when": 1770587186341,
       "tag": "0003_fixed_legion",
       "breakpoints": true
+    },
+    {
+      "idx": 4,
+      "version": "5",
+      "when": 1770762880565,
+      "tag": "0004_open_shooting_star",
+      "breakpoints": true
     }
   ]
 }

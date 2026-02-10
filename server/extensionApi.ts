@@ -21,6 +21,7 @@ router.use((req, res, next) => {
 router.post('/import-vehicles', async (req, res) => {
   try {
     const { dealerId, vehicles, apiKey } = req.body;
+    console.log('[EXTENSION API] Received import request:', { dealerId, vehicleCount: vehicles?.length });
     
     // Validate input
     if (!dealerId || !vehicles || !Array.isArray(vehicles)) {
@@ -41,16 +42,53 @@ router.post('/import-vehicles', async (req, res) => {
     for (const vehicle of vehicles) {
       try {
         if (!vehicle.stockNumber) {
+          console.log('[EXTENSION API] Vehicle missing stock number:', vehicle);
           errors.push('Vehicle missing stock number');
           continue;
         }
+        console.log('[EXTENSION API] Processing vehicle:', vehicle.stockNumber);
         
         const existing = await db.getInventoryItemByStockNumber(dealerId, vehicle.stockNumber);
+        
+        // Parse price - extract numbers only, convert to string for decimal column
+        let parsedPrice = null;
+        if (vehicle.price) {
+          const priceStr = vehicle.price.toString().replace(/[^0-9.]/g, '');
+          const priceNum = parseFloat(priceStr);
+          if (!isNaN(priceNum) && priceNum > 0) {
+            parsedPrice = priceNum.toFixed(2);
+          }
+        }
+        
+        const validFields = {
+          stockNumber: vehicle.stockNumber,
+          brand: vehicle.brand,
+          category: vehicle.category,
+          year: vehicle.year ? parseInt(vehicle.year) : undefined,
+          model: vehicle.model,
+          trim: vehicle.trim,
+          description: vehicle.description,
+          price: parsedPrice,
+          mileage: vehicle.mileage,
+          vin: vehicle.vin,
+          exteriorColor: vehicle.exteriorColor,
+          interiorColor: vehicle.interiorColor,
+          engine: vehicle.engine,
+          transmission: vehicle.transmission,
+          drivetrain: vehicle.drivetrain,
+          fuel: vehicle.fuel,
+          cylinders: vehicle.cylinders,
+          doors: vehicle.doors,
+          detailUrl: vehicle.detailUrl,
+          location: vehicle.location,
+          imageUrl: vehicle.imageUrl,
+          condition: vehicle.condition || 'used',
+        };
         
         if (existing) {
           // Update existing
           await db.updateInventoryItem(existing.id, {
-            ...vehicle,
+            ...validFields,
             lastSeenAt: new Date(),
           });
           updated++;
@@ -58,16 +96,17 @@ router.post('/import-vehicles', async (req, res) => {
           // Create new
           await db.createInventoryItem({
             dealerId,
-            ...vehicle,
-            condition: vehicle.condition || 'used',
+            ...validFields,
           });
           imported++;
         }
       } catch (error: any) {
+        console.error('[EXTENSION API] Error importing vehicle:', vehicle.stockNumber, error);
         errors.push(`Stock ${vehicle.stockNumber}: ${error.message}`);
       }
     }
     
+    console.log('[EXTENSION API] Import complete:', { imported, updated, errors: errors.length });
     return res.json({ 
       success: true, 
       imported, 

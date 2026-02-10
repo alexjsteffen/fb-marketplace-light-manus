@@ -1,0 +1,25 @@
+{
+  "query": "SELECT id, name, slug FROM dealers;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT id, name, slug FROM dealers;",
+  "rows": [
+    {
+      "id": "60001",
+      "name": "Novlan Ford",
+      "slug": "https---novlanbros-com-ford-"
+    },
+    {
+      "id": "120001",
+      "name": "Maple Ridge Chrysler",
+      "slug": "https---www-mapleridgechrysler-com-used-search-html"
+    },
+    {
+      "id": "150001",
+      "name": "CSV Test Dealer",
+      "slug": "csv-test-dealer"
+    }
+  ],
+  "messages": [],
+  "stdout": "id\tname\tslug\n60001\tNovlan Ford\thttps---novlanbros-com-ford-\n120001\tMaple Ridge Chrysler\thttps---www-mapleridgechrysler-com-used-search-html\n150001\tCSV Test Dealer\tcsv-test-dealer\n",
+  "stderr": "",
+  "execution_time_ms": 406
+}

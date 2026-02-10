@@ -1,0 +1,9 @@
+{
+  "query": "ALTER TABLE `inventoryItems` ADD `trim` varchar(255);\nALTER TABLE `inventoryItems` ADD `mileage` varchar(50);\nALTER TABLE `inventoryItems` ADD `vin` varchar(50);\nALTER TABLE `inventoryItems` ADD `exteriorColor` varchar(100);\nALTER TABLE `inventoryItems` ADD `interiorColor` varchar(100);\nALTER TABLE `inventoryItems` ADD `engine` varchar(255);\nALTER TABLE `inventoryItems` ADD `transmission` varchar(100);\nALTER TABLE `inventoryItems` ADD `drivetrain` varchar(100);\nALTER TABLE `inventoryItems` ADD `fuel` varchar(50);\nALTER TABLE `inventoryItems` ADD `cylinders` varchar(20);\nALTER TABLE `inventoryItems` ADD `doors` varchar(20);\nALTER TABLE `inventoryItems` ADD `detailUrl` text;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute ALTER TABLE `inventoryItems` ADD `trim` varchar(255);\nALTER TABLE `inventoryItems` ADD `mileage` varchar(50);\nALTER TABLE `inventoryItems` ADD `vin` varchar(50);\nALTER TABLE `inventoryItems` ADD `exteriorColor` varchar(100);\nALTER TABLE `inventoryItems` ADD `interiorColor` varchar(100);\nALTER TABLE `inventoryItems` ADD `engine` varchar(255);\nALTER TABLE `inventoryItems` ADD `transmission` varchar(100);\nALTER TABLE `inventoryItems` ADD `drivetrain` varchar(100);\nALTER TABLE `inventoryItems` ADD `fuel` varchar(50);\nALTER TABLE `inventoryItems` ADD `cylinders` varchar(20);\nALTER TABLE `inventoryItems` ADD `doors` varchar(20);\nALTER TABLE `inventoryItems` ADD `detailUrl` text;",
+  "rows": [],
+  "messages": [],
+  "stdout": "",
+  "stderr": "",
+  "execution_time_ms": 5590
+}
