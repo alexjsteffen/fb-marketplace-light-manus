@@ -219,6 +219,16 @@ export async function getInventoryItemById(id: number) {
   return result.length > 0 ? result[0] : undefined;
 }
 
+export async function getInventoryItemByStockNumber(dealerId: number, stockNumber: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+  
+  const result = await db.select().from(inventoryItems)
+    .where(and(eq(inventoryItems.dealerId, dealerId), eq(inventoryItems.stockNumber, stockNumber)))
+    .limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
 export async function updateInventoryItem(id: number, updates: Partial<InsertInventoryItem>) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");

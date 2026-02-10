@@ -392,3 +392,12 @@
 - [ ] Test extension on Maple Ridge Chrysler website (requires user to install and test)
 - [x] Package extension as ZIP for installation
 - [x] Write installation instructions for user
+
+## Bug Fix - Extension "Failed to fetch" Error
+- [x] Diagnose CORS and authentication issues with extension API calls
+- [x] Create dedicated REST API endpoint at /api/extension/import-vehicles
+- [x] Add getInventoryItemByStockNumber function to db.ts
+- [x] Update extension content.js to use new REST endpoint
+- [x] Fix API response handling in extension
+- [ ] Test extension successfully imports vehicles (requires user to test)
+- [x] Package updated extension and provide to user
