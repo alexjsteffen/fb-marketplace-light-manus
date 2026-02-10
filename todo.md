@@ -406,3 +406,33 @@
 - [x] Add CORS headers to extension API endpoint to allow cross-origin requests
 - [x] Test extension successfully imports from Maple Ridge Chrysler website (imported 4, updated 1)
 - [x] Extension now working - no updated package needed (server-side fix only)
+
+## Feature - Auto-Scroll for Infinite Scroll Pages
+- [x] Add auto-scroll function to extension content.js to trigger lazy loading
+- [x] Detect when all content has loaded (no new vehicles appearing)
+- [x] Update scrapeAndSend to auto-scroll before extracting vehicles
+- [ ] Test with Maple Ridge Chrysler to scrape all 154 vehicles (requires user to test)
+- [x] Package updated extension v3
+
+## Bug Fix - Extension Not Capturing Vehicle Images
+- [x] Improve image extraction to check data-src, data-lazy-src, and srcset attributes
+- [x] Filter out placeholder/blank images
+- [ ] Test image extraction with Maple Ridge Chrysler (requires user to test)
+- [x] Package updated extension v3 with image fix
+
+## Feature - Dealer Scraper Library System
+- [ ] Analyze Maple Ridge Chrysler page structure (popup info buttons, image gallery, vehicle details)
+- [ ] Create scraper template/library system that preserves existing Novlan Ford scraper
+- [ ] Build Maple Ridge Chrysler scraper template extracting: images, title, make, year, model, stock#, engine, cylinders, transmission, drivetrain, fuel, category, exterior color, interior color, doors, summary details
+- [ ] Test scraper extracts all 36 vehicles per page with complete data
+- [ ] Document scraper library for future dealer additions
+
+## Feature - Dealer Scraper Library System
+- [x] Analyze Maple Ridge Chrysler HTML structure from provided files
+- [x] Create scraperTemplates.js library file with template system
+- [x] Build Maple Ridge Chrysler specific scraper template
+- [x] Extract all required fields: images, title, stock#, engine, cylinders, transmission, drivetrain, fuel, category, colors, doors, summary
+- [x] Update content.js to use scraper template library
+- [x] Add auto-detection of scraper based on URL
+- [x] Package extension v4 with scraper library
+- [ ] Test with Maple Ridge Chrysler inventory page (requires user to test)
