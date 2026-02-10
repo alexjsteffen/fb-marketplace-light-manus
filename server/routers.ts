@@ -269,6 +269,60 @@ export const appRouter = router({
         }
       }),
 
+    importFromExtension: protectedProcedure
+      .input(z.object({
+        dealerId: z.number(),
+        vehicles: z.array(z.object({
+          stockNumber: z.string(),
+          brand: z.string().optional(),
+          model: z.string().optional(),
+          year: z.number().optional(),
+          trim: z.string().optional(),
+          price: z.string().optional(),
+          mileage: z.string().optional(),
+          vin: z.string().optional(),
+          category: z.string().optional(),
+          location: z.string().optional(),
+          imageUrl: z.string().optional(),
+          description: z.string().optional(),
+          condition: z.enum(['new', 'used']).optional(),
+        })),
+      }))
+      .mutation(async ({ input }) => {
+        const { dealerId, vehicles } = input;
+        
+        let imported = 0;
+        let updated = 0;
+        const errors: string[] = [];
+        
+        for (const vehicle of vehicles) {
+          try {
+            const existing = await db.getInventoryItemByStockNumber(dealerId, vehicle.stockNumber);
+            
+            if (existing) {
+              // Update existing
+              await db.updateInventoryItem(existing.id, {
+                ...vehicle,
+                lastSeenAt: new Date(),
+              });
+              updated++;
+            } else {
+              // Create new
+              await db.createInventoryItem({
+                dealerId,
+                ...vehicle,
+                condition: vehicle.condition || 'used',
+              });
+              imported++;
+            }
+          } catch (error: any) {
+            errors.push(`Stock ${vehicle.stockNumber}: ${error.message}`);
+          }
+        }
+        
+        return { success: true, imported, updated, errors };
+      }),
+
     update: protectedProcedure
       .input(z.object({
         id: z.number(),

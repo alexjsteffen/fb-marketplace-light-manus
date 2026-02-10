@@ -382,3 +382,13 @@
 - [x] Wire Settings button to open dropdown menu with Edit/Delete options
 - [x] Test edit dealer dialog opens and pre-fills data correctly
 - [x] Test delete confirmation dialog (TypeScript error is cosmetic, runtime works)
+
+## Feature - Browser Extension for Geo-Blocked Scraping
+- [x] Create backend API endpoint `inventory.importFromExtension` to receive scraped data
+- [x] Build Chrome extension manifest.json with permissions
+- [x] Create extension popup UI with scrape button and dealer selection
+- [x] Write content script to extract vehicle data from dealer pages
+- [x] Add background script to send data to app API
+- [ ] Test extension on Maple Ridge Chrysler website (requires user to install and test)
+- [x] Package extension as ZIP for installation
+- [x] Write installation instructions for user
