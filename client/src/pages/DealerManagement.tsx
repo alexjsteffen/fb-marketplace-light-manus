@@ -5,96 +5,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
-import { Building2, Plus, Settings, Package, Upload } from "lucide-react";
+import { Building2, Plus, Settings, Package } from "lucide-react";
 import { useState } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
-
-function CsvImportButton({ dealerId, onSuccess }: { dealerId: number; onSuccess: () => void }) {
-  const [open, setOpen] = useState(false);
-  const [file, setFile] = useState<File | null>(null);
-  const importCsv = trpc.inventory.importCsv.useMutation({
-    onSuccess: (data) => {
-      toast.success(`Imported ${data.imported} new vehicles, updated ${data.updated} existing`);
-      setOpen(false);
-      setFile(null);
-      onSuccess();
-    },
-    onError: (error) => {
-      toast.error(error.message || "Failed to import CSV");
-    },
-  });
-
-  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    if (e.target.files && e.target.files[0]) {
-      setFile(e.target.files[0]);
-    }
-  };
-
-  const handleImport = async () => {
-    if (!file) {
-      toast.error("Please select a CSV file");
-      return;
-    }
-
-    const text = await file.text();
-    importCsv.mutate({
-      dealerId,
-      csvContent: text,
-    });
-  };
-
-  return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="w-full">
-          <Upload className="w-4 h-4 mr-2" />
-          Import CSV
-        </Button>
-      </DialogTrigger>
-      <DialogContent>
-        <DialogHeader>
-          <DialogTitle>Import Inventory from CSV</DialogTitle>
-          <DialogDescription>
-            Upload a CSV file with vehicle inventory. Required column: stockNumber. Optional: make, model, year, price, mileage, vin, etc.
-          </DialogDescription>
-        </DialogHeader>
-        <div className="space-y-4 py-4">
-          <div className="space-y-2">
-            <Label htmlFor="csv-file">CSV File</Label>
-            <Input
-              id="csv-file"
-              type="file"
-              accept=".csv"
-              onChange={handleFileChange}
-            />
-            {file && (
-              <p className="text-sm text-gray-600">
-                Selected: {file.name} ({(file.size / 1024).toFixed(1)} KB)
-              </p>
-            )}
-          </div>
-          <div className="text-sm text-gray-600 space-y-1">
-            <p className="font-medium">CSV Format Example:</p>
-            <pre className="bg-gray-100 p-2 rounded text-xs overflow-x-auto">
-stockNumber,make,model,year,price,mileage
-P8031,Ford,F-150,2023,45000,12500
-24225,Ford,Bronco,2024,52000,8200
-            </pre>
-          </div>
-        </div>
-        <DialogFooter>
-          <Button type="button" variant="outline" onClick={() => setOpen(false)}>
-            Cancel
-          </Button>
-          <Button onClick={handleImport} disabled={!file || importCsv.isPending}>
-            {importCsv.isPending ? "Importing..." : "Import"}
-          </Button>
-        </DialogFooter>
-      </DialogContent>
-    </Dialog>
-  );
-}
 
 export default function DealerManagement() {
   const { user, loading: authLoading } = useAuth();
@@ -311,20 +225,17 @@ export default function DealerManagement() {
                       </p>
                     )}
                   </div>
-                  <div className="mt-4 flex flex-col gap-2">
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" className="flex-1" asChild>
-                        <Link href={`/inventory/${dealer.id}`}>
-                          View Inventory
-                        </Link>
-                      </Button>
-                      <Button variant="outline" size="sm" className="flex-1" asChild>
-                        <Link href={`/dashboard/${dealer.id}`}>
-                          Dashboard
-                        </Link>
-                      </Button>
-                    </div>
-                    <CsvImportButton dealerId={dealer.id} onSuccess={refetch} />
+                  <div className="mt-4 flex gap-2">
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={`/inventory/${dealer.id}`}>
+                        View Inventory
+                      </Link>
+                    </Button>
+                    <Button variant="outline" size="sm" className="w-full" asChild>
+                      <Link href={`/dashboard/${dealer.id}`}>
+                        Dashboard
+                      </Link>
+                    </Button>
                   </div>
                 </CardContent>
               </Card>

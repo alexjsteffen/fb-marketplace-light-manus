@@ -7,7 +7,6 @@ import * as db from "./db";
 import { TRPCError } from "@trpc/server";
 import { enhanceAdText, generateAdImage, TEMPLATE_CONFIGS } from "./adEnhancement";
 import { scrapeInventoryFromUrl } from "./inventoryScraper";
-import { parse } from "csv-parse/sync";
 
 export const appRouter = router({
   system: systemRouter,
@@ -175,89 +174,6 @@ export const appRouter = router({
         }
         
         return { success: true, imported: items.length };
-      }),
-
-    importCsv: protectedProcedure
-      .input(z.object({
-        dealerId: z.number(),
-        csvContent: z.string(),
-      }))
-      .mutation(async ({ input }) => {
-        const { dealerId, csvContent } = input;
-        
-        try {
-          // Parse CSV
-          const records = parse(csvContent, {
-            columns: true,
-            skip_empty_lines: true,
-            trim: true,
-          });
-          
-          if (records.length === 0) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'CSV file is empty' });
-          }
-          
-          // Map CSV columns to inventory items
-          const items = records.map((record: any) => ({
-            stockNumber: record.stockNumber || record.stock || record.Stock || '',
-            brand: record.brand || record.make || record.Make || undefined,
-            model: record.model || record.Model || undefined,
-            year: record.year || record.Year ? parseInt(record.year || record.Year) : undefined,
-            trim: record.trim || record.Trim || undefined,
-            price: record.price || record.Price || undefined,
-            mileage: record.mileage || record.Mileage || undefined,
-            vin: record.vin || record.VIN || record.Vin || undefined,
-            category: record.category || record.Category || undefined,
-            location: record.location || record.Location || undefined,
-            imageUrl: record.imageUrl || record.image || record.Image || undefined,
-            description: record.description || record.Description || undefined,
-            condition: (record.condition === 'new' || record.category === 'new') ? 'new' as const : 'used' as const,
-          })).filter((item: any) => item.stockNumber); // Filter out items without stock numbers
-          
-          if (items.length === 0) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'No valid items found in CSV. Ensure stockNumber column exists.' });
-          }
-          
-          // Get current active stock numbers
-          const activeStockNumbers = items.map((item: any) => item.stockNumber);
-          
-          // Mark items not in the import as sold
-          if (activeStockNumbers.length > 0) {
-            await db.markItemsAsSold(dealerId, activeStockNumbers);
-          }
-          
-          // Update lastSeenAt for existing items
-          await db.updateLastSeenAt(dealerId, activeStockNumbers);
-          
-          // Insert or update items
-          let imported = 0;
-          let updated = 0;
-          for (const item of items) {
-            try {
-              await db.createInventoryItem({
-                ...item,
-                dealerId,
-              });
-              imported++;
-            } catch (error) {
-              // Item might already exist, just update lastSeenAt (already done above)
-              updated++;
-            }
-          }
-          
-          return { 
-            success: true, 
-            imported, 
-            updated,
-            total: items.length 
-          };
-        } catch (error: any) {
-          if (error instanceof TRPCError) throw error;
-          throw new TRPCError({ 
-            code: 'BAD_REQUEST', 
-            message: `Failed to parse CSV: ${error.message}` 
-          });
-        }
       }),
 
     update: protectedProcedure
