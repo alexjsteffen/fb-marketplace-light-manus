@@ -90,6 +90,15 @@ export const appRouter = router({
         await db.updateDealer(id, updates);
         return { success: true };
       }),
+
+    delete: protectedProcedure
+      .input(z.object({
+        id: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        await db.deleteDealer(input.id);
+        return { success: true };
+      }),
   }),
 
   // Inventory management

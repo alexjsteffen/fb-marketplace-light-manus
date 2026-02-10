@@ -141,6 +141,17 @@ export async function updateDealer(id: number, updates: Partial<InsertDealer>) {
   await db.update(dealers).set(updates).where(eq(dealers.id, id));
 }
 
+export async function deleteDealer(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+  
+  // Delete all associated data first (cascade delete)
+  await db.delete(generatedContent).where(eq(generatedContent.dealerId, id));
+  await db.delete(facebookAds).where(eq(facebookAds.dealerId, id));
+  await db.delete(inventoryItems).where(eq(inventoryItems.dealerId, id));
+  await db.delete(dealers).where(eq(dealers.id, id));
+}
+
 // Inventory management functions
 export async function createInventoryItem(item: InsertInventoryItem) {
   const db = await getDb();

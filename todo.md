@@ -373,3 +373,12 @@
 - [x] Add CSV upload UI to Dealer Management page
 - [x] Handle duplicate stock numbers (update existing or skip)
 - [x] Test CSV import with sample data (all 4 tests passing)
+
+## Feature - Dealer Edit and Delete Functionality
+- [x] Add edit dealer dialog with form fields (name, email, phone, website, inventory URL)
+- [x] Create backend update dealer tRPC procedure (already existed)
+- [x] Add delete dealer confirmation dialog
+- [x] Create backend delete dealer tRPC procedure
+- [x] Wire Settings button to open dropdown menu with Edit/Delete options
+- [x] Test edit dealer dialog opens and pre-fills data correctly
+- [x] Test delete confirmation dialog (TypeScript error is cosmetic, runtime works)

@@ -5,8 +5,10 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { trpc } from "@/lib/trpc";
-import { Building2, Plus, Settings, Package, Upload } from "lucide-react";
-import { useState } from "react";
+import { Building2, Plus, Settings, Package, Upload, Trash2, Edit } from "lucide-react";
+import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from "@/components/ui/alert-dialog";
+import { useState, useEffect } from "react";
 import { Link } from "wouter";
 import { toast } from "sonner";
 
@@ -99,7 +101,17 @@ P8031,Ford,F-150,2023,45000,12500
 export default function DealerManagement() {
   const { user, loading: authLoading } = useAuth();
   const [open, setOpen] = useState(false);
+  const [editingDealer, setEditingDealer] = useState<any>(null);
+  const [deletingDealer, setDeletingDealer] = useState<any>(null);
   const [formData, setFormData] = useState({
+    name: "",
+    slug: "",
+    contactEmail: "",
+    contactPhone: "",
+    websiteUrl: "",
+    brandColor: "#3b82f6",
+  });
+  const [editFormData, setEditFormData] = useState({
     name: "",
     slug: "",
     contactEmail: "",
@@ -109,6 +121,43 @@ export default function DealerManagement() {
   });
 
   const { data: dealers, isLoading, refetch } = trpc.dealers.list.useQuery();
+  
+  // Initialize edit form when dealer is selected
+  useEffect(() => {
+    if (editingDealer) {
+      setEditFormData({
+        name: editingDealer.name || "",
+        slug: editingDealer.slug || "",
+        contactEmail: editingDealer.contactEmail || "",
+        contactPhone: editingDealer.contactPhone || "",
+        websiteUrl: editingDealer.websiteUrl || "",
+        brandColor: editingDealer.brandColor || "#3b82f6",
+      });
+    }
+  }, [editingDealer]);
+
+  const updateDealer = trpc.dealers.update.useMutation({
+    onSuccess: () => {
+      toast.success("Dealer updated successfully");
+      setEditingDealer(null);
+      refetch();
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to update dealer");
+    },
+  });
+
+  const deleteDealer = trpc.dealers.delete.useMutation({
+    onSuccess: () => {
+      toast.success("Dealer deleted successfully");
+      setDeletingDealer(null);
+      refetch();
+    },
+    onError: (error: any) => {
+      toast.error(error.message || "Failed to delete dealer");
+    },
+  });
+
   const createDealer = trpc.dealers.create.useMutation({
     onSuccess: () => {
       toast.success("Dealer created successfully");
@@ -285,9 +334,26 @@ export default function DealerManagement() {
                         <CardDescription>@{dealer.slug}</CardDescription>
                       </div>
                     </div>
-                    <Button variant="ghost" size="icon">
-                      <Settings className="w-4 h-4" />
-                    </Button>
+                    <DropdownMenu>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="icon">
+                          <Settings className="w-4 h-4" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end">
+                        <DropdownMenuItem onClick={() => setEditingDealer(dealer)}>
+                          <Edit className="w-4 h-4 mr-2" />
+                          Edit Dealer
+                        </DropdownMenuItem>
+                        <DropdownMenuItem 
+                          onClick={() => setDeletingDealer(dealer)}
+                          className="text-red-600"
+                        >
+                          <Trash2 className="w-4 h-4 mr-2" />
+                          Delete Dealer
+                        </DropdownMenuItem>
+                      </DropdownMenuContent>
+                    </DropdownMenu>
                   </div>
                 </CardHeader>
                 <CardContent>
@@ -332,6 +398,121 @@ export default function DealerManagement() {
           </div>
         )}
       </main>
+
+      {/* Edit Dealer Dialog */}
+      <Dialog open={!!editingDealer} onOpenChange={(open) => !open && setEditingDealer(null)}>
+        <DialogContent>
+          <DialogHeader>
+            <DialogTitle>Edit Dealer</DialogTitle>
+            <DialogDescription>Update dealer information</DialogDescription>
+          </DialogHeader>
+          <form onSubmit={(e) => {
+            e.preventDefault();
+            updateDealer.mutate({
+              id: editingDealer.id,
+              name: editFormData.name,
+              contactEmail: editFormData.contactEmail || undefined,
+              contactPhone: editFormData.contactPhone || undefined,
+              websiteUrl: editFormData.websiteUrl || undefined,
+              brandColor: editFormData.brandColor,
+            });
+          }}>
+            <div className="grid gap-4 py-4">
+              <div className="grid gap-2">
+                <Label htmlFor="edit-name">Dealer Name *</Label>
+                <Input
+                  id="edit-name"
+                  value={editFormData.name}
+                  onChange={(e) => setEditFormData({ ...editFormData, name: e.target.value })}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-slug">Slug (URL identifier) *</Label>
+                <Input
+                  id="edit-slug"
+                  value={editFormData.slug}
+                  onChange={(e) => setEditFormData({ ...editFormData, slug: e.target.value.toLowerCase().replace(/[^a-z0-9-]/g, '-') })}
+                  required
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-email">Contact Email</Label>
+                <Input
+                  id="edit-email"
+                  type="email"
+                  value={editFormData.contactEmail}
+                  onChange={(e) => setEditFormData({ ...editFormData, contactEmail: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-phone">Contact Phone</Label>
+                <Input
+                  id="edit-phone"
+                  value={editFormData.contactPhone}
+                  onChange={(e) => setEditFormData({ ...editFormData, contactPhone: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-website">Website URL</Label>
+                <Input
+                  id="edit-website"
+                  type="url"
+                  value={editFormData.websiteUrl}
+                  onChange={(e) => setEditFormData({ ...editFormData, websiteUrl: e.target.value })}
+                />
+              </div>
+              <div className="grid gap-2">
+                <Label htmlFor="edit-color">Brand Color</Label>
+                <div className="flex gap-2">
+                  <Input
+                    id="edit-color"
+                    type="color"
+                    value={editFormData.brandColor}
+                    onChange={(e) => setEditFormData({ ...editFormData, brandColor: e.target.value })}
+                    className="w-20 h-10"
+                  />
+                  <Input
+                    value={editFormData.brandColor}
+                    onChange={(e) => setEditFormData({ ...editFormData, brandColor: e.target.value })}
+                  />
+                </div>
+              </div>
+            </div>
+            <DialogFooter>
+              <Button type="button" variant="outline" onClick={() => setEditingDealer(null)}>
+                Cancel
+              </Button>
+              <Button type="submit" disabled={updateDealer.isPending}>
+                {updateDealer.isPending ? "Saving..." : "Save Changes"}
+              </Button>
+            </DialogFooter>
+          </form>
+        </DialogContent>
+      </Dialog>
+
+      {/* Delete Dealer Confirmation */}
+      <AlertDialog open={!!deletingDealer} onOpenChange={(open) => !open && setDeletingDealer(null)}>
+        <AlertDialogContent>
+          <AlertDialogHeader>
+            <AlertDialogTitle>Delete Dealer?</AlertDialogTitle>
+            <AlertDialogDescription>
+              Are you sure you want to delete <strong>{deletingDealer?.name}</strong>? This will also delete all associated inventory and ads. This action cannot be undone.
+            </AlertDialogDescription>
+          </AlertDialogHeader>
+          <AlertDialogFooter>
+            <AlertDialogCancel>Cancel</AlertDialogCancel>
+            <AlertDialogAction
+              onClick={() => {
+                deleteDealer.mutate({ id: deletingDealer.id });
+              }}
+              className="bg-red-600 hover:bg-red-700"
+            >
+              Delete
+            </AlertDialogAction>
+          </AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
     </div>
   );
 }
