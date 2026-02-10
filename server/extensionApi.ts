@@ -3,6 +3,20 @@ import * as db from './db';
 
 const router = Router();
 
+// CORS middleware to allow cross-origin requests from any website
+router.use((req, res, next) => {
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'POST, OPTIONS');
+  res.header('Access-Control-Allow-Headers', 'Content-Type');
+  
+  // Handle preflight OPTIONS request
+  if (req.method === 'OPTIONS') {
+    return res.sendStatus(200);
+  }
+  
+  next();
+});
+
 // REST endpoint for browser extension to import vehicles
 router.post('/import-vehicles', async (req, res) => {
   try {
