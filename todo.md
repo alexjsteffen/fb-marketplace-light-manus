@@ -463,3 +463,10 @@
 - [x] Add price display to inventory page showing actual price or "Call for Pricing" (always shows price now)
 - [ ] Test price display in generated ad images
 - [ ] Test fetch descriptions feature with Maple Ridge vehicles
+
+## Bug Fix - Missing Inventory Page Buttons
+- [x] Investigate why "Fetch Descriptions" button is not visible in inventory page header - was only showing in empty state
+- [x] Investigate why "Batch Enhance" button is not visible in inventory page header - was only showing in empty state
+- [x] Add "(add desc+)" label next to checkboxes to clarify their purpose
+- [x] Move buttons to header so they're always visible when inventory exists
+- [ ] Verify all existing inventory page features remain intact (filters, view modes, vehicle cards, detail modal)

@@ -709,6 +709,42 @@ export default function Inventory() {
                 <List className="w-4 h-4" />
               </Button>
             </div>
+            <Button 
+              variant="outline"
+              size="sm"
+              onClick={handleFetchDescriptions}
+              disabled={fetchingDescriptions || selectedVehicleIds.size === 0}
+            >
+              {fetchingDescriptions ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Fetching {fetchProgress.current}/{fetchProgress.total}...
+                </>
+              ) : (
+                <>
+                  <Globe className="w-4 h-4 mr-2" />
+                  Fetch Descriptions ({selectedVehicleIds.size})
+                </>
+              )}
+            </Button>
+            <Button 
+              variant="default"
+              size="sm"
+              onClick={handleBatchEnhance}
+              disabled={batchEnhancing || !inventory?.filter((item: any) => item.condition === 'new').length}
+            >
+              {batchEnhancing ? (
+                <>
+                  <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                  Enhancing {batchProgress.current}/{batchProgress.total}...
+                </>
+              ) : (
+                <>
+                  <Sparkles className="w-4 h-4 mr-2" />
+                  Batch Enhance
+                </>
+              )}
+            </Button>
           </div>
         </div>
       </header>
@@ -732,40 +768,6 @@ export default function Inventory() {
                 <Upload className="w-4 h-4 mr-2" />
                 Bulk Import
               </Button>
-              <Button 
-                variant="outline"
-                onClick={handleFetchDescriptions}
-                disabled={fetchingDescriptions || selectedVehicleIds.size === 0}
-              >
-                {fetchingDescriptions ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Fetching {fetchProgress.current}/{fetchProgress.total}...
-                  </>
-                ) : (
-                  <>
-                    <Globe className="w-4 h-4 mr-2" />
-                    Fetch Descriptions ({selectedVehicleIds.size})
-                  </>
-                )}
-              </Button>
-              <Button 
-                variant="default" 
-                onClick={handleBatchEnhance}
-                disabled={batchEnhancing || !inventory?.filter((item: any) => item.condition === 'new').length}
-              >
-                {batchEnhancing ? (
-                  <>
-                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                    Enhancing {batchProgress.current}/{batchProgress.total}...
-                  </>
-                ) : (
-                  <>
-                    <Sparkles className="w-4 h-4 mr-2" />
-                    Enhance All New
-                  </>
-                )}
-              </Button>
             </div>
           </div>
         ) : viewMode === "box" ? (
@@ -777,7 +779,7 @@ export default function Inventory() {
                 onClick={() => setSelectedVehicle(item)}
               >
                 <div 
-                  className="absolute top-2 left-2 z-10"
+                  className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/90 px-2 py-1 rounded shadow-sm"
                   onClick={(e) => e.stopPropagation()}
                 >
                   <Checkbox
@@ -792,6 +794,7 @@ export default function Inventory() {
                       setSelectedVehicleIds(newSelected);
                     }}
                   />
+                  <span className="text-xs text-gray-600">add desc+</span>
                 </div>
                 <CardHeader className="p-0">
                   {item.imageUrl ? (
@@ -862,7 +865,7 @@ export default function Inventory() {
                 <CardContent className="p-4">
                   <div className="flex gap-4">
                     <div 
-                      className="flex items-start pt-2"
+                      className="flex flex-col items-start pt-2 gap-1"
                       onClick={(e) => e.stopPropagation()}
                     >
                       <Checkbox
@@ -877,6 +880,7 @@ export default function Inventory() {
                           setSelectedVehicleIds(newSelected);
                         }}
                       />
+                      <span className="text-[10px] text-gray-500 leading-none">add<br/>desc+</span>
                     </div>
                     {item.imageUrl ? (
                       <img
