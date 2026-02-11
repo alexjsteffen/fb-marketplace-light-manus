@@ -450,3 +450,16 @@
 - [x] Update VehicleDetailModal component to display all new vehicle specifications
 - [x] Organize specs into logical sections (Overview, Specifications, Colors, Drivetrain)
 - [ ] Test that all imported data displays correctly in the modal
+
+## Fetch Full Descriptions Feature
+- [x] Create backend endpoint to fetch full description from detail URL using web scraping
+- [x] Add checkbox selection to inventory page for selecting vehicles
+- [x] Add "Fetch Full Descriptions" button that processes selected vehicles
+- [x] Show progress indicator while fetching descriptions in background
+- [x] Update vehicle descriptions in database after fetching
+
+## Price Display Improvements
+- [x] Fix image generation to show "Call for Pricing" when price is null
+- [x] Add price display to inventory page showing actual price or "Call for Pricing" (always shows price now)
+- [ ] Test price display in generated ad images
+- [ ] Test fetch descriptions feature with Maple Ridge vehicles

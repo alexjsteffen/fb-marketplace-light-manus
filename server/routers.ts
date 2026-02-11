@@ -377,6 +377,58 @@ export const appRouter = router({
         return { success: true };
       }),
 
+    fetchFullDescription: protectedProcedure
+      .input(z.object({
+        inventoryItemId: z.number(),
+      }))
+      .mutation(async ({ input }) => {
+        const item = await db.getInventoryItemById(input.inventoryItemId);
+        if (!item) {
+          throw new TRPCError({ code: 'NOT_FOUND', message: 'Vehicle not found' });
+        }
+        
+        if (!item.detailUrl) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'No detail URL available for this vehicle' });
+        }
+        
+        // Fetch the detail page HTML
+        const response = await fetch(item.detailUrl);
+        if (!response.ok) {
+          throw new TRPCError({ code: 'INTERNAL_SERVER_ERROR', message: 'Failed to fetch detail page' });
+        }
+        
+        const html = await response.text();
+        
+        // Parse HTML to extract description
+        // D2C Media sites use specific selectors for vehicle descriptions
+        const descriptionMatch = html.match(/<div class="vehicleDescription"[^>]*>(.*?)<\/div>/s) ||
+                                html.match(/<div class="description"[^>]*>(.*?)<\/div>/s) ||
+                                html.match(/<div class="comments"[^>]*>(.*?)<\/div>/s);
+        
+        let fullDescription = item.description || '';
+        
+        if (descriptionMatch && descriptionMatch[1]) {
+          // Strip HTML tags and clean up
+          fullDescription = descriptionMatch[1]
+            .replace(/<[^>]*>/g, '')
+            .replace(/&nbsp;/g, ' ')
+            .replace(/&amp;/g, '&')
+            .replace(/&lt;/g, '<')
+            .replace(/&gt;/g, '>')
+            .replace(/&quot;/g, '"')
+            .replace(/\s+/g, ' ')
+            .trim();
+        }
+        
+        // Update the vehicle with the full description
+        if (fullDescription && fullDescription !== item.description) {
+          await db.updateInventoryItem(item.id, { description: fullDescription });
+          return { success: true, description: fullDescription };
+        }
+        
+        return { success: false, message: 'No description found on detail page' };
+      }),
+
     batchEnhance: protectedProcedure
       .input(z.object({
         dealerId: z.number(),

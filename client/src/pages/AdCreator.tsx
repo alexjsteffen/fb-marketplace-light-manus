@@ -126,7 +126,7 @@ export default function AdCreator() {
     setIsGenerating(true);
 
     const title = `${item.year || ""} ${item.brand || ""} ${item.model || ""}`.trim();
-    const price = item.price ? `$${parseFloat(item.price).toLocaleString()}` : undefined;
+    const price = item.price ? `$${parseFloat(item.price).toLocaleString()}` : "Call for Pricing";
 
     generateImage.mutate({
       vehicleImageUrl: item.imageUrl,

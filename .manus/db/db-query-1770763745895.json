@@ -1,0 +1,50 @@
+{
+  "query": "SELECT stockNumber, brand, model, price, LENGTH(description) as desc_length, SUBSTRING(description, 1, 100) as desc_preview FROM inventoryItems WHERE dealerId = 120001 LIMIT 5;",
+  "command": "mysql --batch --raw --column-names --default-character-set=utf8mb4 --host gateway03.us-east-1.prod.aws.tidbcloud.com --port 4000 --user 2F4gXNdSiMoWnF9.7c8a24292ad0 --database RzTEWttBsCe6CWwBvFPaLT --execute SELECT stockNumber, brand, model, price, LENGTH(description) as desc_length, SUBSTRING(description, 1, 100) as desc_preview FROM inventoryItems WHERE dealerId = 120001 LIMIT 5;",
+  "rows": [
+    {
+      "stockNumber": "UT159888",
+      "brand": "Jeep",
+      "model": "Gladiator",
+      "price": "NULL",
+      "desc_length": "45",
+      "desc_preview": "2022 Jeep Gladiator Rubicon | Fresh Trade-In!"
+    },
+    {
+      "stockNumber": "UT747590",
+      "brand": "Jeep",
+      "model": "Grand Cherokee",
+      "price": "NULL",
+      "desc_length": "57",
+      "desc_preview": "2025 Jeep Grand Cherokee Summit Reserve | Fresh Trade-In!"
+    },
+    {
+      "stockNumber": "UT161837",
+      "brand": "Jeep",
+      "model": "Wrangler",
+      "price": "NULL",
+      "desc_length": "60",
+      "desc_preview": "2022 Jeep Wrangler Unlimited High Altitude | Fresh Trade-In!"
+    },
+    {
+      "stockNumber": "UT148303",
+      "brand": "RAM",
+      "model": "ProMaster Cargo Van",
+      "price": "NULL",
+      "desc_length": "46",
+      "desc_preview": "2018 RAM ProMaster Cargo Van | Fresh Trade-In!"
+    },
+    {
+      "stockNumber": "UT515842",
+      "brand": "Dodge",
+      "model": "Grand Caravan",
+      "price": "NULL",
+      "desc_length": "76",
+      "desc_preview": "2019 Dodge Grand Caravan GT | Remote Starter | Backup Camera | Leather Seats"
+    }
+  ],
+  "messages": [],
+  "stdout": "stockNumber\tbrand\tmodel\tprice\tdesc_length\tdesc_preview\nUT159888\tJeep\tGladiator\tNULL\t45\t2022 Jeep Gladiator Rubicon | Fresh Trade-In!\nUT747590\tJeep\tGrand Cherokee\tNULL\t57\t2025 Jeep Grand Cherokee Summit Reserve | Fresh Trade-In!\nUT161837\tJeep\tWrangler\tNULL\t60\t2022 Jeep Wrangler Unlimited High Altitude | Fresh Trade-In!\nUT148303\tRAM\tProMaster Cargo Van\tNULL\t46\t2018 RAM ProMaster Cargo Van | Fresh Trade-In!\nUT515842\tDodge\tGrand Caravan\tNULL\t76\t2019 Dodge Grand Caravan GT | Remote Starter | Backup Camera | Leather Seats\n",
+  "stderr": "",
+  "execution_time_ms": 351
+}

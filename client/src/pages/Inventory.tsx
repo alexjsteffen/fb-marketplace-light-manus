@@ -35,6 +35,11 @@ export default function Inventory() {
   const [scrapeUrl, setScrapeUrl] = useState("");
   const [scrapedItems, setScrapedItems] = useState<any[]>([]);
   const [selectedItems, setSelectedItems] = useState<Set<number>>(new Set());
+  
+  // Fetch descriptions state
+  const [selectedVehicleIds, setSelectedVehicleIds] = useState<Set<number>>(new Set());
+  const [fetchingDescriptions, setFetchingDescriptions] = useState(false);
+  const [fetchProgress, setFetchProgress] = useState({ current: 0, total: 0 });
 
   const [formData, setFormData] = useState({
     stockNumber: "",
@@ -91,6 +96,8 @@ export default function Inventory() {
     },
   });
 
+  const fetchDescriptionMutation = trpc.inventory.fetchFullDescription.useMutation();
+
   const batchEnhanceMutation = trpc.inventory.batchEnhance.useMutation({
     onSuccess: () => {
       toast.success("All vehicles enhanced successfully!");
@@ -102,6 +109,40 @@ export default function Inventory() {
       setBatchEnhancing(false);
     },
   });
+
+  const handleFetchDescriptions = async () => {
+    if (selectedVehicleIds.size === 0) {
+      toast.error("Please select at least one vehicle");
+      return;
+    }
+
+    setFetchingDescriptions(true);
+    const vehicleIds = Array.from(selectedVehicleIds);
+    setFetchProgress({ current: 0, total: vehicleIds.length });
+
+    let successCount = 0;
+    let failCount = 0;
+
+    for (let i = 0; i < vehicleIds.length; i++) {
+      try {
+        await fetchDescriptionMutation.mutateAsync({ inventoryItemId: vehicleIds[i] });
+        successCount++;
+      } catch (error) {
+        failCount++;
+      }
+      setFetchProgress({ current: i + 1, total: vehicleIds.length });
+    }
+
+    setFetchingDescriptions(false);
+    setSelectedVehicleIds(new Set());
+    refetch();
+
+    if (successCount > 0) {
+      toast.success(`Fetched ${successCount} descriptions successfully${failCount > 0 ? `, ${failCount} failed` : ''}`);
+    } else {
+      toast.error("Failed to fetch descriptions");
+    }
+  };
 
   const handleBatchEnhance = async () => {
     const newVehicles = inventory?.filter((item: any) => item.condition === 'new') || [];
@@ -692,6 +733,23 @@ export default function Inventory() {
                 Bulk Import
               </Button>
               <Button 
+                variant="outline"
+                onClick={handleFetchDescriptions}
+                disabled={fetchingDescriptions || selectedVehicleIds.size === 0}
+              >
+                {fetchingDescriptions ? (
+                  <>
+                    <Loader2 className="w-4 h-4 mr-2 animate-spin" />
+                    Fetching {fetchProgress.current}/{fetchProgress.total}...
+                  </>
+                ) : (
+                  <>
+                    <Globe className="w-4 h-4 mr-2" />
+                    Fetch Descriptions ({selectedVehicleIds.size})
+                  </>
+                )}
+              </Button>
+              <Button 
                 variant="default" 
                 onClick={handleBatchEnhance}
                 disabled={batchEnhancing || !inventory?.filter((item: any) => item.condition === 'new').length}
@@ -715,9 +773,26 @@ export default function Inventory() {
             {filteredInventory?.map((item) => (
               <Card 
                 key={item.id} 
-                className="hover:shadow-lg transition-shadow cursor-pointer"
+                className="hover:shadow-lg transition-shadow cursor-pointer relative"
                 onClick={() => setSelectedVehicle(item)}
               >
+                <div 
+                  className="absolute top-2 left-2 z-10"
+                  onClick={(e) => e.stopPropagation()}
+                >
+                  <Checkbox
+                    checked={selectedVehicleIds.has(item.id)}
+                    onCheckedChange={(checked) => {
+                      const newSelected = new Set(selectedVehicleIds);
+                      if (checked) {
+                        newSelected.add(item.id);
+                      } else {
+                        newSelected.delete(item.id);
+                      }
+                      setSelectedVehicleIds(newSelected);
+                    }}
+                  />
+                </div>
                 <CardHeader className="p-0">
                   {item.imageUrl ? (
                     <img
@@ -766,11 +841,9 @@ export default function Inventory() {
                   {item.category && (
                     <p className="text-sm text-gray-600 mb-2">{item.category}</p>
                   )}
-                  {item.price && (
-                    <p className="text-xl font-bold text-blue-600 mb-2">
-                      ${parseFloat(item.price).toLocaleString()}
-                    </p>
-                  )}
+                  <p className="text-xl font-bold text-blue-600 mb-2">
+                    {item.price ? `$${parseFloat(item.price).toLocaleString()}` : 'Call for Pricing'}
+                  </p>
                   {item.location && (
                     <p className="text-xs text-gray-500">{item.location}</p>
                   )}
@@ -788,6 +861,23 @@ export default function Inventory() {
               >
                 <CardContent className="p-4">
                   <div className="flex gap-4">
+                    <div 
+                      className="flex items-start pt-2"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <Checkbox
+                        checked={selectedVehicleIds.has(item.id)}
+                        onCheckedChange={(checked) => {
+                          const newSelected = new Set(selectedVehicleIds);
+                          if (checked) {
+                            newSelected.add(item.id);
+                          } else {
+                            newSelected.delete(item.id);
+                          }
+                          setSelectedVehicleIds(newSelected);
+                        }}
+                      />
+                    </div>
                     {item.imageUrl ? (
                       <img
                         src={item.imageUrl}
@@ -834,11 +924,9 @@ export default function Inventory() {
                               ×
                             </Button>
                           </div>
-                          {item.price && (
-                            <p className="text-2xl font-bold text-blue-600">
-                              ${parseFloat(item.price).toLocaleString()}
-                            </p>
-                          )}
+                          <p className="text-2xl font-bold text-blue-600">
+                            {item.price ? `$${parseFloat(item.price).toLocaleString()}` : 'Call for Pricing'}
+                          </p>
                         </div>
                       </div>
                       {item.description && (
