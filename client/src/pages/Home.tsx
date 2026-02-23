@@ -28,21 +28,21 @@ export default function Home() {
               Facebook Ad Accelerator Light
             </h1>
             <p className="text-xl text-gray-700 mb-8">
-              Streamline your vehicle and equipment advertising on Facebook Marketplace with AI-powered tools, professional templates, and automated content generation.
+              Streamline your Facebook Marketplace listings with AI-powered ad copy, professional templates, and automated content generation — for any item you sell.
             </p>
             <Button size="lg" asChild>
-              <a href={getLoginUrl()}>Get Started</a>
+              <a href="/dealers">Get Started</a>
             </Button>
 
             <div className="grid md:grid-cols-3 gap-6 mt-16">
               <Card>
                 <CardHeader>
                   <Package className="w-12 h-12 text-blue-600 mb-2" />
-                  <CardTitle>Inventory Management</CardTitle>
+                  <CardTitle>Listings Management</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <CardDescription>
-                    Import and manage your vehicle or equipment inventory with automatic sold tracking
+                    Import and manage your listings with automatic status tracking
                   </CardDescription>
                 </CardContent>
               </Card>
@@ -96,21 +96,21 @@ export default function Home() {
             <div className="grid md:grid-cols-3 gap-6 mb-8">
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Dealers</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Sellers</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">1</div>
-                  <p className="text-xs text-gray-500 mt-1">Active dealerships</p>
+                  <p className="text-xs text-gray-500 mt-1">Active seller accounts</p>
                 </CardContent>
               </Card>
 
               <Card>
                 <CardHeader>
-                  <CardTitle className="text-sm font-medium text-gray-600">Total Inventory</CardTitle>
+                  <CardTitle className="text-sm font-medium text-gray-600">Total Listings</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="text-3xl font-bold">62</div>
-                  <p className="text-xs text-gray-500 mt-1">Vehicles available</p>
+                  <p className="text-xs text-gray-500 mt-1">Items listed</p>
                 </CardContent>
               </Card>
 
@@ -139,8 +139,8 @@ export default function Home() {
                       1
                     </div>
                     <div>
-                      <h4 className="font-semibold">Manage Dealers</h4>
-                      <p className="text-sm text-gray-600">Start by selecting or adding a dealer from Dealer Management</p>
+                      <h4 className="font-semibold">Manage Sellers</h4>
+                      <p className="text-sm text-gray-600">Start by selecting or adding a seller from Seller Management</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">
@@ -148,8 +148,8 @@ export default function Home() {
                       2
                     </div>
                     <div>
-                      <h4 className="font-semibold">View Inventory</h4>
-                      <p className="text-sm text-gray-600">Check your vehicle inventory and create ads for individual items</p>
+                      <h4 className="font-semibold">View Listings</h4>
+                      <p className="text-sm text-gray-600">Check your listings and create ads for individual items</p>
                     </div>
                   </div>
                   <div className="flex items-start gap-3">

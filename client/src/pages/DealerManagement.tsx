@@ -17,7 +17,7 @@ function CsvImportButton({ dealerId, onSuccess }: { dealerId: number; onSuccess:
   const [file, setFile] = useState<File | null>(null);
   const importCsv = trpc.inventory.importCsv.useMutation({
     onSuccess: (data) => {
-      toast.success(`Imported ${data.imported} new vehicles, updated ${data.updated} existing`);
+      toast.success(`Imported ${data.imported} new listings, updated ${data.updated} existing`);
       setOpen(false);
       setFile(null);
       onSuccess();
@@ -56,9 +56,9 @@ function CsvImportButton({ dealerId, onSuccess }: { dealerId: number; onSuccess:
       </DialogTrigger>
       <DialogContent>
         <DialogHeader>
-          <DialogTitle>Import Inventory from CSV</DialogTitle>
+          <DialogTitle>Import Listings from CSV</DialogTitle>
           <DialogDescription>
-            Upload a CSV file with vehicle inventory. Required column: stockNumber. Optional: make, model, year, price, mileage, vin, etc.
+            Upload a CSV file with listing inventory. Required column: stockNumber. Optional: make, model, year, price, mileage, vin, etc.
           </DialogDescription>
         </DialogHeader>
         <div className="space-y-4 py-4">
@@ -138,29 +138,29 @@ export default function DealerManagement() {
 
   const updateDealer = trpc.dealers.update.useMutation({
     onSuccess: () => {
-      toast.success("Dealer updated successfully");
+      toast.success("Seller updated successfully");
       setEditingDealer(null);
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to update dealer");
+      toast.error(error.message || "Failed to update seller");
     },
   });
 
   const deleteDealer = trpc.dealers.delete.useMutation({
     onSuccess: () => {
-      toast.success("Dealer deleted successfully");
+      toast.success("Seller deleted successfully");
       setDeletingDealer(null);
       refetch();
     },
     onError: (error: any) => {
-      toast.error(error.message || "Failed to delete dealer");
+      toast.error(error.message || "Failed to delete seller");
     },
   });
 
   const createDealer = trpc.dealers.create.useMutation({
     onSuccess: () => {
-      toast.success("Dealer created successfully");
+      toast.success("Seller created successfully");
       setOpen(false);
       setFormData({
         name: "",
@@ -173,7 +173,7 @@ export default function DealerManagement() {
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to create dealer");
+      toast.error(error.message || "Failed to create seller");
     },
   });
 
@@ -201,26 +201,26 @@ export default function DealerManagement() {
             <Button variant="ghost" asChild>
               <Link href="/">← Back</Link>
             </Button>
-            <h1 className="text-2xl font-bold text-gray-900">Dealer Management</h1>
+            <h1 className="text-2xl font-bold text-gray-900">Seller Management</h1>
           </div>
           <Dialog open={open} onOpenChange={setOpen}>
             <DialogTrigger asChild>
               <Button>
                 <Plus className="w-4 h-4 mr-2" />
-                Add Dealer
+                Add Seller
               </Button>
             </DialogTrigger>
             <DialogContent>
               <form onSubmit={handleSubmit}>
                 <DialogHeader>
-                  <DialogTitle>Create New Dealer</DialogTitle>
+                  <DialogTitle>Create New Seller</DialogTitle>
                   <DialogDescription>
-                    Add a new dealer account to manage their inventory and ads.
+                    Add a new seller account to manage their listings and ads.
                   </DialogDescription>
                 </DialogHeader>
                 <div className="grid gap-4 py-4">
                   <div className="grid gap-2">
-                    <Label htmlFor="name">Dealer Name *</Label>
+                    <Label htmlFor="name">Seller Name *</Label>
                     <Input
                       id="name"
                       value={formData.name}
@@ -301,11 +301,11 @@ export default function DealerManagement() {
         {dealers && dealers.length === 0 ? (
           <div className="text-center py-16">
             <Building2 className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No dealers yet</h3>
-            <p className="text-gray-600 mb-6">Get started by creating your first dealer account</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No sellers yet</h3>
+            <p className="text-gray-600 mb-6">Get started by creating your first seller account</p>
             <Button onClick={() => setOpen(true)}>
               <Plus className="w-4 h-4 mr-2" />
-              Add Dealer
+              Add Seller
             </Button>
           </div>
         ) : (
@@ -343,14 +343,14 @@ export default function DealerManagement() {
                       <DropdownMenuContent align="end">
                         <DropdownMenuItem onClick={() => setEditingDealer(dealer)}>
                           <Edit className="w-4 h-4 mr-2" />
-                          Edit Dealer
+                          Edit Seller
                         </DropdownMenuItem>
                         <DropdownMenuItem 
                           onClick={() => setDeletingDealer(dealer)}
                           className="text-red-600"
                         >
                           <Trash2 className="w-4 h-4 mr-2" />
-                          Delete Dealer
+                          Delete Seller
                         </DropdownMenuItem>
                       </DropdownMenuContent>
                     </DropdownMenu>
@@ -372,7 +372,7 @@ export default function DealerManagement() {
                       <p className="text-gray-600">
                         <span className="font-medium">Website:</span>{" "}
                         <a href={dealer.websiteUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:underline">
-                          {new URL(dealer.websiteUrl).hostname}
+                          {(() => { try { return new URL(dealer.websiteUrl).hostname; } catch { return dealer.websiteUrl; } })()}
                         </a>
                       </p>
                     )}
@@ -381,7 +381,7 @@ export default function DealerManagement() {
                     <div className="flex gap-2">
                       <Button variant="outline" size="sm" className="flex-1" asChild>
                         <Link href={`/inventory/${dealer.id}`}>
-                          View Inventory
+                          View Listings
                         </Link>
                       </Button>
                       <Button variant="outline" size="sm" className="flex-1" asChild>
@@ -399,12 +399,12 @@ export default function DealerManagement() {
         )}
       </main>
 
-      {/* Edit Dealer Dialog */}
+      {/* Edit Seller Dialog */}
       <Dialog open={!!editingDealer} onOpenChange={(open) => !open && setEditingDealer(null)}>
         <DialogContent>
           <DialogHeader>
-            <DialogTitle>Edit Dealer</DialogTitle>
-            <DialogDescription>Update dealer information</DialogDescription>
+            <DialogTitle>Edit Seller</DialogTitle>
+            <DialogDescription>Update seller information</DialogDescription>
           </DialogHeader>
           <form onSubmit={(e) => {
             e.preventDefault();
@@ -419,7 +419,7 @@ export default function DealerManagement() {
           }}>
             <div className="grid gap-4 py-4">
               <div className="grid gap-2">
-                <Label htmlFor="edit-name">Dealer Name *</Label>
+                <Label htmlFor="edit-name">Seller Name *</Label>
                 <Input
                   id="edit-name"
                   value={editFormData.name}
@@ -491,11 +491,11 @@ export default function DealerManagement() {
         </DialogContent>
       </Dialog>
 
-      {/* Delete Dealer Confirmation */}
+      {/* Delete Seller Confirmation */}
       <AlertDialog open={!!deletingDealer} onOpenChange={(open) => !open && setDeletingDealer(null)}>
         <AlertDialogContent>
           <AlertDialogHeader>
-            <AlertDialogTitle>Delete Dealer?</AlertDialogTitle>
+            <AlertDialogTitle>Delete Seller?</AlertDialogTitle>
             <AlertDialogDescription>
               Are you sure you want to delete <strong>{deletingDealer?.name}</strong>? This will also delete all associated inventory and ads. This action cannot be undone.
             </AlertDialogDescription>

@@ -1,5 +1,4 @@
 import { invokeLLM } from "./_core/llm";
-import { storagePut } from "./storage";
 import { generateImage } from "./_core/imageGeneration";
 
 /**
@@ -13,32 +12,51 @@ export async function enhanceAdText(params: {
   price?: string;
   description?: string;
   condition?: string;
+  tone?: string;
 }): Promise<string> {
-  const { brand, model, year, category, price, description, condition } = params;
+  const { brand, model, year, category, price, description, condition, tone } = params;
 
-  const prompt = `Create compelling Facebook Marketplace ad copy for this ${condition || "used"} ${category || "vehicle/equipment"}:
+  // Build a human-readable item title
+  const itemParts: (string | number)[] = [];
+  if (year) itemParts.push(year);
+  if (brand) itemParts.push(brand);
+  if (model) itemParts.push(model);
+  const itemTitle = itemParts.length > 0 ? itemParts.join(" ") : category || "item";
 
-${year ? `Year: ${year}` : ""}
-${brand ? `Brand: ${brand}` : ""}
-${model ? `Model: ${model}` : ""}
+  const toneInstruction =
+    tone === "casual"
+      ? "Write in a friendly, conversational tone."
+      : tone === "luxury"
+      ? "Write in an upscale, premium tone that emphasizes quality and exclusivity."
+      : tone === "exciting"
+      ? "Write in an exciting, energetic tone with urgency."
+      : tone === "value"
+      ? "Write in a value-focused tone emphasizing the great deal."
+      : "Write in a professional, clear tone.";
+
+  const prompt = `Create compelling Facebook Marketplace ad copy for this ${condition || "used"} ${category || "item"} listing:
+${itemTitle ? `Item: ${itemTitle}` : ""}
+${category ? `Category: ${category}` : ""}
 ${price ? `Price: $${price}` : ""}
 ${description ? `Description: ${description}` : ""}
 
 Requirements:
+- ${toneInstruction}
 - Write an engaging, concise ad description (150-200 words)
 - Highlight key features and benefits
 - Use persuasive language that appeals to buyers
 - Include a call-to-action
-- Format for Facebook Marketplace (no emojis, professional tone)
+- Format for Facebook Marketplace (professional tone, no excessive punctuation)
 - Do not include price in the text (it's shown separately)
-
+- If this is artwork or a painting, emphasize the aesthetic qualities, dimensions if known, medium, and uniqueness
 Return only the ad copy, no additional commentary.`;
 
   const response = await invokeLLM({
     messages: [
       {
         role: "system",
-        content: "You are an expert copywriter specializing in vehicle and equipment sales ads. Write compelling, professional ad copy that converts browsers into buyers.",
+        content:
+          "You are an expert copywriter specializing in Facebook Marketplace ads for all types of items — artwork, furniture, electronics, clothing, vehicles, equipment, and more. Write compelling, professional ad copy that converts browsers into buyers.",
       },
       {
         role: "user",
@@ -89,7 +107,7 @@ export const TEMPLATE_CONFIGS = {
  * Generate ad image with background template and text overlays using AI
  */
 export async function generateAdImage(params: {
-  vehicleImageUrl: string;
+  itemImageUrl: string;
   templateType: keyof typeof TEMPLATE_CONFIGS;
   brandColor?: string;
   overlayText: {
@@ -101,7 +119,7 @@ export async function generateAdImage(params: {
   brand?: string;
   model?: string;
 }): Promise<{ url: string; fileKey: string; filename: string }> {
-  const { vehicleImageUrl, templateType, brandColor, overlayText } = params;
+  const { itemImageUrl, templateType, brandColor, overlayText } = params;
 
   // Get template config
   const template = TEMPLATE_CONFIGS[templateType];
@@ -129,18 +147,19 @@ export async function generateAdImage(params: {
   const prompt = `Create a professional Facebook Marketplace ad image (1200x630px) with the following specifications:
 
 - ${backgroundDescription}
-- The vehicle from the provided image should be prominently displayed in the center with a white card/frame background to make it stand out
+- The item from the provided image should be prominently displayed in the center with a clean white card/frame background to make it stand out
 - ${textOverlays.join(", ")}
-- Professional automotive marketing style
+- Professional marketing style suitable for Facebook Marketplace
 - Clean, modern design optimized for social media
 - Ensure all text is clearly readable
-- Maintain the vehicle as the focal point`;
+- Maintain the item as the focal point
+- If the item is artwork or a painting, preserve its colors and composition faithfully`;
 
   // Generate image using AI
   const { url: generatedUrl } = await generateImage({
     prompt,
     originalImages: [{
-      url: vehicleImageUrl,
+      url: itemImageUrl,
       mimeType: "image/jpeg"
     }]
   });

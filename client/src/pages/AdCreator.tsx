@@ -116,7 +116,7 @@ export default function AdCreator() {
 
   const handleGenerateImage = async () => {
     if (!item?.imageUrl || !selectedTemplate) {
-      toast.error("Please select a template and ensure vehicle has an image");
+      toast.error("Please select a template and ensure item has an image");
       return;
     }
 
@@ -129,7 +129,7 @@ export default function AdCreator() {
     const price = item.price ? `$${parseFloat(item.price).toLocaleString()}` : "Call for Pricing";
 
     generateImage.mutate({
-      vehicleImageUrl: item.imageUrl,
+      itemImageUrl: item.imageUrl,
       templateType: template.templateType as any,
       overlayText: {
         title,
@@ -298,7 +298,7 @@ export default function AdCreator() {
 
             <Card>
               <CardHeader>
-                <CardTitle>Vehicle Details</CardTitle>
+                <CardTitle>Item Details</CardTitle>
               </CardHeader>
               <CardContent className="space-y-2 text-sm">
                 <div className="flex justify-between">

@@ -47,9 +47,9 @@ export default function ContentGenerator() {
       let content = "";
       
       if (contentType === "pillar_page") {
-        content = `# As Seen On Facebook Marketplace\n\n## Featured Vehicle: ${ad.finalText?.split('\n')[0] || 'Vehicle'}\n\n${ad.finalText || ''}\n\n### Why Buy From Us?\n\nOur dealership is committed to providing quality vehicles and exceptional customer service. This vehicle is currently featured on our Facebook Marketplace and available for immediate purchase.\n\n[View on Facebook Marketplace](${ad.facebookMarketplaceUrl || '#'})\n\n### Contact Us\n\nInterested in this vehicle? Contact us today to schedule a test drive or learn more about financing options.`;
+        content = `# As Seen On Facebook Marketplace\n\n## Featured Item: ${ad.finalText?.split('\n')[0] || 'Item'}\n\n${ad.finalText || ''}\n\n### Why Buy From Us?\n\nOur dealership is committed to providing quality items and exceptional customer service. This item is currently featured on our Facebook Marketplace and available for immediate purchase.\n\n[View on Facebook Marketplace](${ad.facebookMarketplaceUrl || '#'})\n\n### Contact Us\n\nInterested in this item? Contact us today to schedule a test drive or learn more about financing options.`;
       } else if (contentType === "blog_post") {
-        content = `# New Arrival: ${ad.finalText?.split('\n')[0] || 'Featured Vehicle'}\n\nWe're excited to announce a new addition to our inventory! ${ad.finalText || ''}\n\n## Features & Highlights\n\nThis vehicle offers exceptional value and reliability. Visit our Facebook Marketplace listing to see more photos and details.\n\n## Available Now\n\nDon't miss out on this opportunity! This vehicle is available for immediate purchase and test drives.\n\n[See Full Listing on Facebook](${ad.facebookMarketplaceUrl || '#'})`;
+        content = `# New Arrival: ${ad.finalText?.split('\n')[0] || 'Featured Item'}\n\nWe're excited to announce a new addition to our inventory! ${ad.finalText || ''}\n\n## Features & Highlights\n\nThis item offers exceptional value and reliability. Visit our Facebook Marketplace listing to see more photos and details.\n\n## Available Now\n\nDon't miss out on this opportunity! This item is available for immediate purchase and test drives.\n\n[See Full Listing on Facebook](${ad.facebookMarketplaceUrl || '#'})`;
       } else {
         content = "Badge image generation coming soon...";
       }
@@ -215,7 +215,7 @@ export default function ContentGenerator() {
                   Generate Content
                 </CardTitle>
                 <CardDescription>
-                  Create SEO-optimized content for your dealer website
+                  Create SEO-optimized content for your seller website
                 </CardDescription>
               </CardHeader>
               <CardContent className="space-y-4">
@@ -294,10 +294,10 @@ export default function ContentGenerator() {
                   About "As Seen On Facebook"
                 </h3>
                 <p className="text-sm text-blue-800 mb-4">
-                  This feature generates SEO-optimized content for your dealer website that references your Facebook Marketplace listings. This cross-promotion strategy enhances your dealership's visibility in search engines and AI-powered search results.
+                  This feature generates SEO-optimized content for your seller website that references your Facebook Marketplace listings. This cross-promotion strategy enhances your dealership's visibility in search engines and AI-powered search results.
                 </p>
                 <ul className="text-sm text-blue-800 space-y-1 list-disc list-inside">
-                  <li><strong>Pillar Pages:</strong> Comprehensive landing pages for featured vehicles</li>
+                  <li><strong>Pillar Pages:</strong> Comprehensive landing pages for featured items</li>
                   <li><strong>Blog Posts:</strong> News-style articles about new inventory arrivals</li>
                   <li><strong>Badge Images:</strong> "As Seen On Facebook" graphics for your website</li>
                 </ul>

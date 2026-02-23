@@ -10,8 +10,8 @@ import { Badge } from "@/components/ui/badge";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { trpc } from "@/lib/trpc";
-import { Package, Plus, Upload, Search, Globe, Loader2, LayoutGrid, List, Sparkles } from "lucide-react";
-import { useState } from "react";
+import { Package, Plus, Upload, Search, Globe, Loader2, LayoutGrid, List, Sparkles, ImagePlus, X } from "lucide-react";
+import { useState, useRef } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import { VehicleDetailModal } from "@/components/VehicleDetailModal";
@@ -53,6 +53,10 @@ export default function Inventory() {
     imageUrl: "",
     condition: "used" as "new" | "used",
   });
+  const [uploadedImagePreview, setUploadedImagePreview] = useState<string | null>(null);
+  const [isUploadingImage, setIsUploadingImage] = useState(false);
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const [bulkData, setBulkData] = useState("");
 
@@ -78,21 +82,21 @@ export default function Inventory() {
 
   const deleteAllMutation = trpc.inventory.deleteAll.useMutation({
     onSuccess: () => {
-      toast.success("All inventory deleted successfully");
+      toast.success("All listings deleted successfully");
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to delete inventory");
+      toast.error(error.message || "Failed to delete listings");
     },
   });
 
   const deleteSingleMutation = trpc.inventory.deleteSingle.useMutation({
     onSuccess: () => {
-      toast.success("Vehicle deleted successfully");
+      toast.success("Listing deleted successfully");
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to delete vehicle");
+      toast.error(error.message || "Failed to delete listing");
     },
   });
 
@@ -100,12 +104,12 @@ export default function Inventory() {
 
   const batchEnhanceMutation = trpc.inventory.batchEnhance.useMutation({
     onSuccess: () => {
-      toast.success("All vehicles enhanced successfully!");
+      toast.success("All listings enhanced successfully!");
       setBatchEnhancing(false);
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to enhance vehicles");
+      toast.error(error.message || "Failed to enhance listings");
       setBatchEnhancing(false);
     },
   });
@@ -161,10 +165,42 @@ export default function Inventory() {
     });
   };
 
+  const uploadImageMutation = trpc.uploadImage.useMutation({
+    onSuccess: (data) => {
+      setFormData(prev => ({ ...prev, imageUrl: data.url }));
+      toast.success("Photo uploaded successfully!");
+      setIsUploadingImage(false);
+    },
+    onError: (error) => {
+      toast.error(error.message || "Failed to upload photo");
+      setIsUploadingImage(false);
+    },
+  });
+
+  const handleImageFile = (file: File) => {
+    if (!file.type.startsWith('image/')) {
+      toast.error('Please select an image file');
+      return;
+    }
+    setIsUploadingImage(true);
+    const reader = new FileReader();
+    reader.onload = (e) => {
+      const base64Data = e.target?.result as string;
+      setUploadedImagePreview(base64Data);
+      uploadImageMutation.mutate({
+        base64Data,
+        mimeType: file.type,
+        filename: file.name,
+      });
+    };
+    reader.readAsDataURL(file);
+  };
+
   const createItem = trpc.inventory.create.useMutation({
     onSuccess: () => {
-      toast.success("Inventory item added successfully");
+      toast.success("Listing added successfully");
       setOpenManual(false);
+      setUploadedImagePreview(null);
       setFormData({
         stockNumber: "",
         brand: "",
@@ -180,7 +216,7 @@ export default function Inventory() {
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to add inventory item");
+      toast.error(error.message || "Failed to add listing");
     },
   });
 
@@ -311,10 +347,10 @@ export default function Inventory() {
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-4">
               <Button variant="ghost" asChild>
-                <Link href="/dealers">← Back to Dealers</Link>
+                <Link href="/dealers">← Back to Sellers</Link>
               </Button>
               <div>
-                <h1 className="text-2xl font-bold text-gray-900">Inventory Management</h1>
+                <h1 className="text-2xl font-bold text-gray-900">Listings Management</h1>
                 <p className="text-sm text-gray-600">{dealer?.name}</p>
               </div>
             </div>
@@ -322,7 +358,7 @@ export default function Inventory() {
               <Button
                 variant="destructive"
                 onClick={() => {
-                  if (confirm(`Delete all ${inventoryCounts.total} vehicles from ${dealer?.name}? This cannot be undone.`)) {
+                  if (confirm(`Delete all ${inventoryCounts.total} listings from ${dealer?.name}? This cannot be undone.`)) {
                     deleteAllMutation.mutate({ dealerId: parseInt(dealerId || "0") });
                   }
                 }}
@@ -348,7 +384,7 @@ export default function Inventory() {
                   <DialogHeader>
                     <DialogTitle>Import from Website</DialogTitle>
                     <DialogDescription>
-                      Enter a dealer inventory page URL to automatically extract items
+                      Enter a URL to automatically extract listings
                     </DialogDescription>
                   </DialogHeader>
                   <div className="grid gap-4 py-4">
@@ -401,7 +437,7 @@ export default function Inventory() {
                             <TableHeader>
                               <TableRow>
                                 <TableHead className="w-12"></TableHead>
-                                <TableHead>Stock #</TableHead>
+                                <TableHead>ID / Stock #</TableHead>
                                 <TableHead>Title</TableHead>
                                 <TableHead>Year</TableHead>
                                 <TableHead>Brand</TableHead>
@@ -496,15 +532,15 @@ export default function Inventory() {
                 <DialogTrigger asChild>
                   <Button>
                     <Plus className="w-4 h-4 mr-2" />
-                    Add Item
+                    Add Listing
                   </Button>
                 </DialogTrigger>
                 <DialogContent className="max-w-2xl max-h-[90vh] overflow-y-auto">
                   <form onSubmit={handleManualSubmit}>
                     <DialogHeader>
-                      <DialogTitle>Add Inventory Item</DialogTitle>
+                      <DialogTitle>Add New Listing</DialogTitle>
                       <DialogDescription>
-                        Manually add a single inventory item
+                        Add a new item to your marketplace listings
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
@@ -598,7 +634,67 @@ export default function Inventory() {
                         />
                       </div>
                       <div className="grid gap-2">
-                        <Label htmlFor="imageUrl">Image URL</Label>
+                        <Label>Photos</Label>
+                        {/* Drag & Drop Upload Area */}
+                        <div
+                          className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
+                            isDragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
+                          }`}
+                          onDragOver={(e) => { e.preventDefault(); setIsDragOver(true); }}
+                          onDragLeave={() => setIsDragOver(false)}
+                          onDrop={(e) => {
+                            e.preventDefault();
+                            setIsDragOver(false);
+                            const file = e.dataTransfer.files[0];
+                            if (file) handleImageFile(file);
+                          }}
+                          onClick={() => fileInputRef.current?.click()}
+                        >
+                          <input
+                            ref={fileInputRef}
+                            type="file"
+                            accept="image/*"
+                            className="hidden"
+                            onChange={(e) => {
+                              const file = e.target.files?.[0];
+                              if (file) handleImageFile(file);
+                            }}
+                          />
+                          {isUploadingImage ? (
+                            <div className="flex flex-col items-center gap-2 py-2">
+                              <Loader2 className="w-8 h-8 text-blue-500 animate-spin" />
+                              <p className="text-sm text-gray-600">Uploading photo...</p>
+                            </div>
+                          ) : uploadedImagePreview ? (
+                            <div className="relative">
+                              <img src={uploadedImagePreview} alt="Preview" className="max-h-40 mx-auto rounded object-contain" />
+                              <button
+                                type="button"
+                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  setUploadedImagePreview(null);
+                                  setFormData(prev => ({ ...prev, imageUrl: '' }));
+                                }}
+                              >
+                                <X className="w-3 h-3" />
+                              </button>
+                              <p className="text-xs text-green-600 mt-1">Photo uploaded ✓</p>
+                            </div>
+                          ) : (
+                            <div className="flex flex-col items-center gap-2 py-2">
+                              <ImagePlus className="w-8 h-8 text-gray-400" />
+                              <p className="text-sm text-gray-600">Drag & drop a photo here, or click to browse</p>
+                              <p className="text-xs text-gray-400">JPG, PNG, WEBP supported</p>
+                            </div>
+                          )}
+                        </div>
+                        {/* Or enter URL manually */}
+                        <div className="flex items-center gap-2">
+                          <div className="flex-1 h-px bg-gray-200" />
+                          <span className="text-xs text-gray-400">or enter URL</span>
+                          <div className="flex-1 h-px bg-gray-200" />
+                        </div>
                         <Input
                           id="imageUrl"
                           type="url"
@@ -613,7 +709,7 @@ export default function Inventory() {
                         Cancel
                       </Button>
                       <Button type="submit" disabled={createItem.isPending}>
-                        {createItem.isPending ? "Adding..." : "Add Item"}
+                        {createItem.isPending ? "Adding..." : "Add Listing"}
                       </Button>
                     </DialogFooter>
                   </form>
@@ -628,7 +724,7 @@ export default function Inventory() {
               <CardContent className="p-4">
                 <div className="text-center">
                   <p className="text-2xl font-bold text-gray-900">{inventoryCounts.total}</p>
-                  <p className="text-sm text-gray-600">Total Vehicles</p>
+                  <p className="text-sm text-gray-600">Total Listings</p>
                 </div>
               </CardContent>
             </Card>
@@ -665,7 +761,7 @@ export default function Inventory() {
                 <SelectValue />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Vehicles</SelectItem>
+                <SelectItem value="all">All Listings</SelectItem>
                 <SelectItem value="new">New Only</SelectItem>
                 <SelectItem value="used">Used Only</SelectItem>
               </SelectContent>
@@ -753,8 +849,8 @@ export default function Inventory() {
         {filteredInventory && filteredInventory.length === 0 ? (
           <div className="text-center py-16">
             <Package className="w-16 h-16 text-gray-400 mx-auto mb-4" />
-            <h3 className="text-xl font-semibold text-gray-900 mb-2">No inventory items</h3>
-            <p className="text-gray-600 mb-6">Add items manually, import from JSON, or scrape from a website</p>
+            <h3 className="text-xl font-semibold text-gray-900 mb-2">No listings yet</h3>
+            <p className="text-gray-600 mb-6">Add listings manually, import from JSON, or scrape from a website</p>
             <div className="flex gap-2 justify-center">
               <Button onClick={() => setOpenScrape(true)}>
                 <Globe className="w-4 h-4 mr-2" />
@@ -762,7 +858,7 @@ export default function Inventory() {
               </Button>
               <Button variant="outline" onClick={() => setOpenManual(true)}>
                 <Plus className="w-4 h-4 mr-2" />
-                Add Item
+                Add Listing
               </Button>
               <Button variant="outline" onClick={() => setOpenBulk(true)}>
                 <Upload className="w-4 h-4 mr-2" />

@@ -600,7 +600,7 @@ export default function AdStaging() {
                 <div className="border rounded-lg p-4">
                   <h4 className="font-semibold mb-2">Step 2: Create New Listing</h4>
                   <p className="text-sm text-gray-600">
-                    In Facebook Marketplace, click "Create new listing" and select "Vehicle"
+                    In Facebook Marketplace, click "Create new listing" and select "Item"
                   </p>
                 </div>
 

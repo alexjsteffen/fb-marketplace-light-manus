@@ -25,16 +25,16 @@ const getNavItems = (dealerId?: string): NavItem[] => [
     description: "Overview and analytics"
   },
   {
-    title: "Dealer Management",
+    title: "Seller Management",
     href: "/dealers",
     icon: Building2,
-    description: "Manage dealers"
+    description: "Manage sellers"
   },
   {
-    title: "Inventory",
+    title: "Listings",
     href: dealerId ? `/inventory/${dealerId}` : "/dealers",
     icon: Package,
-    description: "Vehicle inventory"
+    description: "Manage your listings"
   },
   {
     title: "Ad Creator",
@@ -75,7 +75,7 @@ export function Sidebar({ dealerId }: SidebarProps) {
       <div className="p-6 border-b border-gray-800">
         <div className="flex items-center gap-2">
           <Facebook className="w-6 h-6 text-blue-500" />
-          <span className="font-bold text-lg">FB Ad Accelerator</span>
+          <span className="font-bold text-lg">FB Marketplace Pro</span>
         </div>
       </div>
 
