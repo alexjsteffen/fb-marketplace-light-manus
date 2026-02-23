@@ -333,7 +333,7 @@ export const appRouter = router({
         description: z.string().optional(),
         price: z.string().optional(),
         location: z.string().optional(),
-        imageUrl: z.string().url().optional(),
+        imageUrl: z.string().optional(), // can be a single URL or JSON array of URLs
         status: z.enum(['active', 'sold', 'archived']).optional(),
         condition: z.enum(['new', 'used']).optional(),
       }))

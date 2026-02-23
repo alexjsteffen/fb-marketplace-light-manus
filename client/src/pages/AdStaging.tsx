@@ -605,11 +605,64 @@ export default function AdStaging() {
                 </div>
 
                 <div className="border rounded-lg p-4">
-                  <h4 className="font-semibold mb-2">Step 3: Download Image</h4>
-                  <p className="text-sm text-gray-600 mb-2">
-                    Download the ad image to your computer, then drag it to Facebook's image upload area
+                  <h4 className="font-semibold mb-2">Step 3: Download &amp; Drag Photos to Facebook</h4>
+                  <p className="text-sm text-gray-600 mb-3">
+                    Right-click any photo below and save it, or click "Download" — then drag the saved photo(s) directly into Facebook Marketplace's image upload area.
                   </p>
-                  {selectedAdData?.imageUrl && (
+                  {selectedAdData?.inventoryItem?.imageUrl ? (
+                    <div className="space-y-2">
+                      {parseImages(selectedAdData.inventoryItem.imageUrl).map((imgUrl, i) => (
+                        <div key={i} className="flex items-center gap-3 border rounded-lg p-2">
+                          <img
+                            src={imgUrl}
+                            alt={`Photo ${i + 1}`}
+                            className="w-16 h-16 object-cover rounded flex-shrink-0 cursor-pointer"
+                            title="Right-click to save image"
+                          />
+                          <div className="flex-1 min-w-0">
+                            <p className="text-xs text-gray-500 truncate">{i === 0 ? 'Cover photo' : `Photo ${i + 1}`}</p>
+                          </div>
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = imgUrl;
+                              link.download = `listing-photo-${i + 1}.jpg`;
+                              link.target = '_blank';
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              toast.success(`Photo ${i + 1} download started!`);
+                            }}
+                          >
+                            Download
+                          </Button>
+                        </div>
+                      ))}
+                      {parseImages(selectedAdData.inventoryItem.imageUrl).length === 0 && selectedAdData.imageUrl && (
+                        <div className="flex items-center gap-3 border rounded-lg p-2">
+                          <img src={selectedAdData.imageUrl} alt="Ad" className="w-16 h-16 object-cover rounded" />
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => {
+                              const link = document.createElement('a');
+                              link.href = selectedAdData.imageUrl!;
+                              link.download = `ad-image-${selectedAdData.id}.jpg`;
+                              link.target = '_blank';
+                              document.body.appendChild(link);
+                              link.click();
+                              document.body.removeChild(link);
+                              toast.success('Image download started!');
+                            }}
+                          >
+                            Download
+                          </Button>
+                        </div>
+                      )}
+                    </div>
+                  ) : selectedAdData?.imageUrl ? (
                     <Button
                       variant="outline"
                       className="w-full"
@@ -627,6 +680,8 @@ export default function AdStaging() {
                       <ExternalLink className="w-4 h-4 mr-2" />
                       Download Image
                     </Button>
+                  ) : (
+                    <p className="text-sm text-gray-400 italic">No photos available for this listing.</p>
                   )}
                 </div>
 
