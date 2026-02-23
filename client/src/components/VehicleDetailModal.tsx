@@ -216,7 +216,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
     const primaryImage = images[primaryIndex] || images[0] || "";
     sendToStaging.mutate({
       inventoryItemId: vehicle.id,
-      description: editMode ? editedDescription : description,
+      description: description,
       imageUrl: primaryImage,
       template: selectedTemplate,
       price: editedPrice,
@@ -227,7 +227,7 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
 
   const displayTitle = editedTitle || `${vehicle.year ? vehicle.year + " " : ""}${vehicle.brand || ""} ${vehicle.model || ""}`.trim() || "Untitled Listing";
   const displayPrice = editedPrice ? `$${parseFloat(editedPrice).toLocaleString()}` : vehicle.price ? `$${parseFloat(vehicle.price).toLocaleString()}` : "Price TBD";
-  const displayDescription = editMode ? editedDescription : description;
+  const displayDescription = description;
   const primaryImage = images[primaryIndex] || images[0] || "";
 
   return (
@@ -499,29 +499,24 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
               )}
             </Button>
 
-            {/* Description editor */}
+            {/* Description editor — always editable, auto-saves on blur */}
             <div className="space-y-1">
               <div className="flex items-center justify-between">
-                <Label className="text-xs text-gray-500">Description</Label>
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  className="h-6 text-xs"
-                  onClick={() => {
-                    if (editMode) setDescription(editedDescription);
-                    else setEditedDescription(description);
-                    setEditMode(!editMode);
-                  }}
-                >
-                  {editMode ? <><Check className="w-3 h-3 mr-1" />Save</> : <><Edit className="w-3 h-3 mr-1" />Edit</>}
-                </Button>
+                <Label className="text-xs text-gray-500">Description <span className="text-gray-400 font-normal italic">(click to edit)</span></Label>
               </div>
               <Textarea
-                value={editMode ? editedDescription : description}
-                onChange={(e) => editMode && setEditedDescription(e.target.value)}
-                readOnly={!editMode}
-                className={`min-h-[280px] text-sm resize-none ${!editMode ? "bg-gray-50 cursor-default" : ""}`}
-                placeholder="Description will appear here after generation, or type your own..."
+                value={description}
+                onChange={(e) => {
+                  setDescription(e.target.value);
+                  setEditedDescription(e.target.value);
+                }}
+                onBlur={() => {
+                  if (vehicle && description !== vehicle.description) {
+                    updateItem.mutate({ id: vehicle.id, description });
+                  }
+                }}
+                className="min-h-[280px] text-sm resize-none border-gray-200 focus:border-blue-400 bg-white"
+                placeholder="Type your ad description here, or use Generate AI Description above..."
               />
             </div>
 
