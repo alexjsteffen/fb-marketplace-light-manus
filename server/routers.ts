@@ -885,7 +885,7 @@ export const appRouter = router({
       }),
    }),
 
-  // Image upload endpoint - accepts base64 encoded image and stores it
+  // Image upload endpoint - saves to local uploads directory and serves as static files
   uploadImage: protectedProcedure
     .input(z.object({
       base64Data: z.string(),
@@ -893,18 +893,24 @@ export const appRouter = router({
       filename: z.string().optional(),
     }))
     .mutation(async ({ input }) => {
-      const { storagePut } = await import('./storage');
+      const fs = await import('fs');
+      const path = await import('path');
       // Decode base64 to buffer
       const base64 = input.base64Data.replace(/^data:[^;]+;base64,/, '');
       const buffer = Buffer.from(base64, 'base64');
-      // Generate unique key
+      // Generate unique filename
       const timestamp = Date.now();
       const random = Math.random().toString(36).substring(7);
-      const ext = input.mimeType.split('/')[1] || 'jpg';
-      const name = input.filename?.replace(/[^a-z0-9.-]/gi, '-') || `upload-${timestamp}`;
-      const key = `uploads/${timestamp}-${random}-${name}.${ext}`;
-      const result = await storagePut(key, buffer, input.mimeType);
-      return { url: result.url, key: result.key };
+      const ext = (input.mimeType.split('/')[1] || 'jpg').replace('jpeg', 'jpg');
+      const safeName = (input.filename || `upload-${timestamp}`).replace(/[^a-z0-9.-]/gi, '-').replace(/\.[^.]+$/, '');
+      const filename = `${timestamp}-${random}-${safeName}.${ext}`;
+      // Save to local uploads directory
+      const uploadsDir = path.join(process.cwd(), 'uploads');
+      const filePath = path.join(uploadsDir, filename);
+      fs.writeFileSync(filePath, buffer);
+      // Return the public URL (served as static files at /uploads)
+      const url = `/uploads/${filename}`;
+      return { url, key: `uploads/${filename}` };
     }),
 });
 export type AppRouter = typeof appRouter;
