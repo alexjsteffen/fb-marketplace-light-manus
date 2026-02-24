@@ -14,6 +14,16 @@ import { useState } from "react";
 import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 
+/** Parse imageUrl field — supports single URL string or JSON array */
+function parseImages(imageUrl: string | null | undefined): string[] {
+  if (!imageUrl) return [];
+  try {
+    const parsed = JSON.parse(imageUrl);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  } catch {}
+  return imageUrl ? [imageUrl] : [];
+}
+
 export default function AdStaging() {
   const { dealerId } = useParams<{ dealerId: string }>();
   const { loading: authLoading } = useAuth();

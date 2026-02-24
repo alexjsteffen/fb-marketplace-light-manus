@@ -178,6 +178,10 @@ export function VehicleDetailModal({ vehicle, open, onOpenChange }: VehicleDetai
       const desc = typeof data.description === "string" ? data.description : "";
       setDescription(desc);
       setEditedDescription(desc);
+      // Immediately persist to DB so it survives modal close/reopen
+      if (vehicle?.id) {
+        updateItem.mutate({ id: vehicle.id, description: desc });
+      }
       toast.success("Description regenerated!");
     },
     onError: (error) => {

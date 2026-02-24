@@ -16,6 +16,16 @@ import { Link, useParams } from "wouter";
 import { toast } from "sonner";
 import { VehicleDetailModal } from "@/components/VehicleDetailModal";
 
+function parseImages(imageUrl: string | null | undefined): string[] {
+  if (!imageUrl) return [];
+  try {
+    const parsed = JSON.parse(imageUrl);
+    if (Array.isArray(parsed)) return parsed.filter(Boolean);
+  } catch {}
+  if (imageUrl.startsWith('http') || imageUrl.startsWith('/')) return [imageUrl];
+  return [];
+}
+
 export default function Inventory() {
   const { dealerId } = useParams<{ dealerId: string }>();
   const { user, loading: authLoading } = useAuth();
@@ -27,7 +37,7 @@ export default function Inventory() {
   const [adStatusFilter, setAdStatusFilter] = useState<string>("all");
   const [conditionFilter, setConditionFilter] = useState<string>("all");
   const [viewMode, setViewMode] = useState<"box" | "line">("box");
-  const [selectedVehicle, setSelectedVehicle] = useState<any>(null);
+  const [selectedVehicleId, setSelectedVehicleId] = useState<number | null>(null);
   const [batchEnhancing, setBatchEnhancing] = useState(false);
   const [batchProgress, setBatchProgress] = useState({ current: 0, total: 0 });
   
@@ -64,6 +74,8 @@ export default function Inventory() {
     { dealerId: parseInt(dealerId || "0") },
     { enabled: !!dealerId }
   );
+  // Derive selectedVehicle from live inventory data so it always reflects the latest saved state
+  const selectedVehicle = inventory?.find((item: any) => item.id === selectedVehicleId) ?? null;
 
   const { data: dealer } = trpc.dealers.getById.useQuery(
     { id: parseInt(dealerId || "0") },
@@ -872,7 +884,7 @@ export default function Inventory() {
               <Card 
                 key={item.id} 
                 className="hover:shadow-lg transition-shadow cursor-pointer relative"
-                onClick={() => setSelectedVehicle(item)}
+                onClick={() => setSelectedVehicleId(item.id)}
               >
                 <div 
                   className="absolute top-2 left-2 z-10 flex items-center gap-1 bg-white/90 px-2 py-1 rounded shadow-sm"
@@ -893,9 +905,9 @@ export default function Inventory() {
                   <span className="text-xs text-gray-600">add desc+</span>
                 </div>
                 <CardHeader className="p-0">
-                  {item.imageUrl ? (
+                  {parseImages(item.imageUrl)[0] ? (
                     <img
-                      src={item.imageUrl}
+                      src={parseImages(item.imageUrl)[0]}
                       alt={`${item.brand} ${item.model}`}
                       className="w-full h-48 object-cover rounded-t-lg"
                     />
@@ -956,7 +968,7 @@ export default function Inventory() {
               <Card 
                 key={item.id} 
                 className="hover:shadow-lg transition-shadow cursor-pointer"
-                onClick={() => setSelectedVehicle(item)}
+                onClick={() => setSelectedVehicleId(item.id)}
               >
                 <CardContent className="p-4">
                   <div className="flex gap-4">
@@ -978,9 +990,9 @@ export default function Inventory() {
                       />
                       <span className="text-[10px] text-gray-500 leading-none">add<br/>desc+</span>
                     </div>
-                    {item.imageUrl ? (
+                    {parseImages(item.imageUrl)[0] ? (
                       <img
-                        src={item.imageUrl}
+                        src={parseImages(item.imageUrl)[0]}
                         alt={`${item.brand} ${item.model}`}
                         className="w-32 h-32 object-cover rounded-lg flex-shrink-0"
                       />
@@ -1048,7 +1060,12 @@ export default function Inventory() {
       <VehicleDetailModal
         vehicle={selectedVehicle}
         open={!!selectedVehicle}
-        onOpenChange={(open) => !open && setSelectedVehicle(null)}
+        onOpenChange={(open) => {
+          if (!open) {
+            setSelectedVehicleId(null);
+            refetch(); // Refresh so next open shows latest description/images
+          }
+        }}
       />
     </div>
   );
