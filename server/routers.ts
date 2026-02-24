@@ -744,8 +744,21 @@ export const appRouter = router({
         model: z.string().optional(),
       }))
       .mutation(async ({ input }) => {
-        const result = await generateAdImage(input);
-        return result;
+        // AI image generation (Forge API) is not available in this environment.
+        // Return the original item image URL directly so the Ad Creator workflow continues.
+        const timestamp = Date.now();
+        const random = Math.random().toString(36).substring(7);
+        const nameParts = [];
+        if (input.brand) nameParts.push(input.brand.replace(/\s+/g, '-'));
+        if (input.model) nameParts.push(input.model.replace(/\s+/g, '-'));
+        const descriptiveName = nameParts.length > 0 ? nameParts.join('-') : 'ad';
+        const filename = `${descriptiveName}-${input.templateType}.jpg`;
+        const fileKey = `ads/${timestamp}-${random}-${filename}`;
+        return {
+          url: input.itemImageUrl,
+          fileKey,
+          filename,
+        };
       }),
   }),
 

@@ -13,6 +13,7 @@ export function ContentGenerator({ facebookAdId }: ContentGeneratorProps) {
   const [copiedBadge, setCopiedBadge] = useState(false);
   const [copiedPillar, setCopiedPillar] = useState(false);
   const [copiedBlog, setCopiedBlog] = useState(false);
+  const utils = trpc.useUtils();
 
   const { data: content, isLoading } = trpc.content.getByAdId.useQuery({
     facebookAdId,
@@ -21,6 +22,7 @@ export function ContentGenerator({ facebookAdId }: ContentGeneratorProps) {
   const generateContent = trpc.content.generateContent.useMutation({
     onSuccess: () => {
       toast.success("Content generated successfully!");
+      utils.content.getByAdId.invalidate({ facebookAdId });
     },
     onError: (error) => {
       toast.error(`Failed to generate content: ${error.message}`);

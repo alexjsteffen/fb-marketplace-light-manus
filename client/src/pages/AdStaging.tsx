@@ -36,6 +36,7 @@ export default function AdStaging() {
   const [showPreviewDialog, setShowPreviewDialog] = useState(false);
   const [showEditDialog, setShowEditDialog] = useState(false);
   const [showContentDialog, setShowContentDialog] = useState(false);
+  const [contentAdId, setContentAdId] = useState<number | null>(null);
   const [editedText, setEditedText] = useState("");
   const [editingFbUrl, setEditingFbUrl] = useState<number | null>(null);
   const [tempFbUrl, setTempFbUrl] = useState("");
@@ -273,6 +274,7 @@ export default function AdStaging() {
                           size="sm"
                           onClick={() => {
                             setSelectedAd(ad.id);
+                            setContentAdId(ad.id);
                             setShowContentDialog(true);
                           }}
                         >
@@ -461,6 +463,7 @@ export default function AdStaging() {
                         size="sm"
                         onClick={() => {
                           setSelectedAd(ad.id);
+                          setContentAdId(ad.id);
                           setShowContentDialog(true);
                         }}
                       >
@@ -871,9 +874,9 @@ export default function AdStaging() {
               Generate badge image, pillar page article, and blog post for your dealer website
             </DialogDescription>
           </DialogHeader>
-          {selectedAdData && (
+          {contentAdId && (
             <div className="py-4">
-              <ContentGenerator facebookAdId={selectedAdData.id} />
+              <ContentGenerator facebookAdId={contentAdId} />
             </div>
           )}
           <DialogFooter>
