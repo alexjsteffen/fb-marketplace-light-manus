@@ -795,26 +795,20 @@ export const appRouter = router({
         const dealer = await db.getDealerById(ad.dealerId);
         if (!dealer) throw new TRPCError({ code: 'NOT_FOUND', message: 'Dealer not found' });
 
-        // Generate badge image with "As Seen On Facebook Marketplace" overlay
-        const { generateImage } = await import('./_core/imageGeneration');
         // Build item title for general use
         const itemParts = [vehicle.year, vehicle.brand, vehicle.model].filter(Boolean);
         const itemTitle = itemParts.length > 0 ? itemParts.join(' ') : vehicle.category || 'Item';
-        const badgeResult = await generateImage({
-          prompt: `Add a professional "AS SEEN ON FACEBOOK MARKETPLACE" badge overlay to this image. The badge should be prominent but not obstruct the item. Use a clean, modern design with white text on a semi-transparent dark background or blue Facebook-branded styling. The item (${itemTitle}) should remain the focal point. Professional marketing style.`,
-          originalImages: [{
-            url: ad.imageUrl!,
-            mimeType: 'image/jpeg',
-          }],
-        });
-
-        await db.createGeneratedContent({
-          dealerId: ad.dealerId,
-          facebookAdId: input.facebookAdId,
-          contentType: 'badge_image',
-          badgeImageUrl: badgeResult.url,
-          exportFormat: 'json',
-        });
+        // Use the original ad image as the badge image (AI image editing not available in this environment)
+        const badgeImageUrl = ad.imageUrl || null;
+        if (badgeImageUrl) {
+          await db.createGeneratedContent({
+            dealerId: ad.dealerId,
+            facebookAdId: input.facebookAdId,
+            contentType: 'badge_image',
+            badgeImageUrl: badgeImageUrl,
+            exportFormat: 'json',
+          });
+        }
 
         // Generate pillar page content using LLM
         const { invokeLLM } = await import('./_core/llm');
@@ -878,7 +872,7 @@ export const appRouter = router({
 
         return {
           success: true,
-          badgeImageUrl: badgeResult.url,
+          badgeImageUrl: badgeImageUrl,
           pillarTitle,
           blogTitle,
         };

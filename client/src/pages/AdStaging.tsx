@@ -52,14 +52,10 @@ export default function AdStaging() {
 
   const updateAd = trpc.ads.update.useMutation({
     onSuccess: () => {
-      toast.success("Ad published successfully!");
-      setSelectedAd(null);
-      setFacebookUrl("");
-      setShowUploadDialog(false);
       refetch();
     },
     onError: (error) => {
-      toast.error(error.message || "Failed to publish ad");
+      toast.error(error.message || "Failed to update ad");
     },
   });
 
@@ -112,17 +108,28 @@ export default function AdStaging() {
     toast.success("Copied to clipboard!");
   };
 
-  const handlePublish = () => {
-    if (!selectedAd || !facebookUrl) {
+  const handlePublish = (adId?: number) => {
+    const targetId = adId ?? selectedAd;
+    if (!targetId || !facebookUrl) {
       toast.error("Please enter the Facebook Marketplace URL");
       return;
     }
-
-    updateAd.mutate({
-      id: selectedAd,
-      status: "published",
-      facebookMarketplaceUrl: facebookUrl,
-    });
+    updateAd.mutate(
+      {
+        id: targetId,
+        status: "published",
+        facebookMarketplaceUrl: facebookUrl,
+      },
+      {
+        onSuccess: () => {
+          toast.success("Ad marked as published!");
+          setFacebookUrl("");
+          setShowUploadDialog(false);
+          setSelectedAd(null);
+          refetch();
+        },
+      }
+    );
   };
 
   const stagedAds = ads?.filter((ad) => ad.status === "staged" || ad.status === "draft");
@@ -254,7 +261,10 @@ export default function AdStaging() {
                         <Button
                           variant="outline"
                           size="sm"
-                          onClick={() => handlePublish()}
+                          onClick={() => {
+                            setSelectedAd(ad.id);
+                            handlePublish(ad.id);
+                          }}
                         >
                           Publish
                         </Button>
@@ -292,12 +302,19 @@ export default function AdStaging() {
                             <Button
                               size="sm"
                               onClick={() => {
-                                updateAd.mutate({
-                                  id: ad.id,
-                                  facebookMarketplaceUrl: tempFbUrl,
-                                });
-                                setEditingFbUrl(null);
-                                setTempFbUrl("");
+                                updateAd.mutate(
+                                  {
+                                    id: ad.id,
+                                    facebookMarketplaceUrl: tempFbUrl,
+                                  },
+                                  {
+                                    onSuccess: () => {
+                                      toast.success("Facebook URL saved!");
+                                      setEditingFbUrl(null);
+                                      setTempFbUrl("");
+                                    },
+                                  }
+                                );
                               }}
                             >
                               Save
@@ -473,12 +490,19 @@ export default function AdStaging() {
                           <Button
                             size="sm"
                             onClick={() => {
-                              updateAd.mutate({
-                                id: ad.id,
-                                facebookMarketplaceUrl: tempFbUrl,
-                              });
-                              setEditingFbUrl(null);
-                              setTempFbUrl("");
+                              updateAd.mutate(
+                                {
+                                  id: ad.id,
+                                  facebookMarketplaceUrl: tempFbUrl,
+                                },
+                                {
+                                  onSuccess: () => {
+                                    toast.success("Facebook URL saved!");
+                                    setEditingFbUrl(null);
+                                    setTempFbUrl("");
+                                  },
+                                }
+                              );
                             }}
                           >
                             Save
@@ -786,7 +810,7 @@ export default function AdStaging() {
                   className="flex-1"
                 />
                 <Button
-                  onClick={handlePublish}
+                  onClick={() => handlePublish()}
                   disabled={!facebookUrl || updateAd.isPending}
                 >
                   Mark as Published
