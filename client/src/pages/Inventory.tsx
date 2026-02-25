@@ -64,6 +64,7 @@ export default function Inventory() {
     condition: "used" as "new" | "used",
   });
   const [uploadedImagePreview, setUploadedImagePreview] = useState<string | null>(null);
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]); // saved /uploads/ URLs
   const [isUploadingImage, setIsUploadingImage] = useState(false);
   const [isDragOver, setIsDragOver] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
@@ -179,16 +180,23 @@ export default function Inventory() {
 
   const uploadImageMutation = trpc.uploadImage.useMutation({
     onSuccess: (data) => {
-      setFormData(prev => ({ ...prev, imageUrl: data.url }));
-      toast.success("Photo uploaded successfully!");
+      // Append new URL to the images array
+      setUploadedImages(prev => {
+        const updated = [...prev, data.url];
+        // Keep formData.imageUrl as JSON array if multiple, single string if one
+        setFormData(fp => ({ ...fp, imageUrl: updated.length === 1 ? updated[0] : JSON.stringify(updated) }));
+        return updated;
+      });
+      toast.success("Photo uploaded ✓");
       setIsUploadingImage(false);
+      setUploadedImagePreview(null); // clear preview placeholder after upload
     },
     onError: (error) => {
       toast.error(error.message || "Failed to upload photo");
       setIsUploadingImage(false);
+      setUploadedImagePreview(null);
     },
   });
-
   const handleImageFile = (file: File) => {
     if (!file.type.startsWith('image/')) {
       toast.error('Please select an image file');
@@ -198,7 +206,7 @@ export default function Inventory() {
     const reader = new FileReader();
     reader.onload = (e) => {
       const base64Data = e.target?.result as string;
-      setUploadedImagePreview(base64Data);
+      setUploadedImagePreview(base64Data); // show local preview while uploading
       uploadImageMutation.mutate({
         base64Data,
         mimeType: file.type,
@@ -213,6 +221,7 @@ export default function Inventory() {
       toast.success("Listing added successfully");
       setOpenManual(false);
       setUploadedImagePreview(null);
+      setUploadedImages([]);
       setFormData({
         stockNumber: "",
         brand: "",
@@ -647,7 +656,34 @@ export default function Inventory() {
                       </div>
                       <div className="grid gap-2">
                         <Label>Photos</Label>
-                        {/* Drag & Drop Upload Area */}
+                        {/* Uploaded thumbnails gallery */}
+                        {uploadedImages.length > 0 && (
+                          <div className="flex flex-wrap gap-2 p-2 border rounded-lg bg-gray-50">
+                            {uploadedImages.map((url, i) => (
+                              <div key={i} className="relative group" style={{ width: 72, height: 72 }}>
+                                <img src={url} alt={`Photo ${i + 1}`} className="w-full h-full object-cover rounded border" />
+                                {i === 0 && (
+                                  <div className="absolute bottom-0 left-0 right-0 bg-blue-500 text-white text-[9px] text-center leading-4 rounded-b">COVER</div>
+                                )}
+                                <button
+                                  type="button"
+                                  className="absolute top-0 right-0 bg-red-500 text-white rounded-bl p-0.5 opacity-0 group-hover:opacity-100 transition-opacity"
+                                  onClick={() => {
+                                    const updated = uploadedImages.filter((_, idx) => idx !== i);
+                                    setUploadedImages(updated);
+                                    setFormData(prev => ({
+                                      ...prev,
+                                      imageUrl: updated.length === 0 ? '' : updated.length === 1 ? updated[0] : JSON.stringify(updated)
+                                    }));
+                                  }}
+                                >
+                                  <X className="w-3 h-3" />
+                                </button>
+                              </div>
+                            ))}
+                          </div>
+                        )}
+                        {/* Drag & Drop Upload Area — always visible so more photos can be added */}
                         <div
                           className={`border-2 border-dashed rounded-lg p-4 text-center cursor-pointer transition-colors ${
                             isDragOver ? 'border-blue-500 bg-blue-50' : 'border-gray-300 hover:border-blue-400'
@@ -657,8 +693,7 @@ export default function Inventory() {
                           onDrop={(e) => {
                             e.preventDefault();
                             setIsDragOver(false);
-                            const file = e.dataTransfer.files[0];
-                            if (file) handleImageFile(file);
+                            Array.from(e.dataTransfer.files).forEach(f => handleImageFile(f));
                           }}
                           onClick={() => fileInputRef.current?.click()}
                         >
@@ -666,10 +701,11 @@ export default function Inventory() {
                             ref={fileInputRef}
                             type="file"
                             accept="image/*"
+                            multiple
                             className="hidden"
                             onChange={(e) => {
-                              const file = e.target.files?.[0];
-                              if (file) handleImageFile(file);
+                              if (e.target.files) Array.from(e.target.files).forEach(f => handleImageFile(f));
+                              e.target.value = ''; // reset so same file can be re-added
                             }}
                           />
                           {isUploadingImage ? (
@@ -678,42 +714,35 @@ export default function Inventory() {
                               <p className="text-sm text-gray-600">Uploading photo...</p>
                             </div>
                           ) : uploadedImagePreview ? (
-                            <div className="relative">
-                              <img src={uploadedImagePreview} alt="Preview" className="max-h-40 mx-auto rounded object-contain" />
-                              <button
-                                type="button"
-                                className="absolute top-0 right-0 bg-red-500 text-white rounded-full p-1"
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setUploadedImagePreview(null);
-                                  setFormData(prev => ({ ...prev, imageUrl: '' }));
-                                }}
-                              >
-                                <X className="w-3 h-3" />
-                              </button>
-                              <p className="text-xs text-green-600 mt-1">Photo uploaded ✓</p>
+                            <div className="flex flex-col items-center gap-2 py-2">
+                              <img src={uploadedImagePreview} alt="Preview" className="max-h-24 mx-auto rounded object-contain opacity-60" />
+                              <p className="text-xs text-blue-600">Saving...</p>
                             </div>
                           ) : (
                             <div className="flex flex-col items-center gap-2 py-2">
                               <ImagePlus className="w-8 h-8 text-gray-400" />
-                              <p className="text-sm text-gray-600">Drag & drop a photo here, or click to browse</p>
-                              <p className="text-xs text-gray-400">JPG, PNG, WEBP supported</p>
+                              <p className="text-sm text-gray-600">{uploadedImages.length > 0 ? 'Add another photo' : 'Drag & drop photos here, or click to browse'}</p>
+                              <p className="text-xs text-gray-400">JPG, PNG, WEBP — multiple files supported</p>
                             </div>
                           )}
                         </div>
-                        {/* Or enter URL manually */}
-                        <div className="flex items-center gap-2">
-                          <div className="flex-1 h-px bg-gray-200" />
-                          <span className="text-xs text-gray-400">or enter URL</span>
-                          <div className="flex-1 h-px bg-gray-200" />
-                        </div>
-                        <Input
-                          id="imageUrl"
-                          type="url"
-                          value={formData.imageUrl}
-                          onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
-                          placeholder="https://..."
-                        />
+                        {/* Manual URL entry — only shown when no photos uploaded */}
+                        {uploadedImages.length === 0 && (
+                          <>
+                            <div className="flex items-center gap-2">
+                              <div className="flex-1 h-px bg-gray-200" />
+                              <span className="text-xs text-gray-400">or enter URL</span>
+                              <div className="flex-1 h-px bg-gray-200" />
+                            </div>
+                            <Input
+                              id="imageUrl"
+                              type="text"
+                              value={formData.imageUrl}
+                              onChange={(e) => setFormData({ ...formData, imageUrl: e.target.value })}
+                              placeholder="https://..."
+                            />
+                          </>
+                        )}
                       </div>
                     </div>
                     <DialogFooter>
