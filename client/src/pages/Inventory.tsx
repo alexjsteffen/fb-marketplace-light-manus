@@ -52,7 +52,7 @@ export default function Inventory() {
   const [fetchProgress, setFetchProgress] = useState({ current: 0, total: 0 });
 
   const [formData, setFormData] = useState({
-    stockNumber: "",
+    stockNumber: `ITEM-${Date.now()}`,
     brand: "",
     category: "",
     year: new Date().getFullYear(),
@@ -223,7 +223,7 @@ export default function Inventory() {
       setUploadedImagePreview(null);
       setUploadedImages([]);
       setFormData({
-        stockNumber: "",
+        stockNumber: `ITEM-${Date.now()}`,
         brand: "",
         category: "",
         year: new Date().getFullYear(),
@@ -561,99 +561,10 @@ export default function Inventory() {
                     <DialogHeader>
                       <DialogTitle>Add New Listing</DialogTitle>
                       <DialogDescription>
-                        Add a new item to your marketplace listings
+                        Add a new item to your Facebook Marketplace listings
                       </DialogDescription>
                     </DialogHeader>
                     <div className="grid gap-4 py-4">
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="stockNumber">Stock Number *</Label>
-                          <Input
-                            id="stockNumber"
-                            value={formData.stockNumber}
-                            onChange={(e) => setFormData({ ...formData, stockNumber: e.target.value })}
-                            required
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="condition">Condition *</Label>
-                          <Select
-                            value={formData.condition}
-                            onValueChange={(value: "new" | "used") => setFormData({ ...formData, condition: value })}
-                          >
-                            <SelectTrigger>
-                              <SelectValue />
-                            </SelectTrigger>
-                            <SelectContent>
-                              <SelectItem value="new">New</SelectItem>
-                              <SelectItem value="used">Used</SelectItem>
-                            </SelectContent>
-                          </Select>
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="brand">Brand</Label>
-                          <Input
-                            id="brand"
-                            value={formData.brand}
-                            onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="category">Category</Label>
-                          <Input
-                            id="category"
-                            value={formData.category}
-                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
-                          />
-                        </div>
-                      </div>
-                      <div className="grid grid-cols-2 gap-4">
-                        <div className="grid gap-2">
-                          <Label htmlFor="year">Year</Label>
-                          <Input
-                            id="year"
-                            type="number"
-                            value={formData.year}
-                            onChange={(e) => { const v = parseInt(e.target.value); setFormData({ ...formData, year: isNaN(v) ? new Date().getFullYear() : v }); }}
-                          />
-                        </div>
-                        <div className="grid gap-2">
-                          <Label htmlFor="price">Price</Label>
-                          <Input
-                            id="price"
-                            value={formData.price}
-                            onChange={(e) => setFormData({ ...formData, price: e.target.value })}
-                            placeholder="25900.00"
-                          />
-                        </div>
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="model">Model</Label>
-                        <Input
-                          id="model"
-                          value={formData.model}
-                          onChange={(e) => setFormData({ ...formData, model: e.target.value })}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="description">Description</Label>
-                        <Textarea
-                          id="description"
-                          value={formData.description}
-                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
-                          rows={3}
-                        />
-                      </div>
-                      <div className="grid gap-2">
-                        <Label htmlFor="location">Location</Label>
-                        <Input
-                          id="location"
-                          value={formData.location}
-                          onChange={(e) => setFormData({ ...formData, location: e.target.value })}
-                        />
-                      </div>
                       <div className="grid gap-2">
                         <Label>Photos</Label>
                         {/* Uploaded thumbnails gallery */}
@@ -743,6 +654,69 @@ export default function Inventory() {
                             />
                           </>
                         )}
+                      </div>
+
+                      {/* Title */}
+                      <div className="grid gap-2">
+                        <Label htmlFor="brand">Title *</Label>
+                        <Input
+                          id="brand"
+                          value={formData.brand}
+                          onChange={(e) => setFormData({ ...formData, brand: e.target.value })}
+                          placeholder="e.g. Vintage Leather Sofa, iPhone 14 Pro, Handmade Quilt"
+                          required
+                        />
+                      </div>
+
+                      {/* Price */}
+                      <div className="grid gap-2">
+                        <Label htmlFor="price">Price ($)</Label>
+                        <Input
+                          id="price"
+                          value={formData.price}
+                          onChange={(e) => setFormData({ ...formData, price: e.target.value })}
+                          placeholder="0.00"
+                        />
+                      </div>
+
+                      {/* Category & Condition side by side */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="grid gap-2">
+                          <Label htmlFor="category">Category</Label>
+                          <Input
+                            id="category"
+                            value={formData.category}
+                            onChange={(e) => setFormData({ ...formData, category: e.target.value })}
+                            placeholder="e.g. Furniture, Electronics, Art"
+                          />
+                        </div>
+                        <div className="grid gap-2">
+                          <Label htmlFor="condition">Condition</Label>
+                          <Select
+                            value={formData.condition}
+                            onValueChange={(value: "new" | "used") => setFormData({ ...formData, condition: value })}
+                          >
+                            <SelectTrigger>
+                              <SelectValue />
+                            </SelectTrigger>
+                            <SelectContent>
+                              <SelectItem value="new">New</SelectItem>
+                              <SelectItem value="used">Used</SelectItem>
+                            </SelectContent>
+                          </Select>
+                        </div>
+                      </div>
+
+                      {/* Description */}
+                      <div className="grid gap-2">
+                        <Label htmlFor="description">Description</Label>
+                        <Textarea
+                          id="description"
+                          value={formData.description}
+                          onChange={(e) => setFormData({ ...formData, description: e.target.value })}
+                          rows={4}
+                          placeholder="Describe your item — condition, dimensions, history, etc."
+                        />
                       </div>
                     </div>
                     <DialogFooter>
