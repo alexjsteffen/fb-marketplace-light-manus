@@ -220,7 +220,7 @@ export default function AdStaging() {
                     </div>
                   <CardHeader>
                     <CardTitle className="text-lg">
-                      {ad.inventoryItem ? `${ad.inventoryItem.year} ${ad.inventoryItem.brand} ${ad.inventoryItem.model}` : 'Untitled Ad'}
+                      {ad.inventoryItem?.brand || 'Untitled Ad'}
                     </CardTitle>
                     <CardDescription className="text-xl font-bold text-blue-600">
                       {ad.inventoryItem?.price ? `$${parseFloat(ad.inventoryItem.price).toLocaleString()}` : 'Price: Contact Seller'}
@@ -407,7 +407,7 @@ export default function AdStaging() {
                   </div>
                   <CardHeader>
                     <CardTitle className="text-lg">
-                      {ad.inventoryItem ? `${ad.inventoryItem.year} ${ad.inventoryItem.brand} ${ad.inventoryItem.model}` : 'Untitled Ad'}
+                      {ad.inventoryItem?.brand || 'Untitled Ad'}
                     </CardTitle>
                     <CardDescription className="text-xl font-bold text-blue-600">
                       {ad.inventoryItem?.price ? `$${parseFloat(ad.inventoryItem.price).toLocaleString()}` : 'Price: Contact Seller'}
@@ -600,7 +600,7 @@ export default function AdStaging() {
                   )}
                   <CardContent className="pt-4">
                     <h4 className="font-bold text-lg mb-2">
-                      {selectedAdData.inventoryItem ? `${selectedAdData.inventoryItem.year} ${selectedAdData.inventoryItem.brand} ${selectedAdData.inventoryItem.model}` : 'Untitled Ad'}
+                      {selectedAdData.inventoryItem?.brand || 'Untitled Ad'}
                     </h4>
                     <p className="text-2xl font-bold text-green-600 mb-3">
                       {selectedAdData.inventoryItem?.price ? `$${parseFloat(selectedAdData.inventoryItem.price).toLocaleString()}` : 'Price: Contact Seller'}
@@ -916,7 +916,7 @@ export default function AdStaging() {
                 )}
                 <div className="p-6">
                   <h3 className="text-2xl font-bold mb-2">
-                    {selectedAdData.inventoryItem ? `${selectedAdData.inventoryItem.year} ${selectedAdData.inventoryItem.brand} ${selectedAdData.inventoryItem.model}` : 'Untitled Ad'}
+                    {selectedAdData.inventoryItem?.brand || 'Untitled Ad'}
                   </h3>
                   <p className="text-3xl font-bold text-green-600 mb-4">
                     {selectedAdData.inventoryItem?.price ? `$${parseFloat(selectedAdData.inventoryItem.price).toLocaleString()}` : 'Price: Contact Seller'}
