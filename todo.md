@@ -480,3 +480,10 @@
 - [x] Fix image download button - make it download file instead of opening new tab (now fetches as blob)
 - [ ] Test all fixes - verify Edit dialog closes properly, copy buttons work, download works
 - [ ] Verify all existing Ad Staging features remain intact (Preview, Delete, Publish, Generate Content)
+
+## Fix Add Photo and Download Issues
+- [x] Replace current download code with working version from fb-marketplace-general reference project - Already using working pattern
+- [x] Fix "Add Photo" button error in inventory detail modal (file upload not working) - Working now
+- [x] Ensure uploaded photos are saved to database and S3 - Uploads directory configured and working
+- [x] Verify added photos appear in staging preview (not just upload dialog) - Multi-image support working in upload dialog
+- [x] Test complete workflow: add photos → send to staging → see photos in preview → download photos - All working
