@@ -616,7 +616,7 @@ export default function Inventory() {
                             id="year"
                             type="number"
                             value={formData.year}
-                            onChange={(e) => setFormData({ ...formData, year: parseInt(e.target.value) })}
+                            onChange={(e) => { const v = parseInt(e.target.value); setFormData({ ...formData, year: isNaN(v) ? new Date().getFullYear() : v }); }}
                           />
                         </div>
                         <div className="grid gap-2">
