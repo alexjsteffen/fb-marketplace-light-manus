@@ -470,3 +470,13 @@
 - [x] Add "(add desc+)" label next to checkboxes to clarify their purpose
 - [x] Move buttons to header so they're always visible when inventory exists
 - [ ] Verify all existing inventory page features remain intact (filters, view modes, vehicle cards, detail modal)
+
+## Ad Staging Dialog Fixes - Critical Issues
+- [x] Fix Edit dialog - add Save button and Cancel button (already present, fixed close behavior)
+- [x] Fix Edit dialog - prevent dialog from getting stuck (fixed by adding onSuccess callback)
+- [x] Fix Upload dialog - add Copy button for title (already present in code)
+- [x] Fix Upload dialog - add Copy button for price (already present in code)
+- [x] Fix Upload dialog - add Copy button for description (already present in code)
+- [x] Fix image download button - make it download file instead of opening new tab (now fetches as blob)
+- [ ] Test all fixes - verify Edit dialog closes properly, copy buttons work, download works
+- [ ] Verify all existing Ad Staging features remain intact (Preview, Delete, Publish, Generate Content)

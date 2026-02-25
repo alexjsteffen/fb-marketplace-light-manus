@@ -89,9 +89,14 @@ export default function AdStaging() {
     updateAd.mutate({
       id: selectedAd,
       finalText: editedText,
+    }, {
+      onSuccess: () => {
+        setShowEditDialog(false);
+        setSelectedAd(null);
+        toast.success("Ad updated successfully!");
+        refetch();
+      }
     });
-    setShowEditDialog(false);
-    toast.success("Ad updated successfully!");
   };
 
   const handleCopy = (text: string, type: "title" | "price" | "description") => {
@@ -703,15 +708,22 @@ export default function AdStaging() {
                     <Button
                       variant="outline"
                       className="w-full"
-                      onClick={() => {
-                        const link = document.createElement('a');
-                        link.href = selectedAdData.imageUrl!;
-                        link.download = `ad-image-${selectedAdData.id}.jpg`;
-                        link.target = '_blank';
-                        document.body.appendChild(link);
-                        link.click();
-                        document.body.removeChild(link);
-                        toast.success('Image download started!');
+                      onClick={async () => {
+                        try {
+                          const response = await fetch(selectedAdData.imageUrl!);
+                          const blob = await response.blob();
+                          const url = window.URL.createObjectURL(blob);
+                          const link = document.createElement('a');
+                          link.href = url;
+                          link.download = `ad-image-${selectedAdData.id}.jpg`;
+                          document.body.appendChild(link);
+                          link.click();
+                          document.body.removeChild(link);
+                          window.URL.revokeObjectURL(url);
+                          toast.success('Image downloaded successfully!');
+                        } catch (error) {
+                          toast.error('Failed to download image');
+                        }
                       }}
                     >
                       <ExternalLink className="w-4 h-4 mr-2" />
