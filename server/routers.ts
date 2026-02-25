@@ -130,7 +130,7 @@ export const appRouter = router({
         description: z.string().optional(),
         price: z.string().optional(), // decimal as string
         location: z.string().optional(),
-        imageUrl: z.string().url().optional(),
+        imageUrl: z.string().optional(), // can be a relative /uploads/ path or full URL
         condition: z.enum(['new', 'used']).default('used'),
       }))
       .mutation(async ({ input }) => {
@@ -150,7 +150,7 @@ export const appRouter = router({
           description: z.string().optional(),
           price: z.string().optional(),
           location: z.string().optional(),
-          imageUrl: z.string().url().optional(),
+          imageUrl: z.string().optional(), // can be a relative /uploads/ path or full URL
           condition: z.enum(['new', 'used']).default('used'),
         }))
       }))
