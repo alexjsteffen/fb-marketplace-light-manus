@@ -1,40 +1,12 @@
 {
   "version": "7",
-  "dialect": "mysql",
+  "dialect": "sqlite",
   "entries": [
     {
       "idx": 0,
-      "version": "5",
-      "when": 1770485779924,
-      "tag": "0000_chilly_firestar",
-      "breakpoints": true
-    },
-    {
-      "idx": 1,
-      "version": "5",
-      "when": 1770485920060,
-      "tag": "0001_busy_pepper_potts",
-      "breakpoints": true
-    },
-    {
-      "idx": 2,
-      "version": "5",
-      "when": 1770531792911,
-      "tag": "0002_lush_captain_cross",
-      "breakpoints": true
-    },
-    {
-      "idx": 3,
-      "version": "5",
-      "when": 1770587186341,
-      "tag": "0003_fixed_legion",
-      "breakpoints": true
-    },
-    {
-      "idx": 4,
-      "version": "5",
-      "when": 1770762880565,
-      "tag": "0004_open_shooting_star",
+      "version": "6",
+      "when": 1773253020676,
+      "tag": "0000_fixed_quasar",
       "breakpoints": true
     }
   ]

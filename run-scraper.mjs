@@ -49,18 +49,11 @@ async function main() {
       const dbInstance = await db.getDb();
       if (!dbInstance) throw new Error('Database not available');
       
-      // Use bulk insert with onDuplicateKeyUpdate to handle existing items
+      // Use individual inserts with conflict handling for each item
       const { inventoryItems } = await import('./drizzle/schema.ts');
-      await dbInstance.insert(inventoryItems).values(itemsToInsert).onDuplicateKeyUpdate({
-        set: {
-          description: sql`VALUES(description)`,
-          imageUrl: sql`VALUES(imageUrl)`,
-          price: sql`VALUES(price)`,
-          mileage: sql`VALUES(mileage)`,
-          lastSeenAt: sql`VALUES(lastSeenAt)`,
-          updatedAt: sql`VALUES(updatedAt)`,
-        }
-      });
+      for (const item of itemsToInsert) {
+        await dbInstance.insert(inventoryItems).values(item).onConflictDoNothing();
+      }
       
       console.log(`[Script] ✅ Successfully imported/updated ${items.length} vehicles`);
       console.log(`[Script] ${withDesc.length} vehicles have full descriptions`);

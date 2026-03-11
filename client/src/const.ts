@@ -7,9 +7,9 @@ export const getLoginUrl = () => {
   const redirectUri = `${window.location.origin}/api/oauth/callback`;
   const state = btoa(redirectUri);
 
-  // Guard against missing env vars (e.g. local dev without OAuth configured)
+  // Guard against missing env vars — use local login page
   if (!oauthPortalUrl || oauthPortalUrl === "undefined") {
-    return `${window.location.origin}/login`;
+    return `/login`;
   }
 
   try {
@@ -20,6 +20,6 @@ export const getLoginUrl = () => {
     url.searchParams.set("type", "signIn");
     return url.toString();
   } catch {
-    return `${window.location.origin}/login`;
+    return `/login`;
   }
 };

@@ -1,5 +1,7 @@
 import { eq, and, desc, sql } from "drizzle-orm";
-import { drizzle } from "drizzle-orm/mysql2";
+import { drizzle } from "drizzle-orm/better-sqlite3";
+import Database from "better-sqlite3";
+import path from "path";
 import { 
   InsertUser, 
   users, 
@@ -18,11 +20,23 @@ import { ENV } from './_core/env';
 
 let _db: ReturnType<typeof drizzle> | null = null;
 
+function getDbPath(): string {
+  const dbUrl = process.env.DATABASE_URL || "";
+  // Support "file:./data/app.db" or plain path "./data/app.db"
+  const cleaned = dbUrl.replace(/^file:/, "");
+  if (!cleaned) return path.join(process.cwd(), "data", "app.db");
+  return path.resolve(cleaned);
+}
+
 // Lazily create the drizzle instance so local tooling can run without a DB.
 export async function getDb() {
-  if (!_db && process.env.DATABASE_URL) {
+  if (!_db) {
     try {
-      _db = drizzle(process.env.DATABASE_URL);
+      const dbPath = getDbPath();
+      const sqlite = new Database(dbPath);
+      sqlite.pragma("journal_mode = WAL");
+      sqlite.pragma("foreign_keys = ON");
+      _db = drizzle(sqlite);
     } catch (error) {
       console.warn("[Database] Failed to connect:", error);
       _db = null;
@@ -81,7 +95,8 @@ export async function upsertUser(user: InsertUser): Promise<void> {
       updateSet.lastSignedIn = new Date();
     }
 
-    await db.insert(users).values(values).onDuplicateKeyUpdate({
+    await db.insert(users).values(values).onConflictDoUpdate({
+      target: users.openId,
       set: updateSet,
     });
   } catch (error) {
@@ -107,9 +122,8 @@ export async function createDealer(dealer: InsertDealer) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(dealers).values(dealer);
-  const insertId = Number(result[0].insertId);
-  return await getDealerById(insertId);
+  const result = await db.insert(dealers).values(dealer).returning();
+  return result[0];
 }
 
 export async function getDealerById(id: number) {
@@ -157,9 +171,8 @@ export async function createInventoryItem(item: InsertInventoryItem) {
   const db = await getDb();
   if (!db) throw new Error("Database not available");
   
-  const result = await db.insert(inventoryItems).values(item);
-  const insertId = Number(result[0].insertId);
-  return await getInventoryItemById(insertId);
+  const result = await db.insert(inventoryItems).values(item).returning();
+  return result[0];
 }
 
 export async function getInventoryItemsByDealerId(dealerId: number) {
@@ -448,4 +461,60 @@ export async function getGeneratedContentByDealerId(dealerId: number) {
   return await db.select().from(generatedContent)
     .where(eq(generatedContent.dealerId, dealerId))
     .orderBy(desc(generatedContent.createdAt));
+}
+
+// Local authentication functions
+export async function getUserByUsername(username: string) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(users).where(eq(users.username, username)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function getUserById(id: number) {
+  const db = await getDb();
+  if (!db) return undefined;
+
+  const result = await db.select().from(users).where(eq(users.id, id)).limit(1);
+  return result.length > 0 ? result[0] : undefined;
+}
+
+export async function updateUserPassword(id: number, passwordHash: string, mustChange: boolean = false) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.update(users).set({ passwordHash, mustChangePassword: mustChange }).where(eq(users.id, id));
+}
+
+export async function createLocalUser(user: {
+  username: string;
+  passwordHash: string;
+  name: string;
+  role: "user" | "admin";
+  mustChangePassword?: boolean;
+}) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  const openId = `local-${user.username}`;
+  const result = await db.insert(users).values({
+    openId,
+    username: user.username,
+    passwordHash: user.passwordHash,
+    mustChangePassword: user.mustChangePassword ?? true,
+    name: user.name,
+    role: user.role,
+    loginMethod: "local",
+  }).onConflictDoUpdate({
+    target: users.username,
+    set: {
+      passwordHash: user.passwordHash,
+      name: user.name,
+      role: user.role,
+      mustChangePassword: user.mustChangePassword ?? true,
+    },
+  }).returning();
+
+  return result[0];
 }
