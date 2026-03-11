@@ -78,12 +78,21 @@ function ensureUploadsDir() {
   }
 }
 
+function safePath(relKey: string): string {
+  const sanitized = path.normalize(relKey).replace(/^(\.\.(\/|\\|$))+/, "");
+  const resolved = path.resolve(UPLOADS_DIR, sanitized);
+  if (!resolved.startsWith(UPLOADS_DIR)) {
+    throw new Error("Invalid storage key: path traversal detected");
+  }
+  return sanitized;
+}
+
 function localPut(
   relKey: string,
   data: Buffer | Uint8Array | string
 ): { key: string; url: string } {
   ensureUploadsDir();
-  const sanitizedKey = relKey.replace(/\.\./g, "").replace(/^\/+/, "");
+  const sanitizedKey = safePath(relKey);
   const filePath = path.join(UPLOADS_DIR, sanitizedKey);
   const dir = path.dirname(filePath);
   if (!fs.existsSync(dir)) {
@@ -94,7 +103,7 @@ function localPut(
 }
 
 function localGet(relKey: string): { key: string; url: string } {
-  const sanitizedKey = relKey.replace(/\.\./g, "").replace(/^\/+/, "");
+  const sanitizedKey = safePath(relKey);
   return { key: sanitizedKey, url: `/uploads/${sanitizedKey}` };
 }
 
