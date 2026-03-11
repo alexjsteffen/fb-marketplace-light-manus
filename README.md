@@ -8,7 +8,7 @@ A full-stack web application for managing multi-tenant auto dealer inventory and
 |-------|-----------|
 | Frontend | React 19, TypeScript, Vite, Tailwind CSS, shadcn/ui, tRPC, TanStack Query |
 | Backend | Node.js, Express, tRPC, TypeScript |
-| Database | MySQL (Drizzle ORM) |
+| Database | SQLite (Drizzle ORM) |
 | AI | OpenAI API (GPT-4.1-mini for text, DALL-E 3 for images) |
 | Scraping | Puppeteer, Cheerio |
 | Package Manager | pnpm |
@@ -17,35 +17,66 @@ A full-stack web application for managing multi-tenant auto dealer inventory and
 
 - **Node.js** ≥ 20 (LTS recommended)
 - **pnpm** ≥ 10.4 (`corepack enable` to activate)
-- **MySQL** 8.0+ (or MariaDB 10.6+)
 - **Chromium / Google Chrome** (required by Puppeteer for inventory scraping — installed automatically by pnpm, or set `PUPPETEER_EXECUTABLE_PATH` to an existing installation)
 
 ## Quick Start
+
+The easiest way to get started is with the install script:
 
 ```bash
 # 1. Clone the repository
 git clone <repo-url>
 cd fb-marketplace-light-manus
 
-# 2. Enable corepack (ships with Node.js ≥ 16) so pnpm is available
+# 2. Run the install script
+chmod +x install.sh
+./install.sh
+
+# 3. (Optional) Edit .env to set your OPENAI_API_KEY
+#    The app works without it but AI features will be disabled.
+
+# 4. Start the development server
+pnpm run dev
+#    ↳ Opens at http://localhost:3000
+```
+
+### Default Login
+
+After installation, sign in with:
+
+| Field    | Value   |
+|----------|---------|
+| Username | `admin` |
+| Password | `admin` |
+
+> **⚠️ You will be required to change the default password on first login.**
+
+### Manual Setup
+
+If you prefer to set up manually instead of using the install script:
+
+```bash
+# 1. Enable corepack (ships with Node.js ≥ 16) so pnpm is available
 corepack enable
 
-# 3. Install dependencies
+# 2. Install dependencies
 pnpm install
 
-# 4. Copy the example env file and fill in your values
+# 3. Copy the example env file and fill in your values
 cp .env.example .env
-#    ↳ At minimum set DATABASE_URL and OPENAI_API_KEY
 
-# 5. Create / migrate the database
+# 4. Create the data directory and run migrations
+mkdir -p data
 pnpm run db:push
 
-# 6. (Optional) Seed default background templates
+# 5. Seed default background templates
 node seed-templates.mjs
+
+# 6. Create the default admin user
+node seed-admin.mjs
 
 # 7. Start the development server
 pnpm run dev
-#    ↳ Opens at http://localhost:3000
 ```
 
 ## Environment Variables
@@ -54,46 +85,37 @@ Copy `.env.example` to `.env` and configure:
 
 | Variable | Required | Description |
 |----------|----------|-------------|
-| `DATABASE_URL` | **Yes** | MySQL connection string, e.g. `mysql://user:pass@localhost:3306/fb_ads` |
+| `DATABASE_URL` | No | SQLite database file path (default `./data/app.db`) |
 | `OPENAI_API_KEY` | **Yes** | OpenAI API key for AI ad copy and image generation |
 | `PORT` | No | Server port (default `3000`) |
 | `NODE_ENV` | No | `development` or `production` (default `development`) |
 | `OPENAI_BASE_URL` | No | Custom OpenAI-compatible endpoint (default `https://api.openai.com/v1`) |
 | `JWT_SECRET` | No | Secret for signing session cookies |
-| `VITE_APP_ID` | No | OAuth app ID (dev bypass user when unset) |
+| `VITE_APP_ID` | No | OAuth app ID (local login when unset) |
 | `VITE_OAUTH_PORTAL_URL` | No | OAuth portal login URL |
 | `OAUTH_SERVER_URL` | No | OAuth token exchange endpoint |
 | `OWNER_OPEN_ID` | No | OpenID of the super-admin user |
 
-> **Note:** When OAuth variables are not configured the app automatically uses a local dev bypass user with admin privileges — no external auth service required for development or self-hosted use.
+> **Note:** When OAuth variables are not configured the app uses a local login page with username/password authentication — no external auth service required for development or self-hosted use.
 
-## Database Setup
+## Database
 
-The app uses MySQL via the Drizzle ORM. Create a database and user, then set `DATABASE_URL`:
+The app uses **SQLite** via the Drizzle ORM. The database file is stored at `./data/app.db` by default (configurable via `DATABASE_URL`). No external database server is required.
 
-```bash
-# Example: create database and user in MySQL
-mysql -u root -p -e "
-  CREATE DATABASE IF NOT EXISTS fb_ad_accelerator;
-  CREATE USER IF NOT EXISTS 'fbads'@'localhost' IDENTIFIED BY 'your_password';
-  GRANT ALL PRIVILEGES ON fb_ad_accelerator.* TO 'fbads'@'localhost';
-  FLUSH PRIVILEGES;
-"
-
-# Set in .env
-DATABASE_URL=mysql://fbads:your_password@localhost:3306/fb_ad_accelerator
-```
-
-Run migrations:
+### Run migrations
 
 ```bash
 pnpm run db:push
 ```
 
-Seed the default background templates (optional):
+### Seed default data
 
 ```bash
+# Seed background templates
 node seed-templates.mjs
+
+# Create default admin user (admin / admin)
+node seed-admin.mjs
 ```
 
 ## NPM Scripts
@@ -171,7 +193,7 @@ Generated images and uploads are stored in the `uploads/` directory at the proje
 ├── client/            # React frontend (Vite)
 │   ├── src/
 │   │   ├── components/  # UI components (shadcn/ui)
-│   │   ├── pages/       # Route pages
+│   │   ├── pages/       # Route pages (Login, ChangePassword, Home, etc.)
 │   │   ├── hooks/       # Custom React hooks
 │   │   └── lib/         # Utilities
 │   └── index.html
@@ -185,8 +207,12 @@ Generated images and uploads are stored in the `uploads/` directory at the proje
 │   └── storage.ts       # File storage (local / Forge API)
 ├── shared/            # Code shared between client & server
 ├── drizzle/           # Database schema & migrations
+├── data/              # SQLite database (created on install)
 ├── uploads/           # Uploaded & generated images
 ├── patches/           # pnpm dependency patches
+├── install.sh         # Automated install script
+├── seed-admin.mjs     # Default admin user seeder
+├── seed-templates.mjs # Background templates seeder
 ├── .env.example       # Environment variable template
 ├── vite.config.ts     # Vite configuration
 └── package.json
@@ -213,12 +239,15 @@ sudo apt-get install -y \
 export PUPPETEER_EXECUTABLE_PATH=/usr/bin/google-chrome
 ```
 
-### Database connection errors
+### Database issues
 
-Verify your `DATABASE_URL` is correct and the MySQL server is running:
+The SQLite database is stored at `./data/app.db`. If you need to reset the database:
 
 ```bash
-mysql -u fbads -p -h localhost fb_ad_accelerator -e "SELECT 1;"
+rm -f data/app.db
+pnpm run db:push
+node seed-templates.mjs
+node seed-admin.mjs
 ```
 
 ## License

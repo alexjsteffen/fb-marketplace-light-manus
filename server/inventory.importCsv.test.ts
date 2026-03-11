@@ -6,10 +6,10 @@ describe('inventory.importCsv', () => {
   let testDealerId: number;
   
   beforeAll(async () => {
-    // Create a test dealer
+    // Create a test dealer with unique slug
     const dealer = await db.createDealer({
       name: 'CSV Test Dealer',
-      slug: 'csv-test-dealer',
+      slug: `csv-test-dealer-${Date.now()}`,
       contactEmail: 'test@example.com',
       ownerId: 1, // Test owner ID
     });
