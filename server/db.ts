@@ -507,8 +507,9 @@ export async function createLocalUser(user: {
     role: user.role,
     loginMethod: "local",
   }).onConflictDoUpdate({
-    target: users.username,
+    target: users.openId,
     set: {
+      username: user.username,
       passwordHash: user.passwordHash,
       name: user.name,
       role: user.role,

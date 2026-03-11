@@ -83,7 +83,7 @@ echo ""
 
 mkdir -p data
 echo "Running database migrations..."
-npx drizzle-kit generate 2>/dev/null || true
+npx drizzle-kit generate
 npx drizzle-kit migrate
 echo "✓ Database migrated"
 echo ""

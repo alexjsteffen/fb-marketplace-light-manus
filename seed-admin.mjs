@@ -1,4 +1,5 @@
 import { drizzle } from "drizzle-orm/better-sqlite3";
+import { sql } from "drizzle-orm";
 import Database from "better-sqlite3";
 import path from "path";
 import bcrypt from "bcryptjs";
@@ -17,6 +18,13 @@ const DEFAULT_PASSWORD = "admin";
 async function seed() {
   console.log("Creating default admin user...");
 
+  // Check if admin user already exists
+  const existing = db.select().from(users).where(sql`${users.openId} = 'local-admin'`).get();
+  if (existing) {
+    console.log("✓ Admin user already exists (skipping)");
+    process.exit(0);
+  }
+
   const passwordHash = await bcrypt.hash(DEFAULT_PASSWORD, 10);
 
   await db.insert(users).values({
@@ -27,16 +35,7 @@ async function seed() {
     name: "Administrator",
     role: "admin",
     loginMethod: "local",
-  }).onConflictDoUpdate({
-    target: users.openId,
-    set: {
-      username: DEFAULT_USERNAME,
-      passwordHash,
-      mustChangePassword: true,
-      name: "Administrator",
-      role: "admin",
-    },
-  });
+  }).onConflictDoNothing();
 
   console.log("✓ Default admin user created");
   console.log("  Username: admin");
