@@ -8,11 +8,17 @@ import { TRPCError } from "@trpc/server";
 import { enhanceAdText, generateAdImage, TEMPLATE_CONFIGS } from "./adEnhancement";
 import { scrapeInventoryFromUrl } from "./inventoryScraper";
 import { parse } from "csv-parse/sync";
+import { sdk } from "./_core/sdk";
+import bcrypt from "bcryptjs";
 
 export const appRouter = router({
   system: systemRouter,
   auth: router({
-    me: publicProcedure.query(opts => opts.ctx.user),
+    me: publicProcedure.query(opts => {
+      if (!opts.ctx.user) return null;
+      const { passwordHash, ...safeUser } = opts.ctx.user;
+      return safeUser;
+    }),
     logout: publicProcedure.mutation(({ ctx }) => {
       const cookieOptions = getSessionCookieOptions(ctx.req);
       ctx.res.clearCookie(COOKIE_NAME, { ...cookieOptions, maxAge: -1 });
@@ -20,6 +26,62 @@ export const appRouter = router({
         success: true,
       } as const;
     }),
+    login: publicProcedure
+      .input(z.object({
+        username: z.string().min(1),
+        password: z.string().min(1),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await db.getUserByUsername(input.username);
+        if (!user || !user.passwordHash) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid username or password" });
+        }
+
+        const valid = await bcrypt.compare(input.password, user.passwordHash);
+        if (!valid) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Invalid username or password" });
+        }
+
+        // Create session
+        const sessionToken = await sdk.createSessionToken(user.openId, {
+          name: user.name || user.username || "",
+        });
+
+        const cookieOptions = getSessionCookieOptions(ctx.req);
+        ctx.res.cookie(COOKIE_NAME, sessionToken, {
+          ...cookieOptions,
+          maxAge: 1000 * 60 * 60 * 24 * 365,
+        });
+
+        // Update last signed in
+        await db.upsertUser({ openId: user.openId, lastSignedIn: new Date() });
+
+        return {
+          success: true,
+          mustChangePassword: user.mustChangePassword ?? false,
+        };
+      }),
+    changePassword: protectedProcedure
+      .input(z.object({
+        currentPassword: z.string().min(1),
+        newPassword: z.string().min(6),
+      }))
+      .mutation(async ({ input, ctx }) => {
+        const user = await db.getUserById(ctx.user.id);
+        if (!user || !user.passwordHash) {
+          throw new TRPCError({ code: "BAD_REQUEST", message: "Cannot change password for this account" });
+        }
+
+        const valid = await bcrypt.compare(input.currentPassword, user.passwordHash);
+        if (!valid) {
+          throw new TRPCError({ code: "UNAUTHORIZED", message: "Current password is incorrect" });
+        }
+
+        const newHash = await bcrypt.hash(input.newPassword, 10);
+        await db.updateUserPassword(user.id, newHash, false);
+
+        return { success: true };
+      }),
   }),
 
   // Dealer management

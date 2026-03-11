@@ -47,6 +47,8 @@
     "@trpc/react-query": "^11.6.0",
     "@trpc/server": "^11.6.0",
     "axios": "^1.12.0",
+    "bcryptjs": "^3.0.3",
+    "better-sqlite3": "^12.6.2",
     "cheerio": "^1.2.0",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
@@ -62,7 +64,6 @@
     "input-otp": "^1.4.2",
     "jose": "6.1.0",
     "lucide-react": "^0.453.0",
-    "mysql2": "^3.15.0",
     "nanoid": "^5.1.5",
     "next-themes": "^0.4.6",
     "puppeteer": "^24.37.2",
@@ -85,6 +86,7 @@
     "@builder.io/vite-plugin-jsx-loc": "^0.1.1",
     "@tailwindcss/typography": "^0.5.15",
     "@tailwindcss/vite": "^4.1.3",
+    "@types/better-sqlite3": "^7.6.13",
     "@types/express": "4.17.21",
     "@types/google.maps": "^3.58.1",
     "@types/node": "^24.7.0",
@@ -115,7 +117,8 @@
       "tailwindcss>nanoid": "3.3.7"
     },
     "onlyBuiltDependencies": [
-      "canvas"
+      "canvas",
+      "better-sqlite3"
     ],
     "ignoredBuiltDependencies": [
       "puppeteer"
