@@ -1,10 +1,21 @@
 import { jsxLocPlugin } from "@builder.io/vite-plugin-jsx-loc";
 import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
+import { createRequire } from "node:module";
 import fs from "node:fs";
 import path from "node:path";
 import { defineConfig, type Plugin, type ViteDevServer } from "vite";
-import { vitePluginManusRuntime } from "vite-plugin-manus-runtime";
+
+// Manus-specific plugin — loaded conditionally so the project works outside the Manus platform
+function tryLoadManusRuntime(): Plugin | null {
+  try {
+    const require = createRequire(import.meta.url);
+    const mod = require("vite-plugin-manus-runtime");
+    return mod.vitePluginManusRuntime();
+  } catch {
+    return null;
+  }
+}
 
 // =============================================================================
 // Manus Debug Collector - Vite Plugin
@@ -150,7 +161,8 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), vitePluginManusRuntime(), vitePluginManusDebugCollector()];
+const manusPlugin = tryLoadManusRuntime();
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), ...(manusPlugin ? [manusPlugin] : []), vitePluginManusDebugCollector()];
 
 export default defineConfig({
   plugins,
@@ -170,15 +182,7 @@ export default defineConfig({
   },
   server: {
     host: true,
-    allowedHosts: [
-      ".manuspre.computer",
-      ".manus.computer",
-      ".manus-asia.computer",
-      ".manuscomputer.ai",
-      ".manusvm.computer",
-      "localhost",
-      "127.0.0.1",
-    ],
+    allowedHosts: true,
     fs: {
       strict: true,
       deny: ["**/.*"],

@@ -212,7 +212,7 @@ const normalizeToolChoice = (
 const resolveApiUrl = () => {
   const base = ENV.forgeApiUrl && ENV.forgeApiUrl.trim().length > 0
     ? ENV.forgeApiUrl.replace(/\/$/, "")
-    : "https://forge.manus.im/v1";
+    : "https://api.openai.com/v1";
   // If the base already ends in /v1, don't append it again
   if (base.endsWith("/v1")) {
     return `${base}/chat/completions`;

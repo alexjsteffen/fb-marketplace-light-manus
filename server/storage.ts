@@ -1,18 +1,17 @@
-// Preconfigured storage helpers for Manus WebDev templates
-// Uses the Biz-provided storage proxy (Authorization: Bearer <token>)
+// Storage helpers — supports Manus Forge API, or falls back to local file storage
 
-import { ENV } from './_core/env';
+import fs from "fs";
+import path from "path";
 
 type StorageConfig = { baseUrl: string; apiKey: string };
 
-function getStorageConfig(): StorageConfig {
-  const baseUrl = ENV.forgeApiUrl;
-  const apiKey = ENV.forgeApiKey;
+function getStorageConfig(): StorageConfig | null {
+  // Only use the Forge storage proxy when explicitly configured
+  const baseUrl = process.env.BUILT_IN_FORGE_API_URL;
+  const apiKey = process.env.BUILT_IN_FORGE_API_KEY;
 
   if (!baseUrl || !apiKey) {
-    throw new Error(
-      "Storage proxy credentials missing: set BUILT_IN_FORGE_API_URL and BUILT_IN_FORGE_API_KEY"
-    );
+    return null;
   }
 
   return { baseUrl: baseUrl.replace(/\/+$/, ""), apiKey };
@@ -67,12 +66,62 @@ function buildAuthHeaders(apiKey: string): HeadersInit {
   return { Authorization: `Bearer ${apiKey}` };
 }
 
+// ---------------------------------------------------------------------------
+// Local file-system fallback (used when Forge API is not configured)
+// ---------------------------------------------------------------------------
+
+const UPLOADS_DIR = path.join(process.cwd(), "uploads");
+
+function ensureUploadsDir() {
+  if (!fs.existsSync(UPLOADS_DIR)) {
+    fs.mkdirSync(UPLOADS_DIR, { recursive: true });
+  }
+}
+
+function safePath(relKey: string): string {
+  const sanitized = path.normalize(relKey).replace(/^(\.\.(\/|\\|$))+/, "");
+  const resolved = path.resolve(UPLOADS_DIR, sanitized);
+  if (!resolved.startsWith(UPLOADS_DIR)) {
+    throw new Error("Invalid storage key: path traversal detected");
+  }
+  return sanitized;
+}
+
+function localPut(
+  relKey: string,
+  data: Buffer | Uint8Array | string
+): { key: string; url: string } {
+  ensureUploadsDir();
+  const sanitizedKey = safePath(relKey);
+  const filePath = path.join(UPLOADS_DIR, sanitizedKey);
+  const dir = path.dirname(filePath);
+  if (!fs.existsSync(dir)) {
+    fs.mkdirSync(dir, { recursive: true });
+  }
+  fs.writeFileSync(filePath, data);
+  return { key: sanitizedKey, url: `/uploads/${sanitizedKey}` };
+}
+
+function localGet(relKey: string): { key: string; url: string } {
+  const sanitizedKey = safePath(relKey);
+  return { key: sanitizedKey, url: `/uploads/${sanitizedKey}` };
+}
+
+// ---------------------------------------------------------------------------
+// Public API
+// ---------------------------------------------------------------------------
+
 export async function storagePut(
   relKey: string,
   data: Buffer | Uint8Array | string,
   contentType = "application/octet-stream"
 ): Promise<{ key: string; url: string }> {
-  const { baseUrl, apiKey } = getStorageConfig();
+  const config = getStorageConfig();
+  if (!config) {
+    return localPut(relKey, data);
+  }
+
+  const { baseUrl, apiKey } = config;
   const key = normalizeKey(relKey);
   const uploadUrl = buildUploadUrl(baseUrl, key);
   const formData = toFormData(data, contentType, key.split("/").pop() ?? key);
@@ -93,7 +142,12 @@ export async function storagePut(
 }
 
 export async function storageGet(relKey: string): Promise<{ key: string; url: string; }> {
-  const { baseUrl, apiKey } = getStorageConfig();
+  const config = getStorageConfig();
+  if (!config) {
+    return localGet(relKey);
+  }
+
+  const { baseUrl, apiKey } = config;
   const key = normalizeKey(relKey);
   return {
     key,
