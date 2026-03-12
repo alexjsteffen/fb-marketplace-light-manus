@@ -161,8 +161,34 @@ function vitePluginManusDebugCollector(): Plugin {
   };
 }
 
+/**
+ * Vite plugin that strips the Umami analytics <script> tag from index.html
+ * when VITE_ANALYTICS_ENDPOINT is not configured.  Without this, the
+ * unresolved placeholder "%VITE_ANALYTICS_ENDPOINT%" ends up in the served
+ * HTML and the browser fires a relative request whose URL Express cannot
+ * decode, producing:
+ *   URIError: Failed to decode param '/%VITE_ANALYTICS_ENDPOINT%/umami'
+ */
+function vitePluginConditionalAnalytics(): Plugin {
+  return {
+    name: "conditional-analytics",
+    transformIndexHtml: {
+      order: "pre" as const,
+      handler(html: string) {
+        if (!process.env.VITE_ANALYTICS_ENDPOINT) {
+          return html.replace(
+            /<script[^>]*src="%VITE_ANALYTICS_ENDPOINT%[^"]*"[^>]*><\/script>/,
+            ""
+          );
+        }
+        return html;
+      },
+    },
+  };
+}
+
 const manusPlugin = tryLoadManusRuntime();
-const plugins = [react(), tailwindcss(), jsxLocPlugin(), ...(manusPlugin ? [manusPlugin] : []), vitePluginManusDebugCollector()];
+const plugins = [react(), tailwindcss(), jsxLocPlugin(), ...(manusPlugin ? [manusPlugin] : []), vitePluginManusDebugCollector(), vitePluginConditionalAnalytics()];
 
 export default defineConfig({
   plugins,
