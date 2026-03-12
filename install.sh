@@ -105,6 +105,37 @@ node seed-admin.mjs
 echo ""
 
 # ------------------------------------------------------------------
+# 7. Optionally import sample CSV data
+# ------------------------------------------------------------------
+
+echo ""
+echo "------------------------------------------------------------------"
+echo "  Sample Data Import"
+echo "------------------------------------------------------------------"
+echo "  A sample inventory CSV (novlanbros-ford-march10-26.csv) is"
+echo "  included in this repository. You can import it now to have"
+echo "  real vehicle data to explore right away."
+echo ""
+
+# Default to yes when running non-interactively
+if [ -t 0 ]; then
+  read -rp "Import sample CSV data into the database? [Y/n] " IMPORT_SAMPLE
+else
+  IMPORT_SAMPLE="y"
+fi
+
+case "${IMPORT_SAMPLE:-y}" in
+  [Nn]*)
+    echo "  Skipping sample data import."
+    ;;
+  *)
+    echo "Importing sample CSV data..."
+    node seed-sample-csv.mjs
+    ;;
+esac
+echo ""
+
+# ------------------------------------------------------------------
 # Done
 # ------------------------------------------------------------------
 
@@ -118,6 +149,10 @@ echo "  Password: admin"
 echo ""
 echo "⚠️  You will be required to change the default"
 echo "   password on first login."
+echo ""
+echo "To import a CSV into the database after install:"
+echo "  node seed-sample-csv.mjs"
+echo "  — or use the Import CSV button on the Inventory page."
 echo ""
 echo "Start the development server:"
 echo "  pnpm run dev"

@@ -6,9 +6,13 @@ import {
   Megaphone, 
   Facebook, 
   FileText,
-  Palette
+  Palette,
+  Users,
+  LogOut,
+  KeyRound
 } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useAuth } from "@/_core/hooks/useAuth";
 
 interface NavItem {
   title: string;
@@ -59,6 +63,12 @@ const getNavItems = (dealerId?: string): NavItem[] => [
     href: "/templates",
     icon: Palette,
     description: "Ad templates"
+  },
+  {
+    title: "Users",
+    href: "/users",
+    icon: Users,
+    description: "Manage users & accounts"
   }
 ];
 
@@ -68,6 +78,12 @@ interface SidebarProps {
 
 export function Sidebar({ dealerId }: SidebarProps) {
   const [location] = useLocation();
+  const { user, logout } = useAuth();
+
+  const handleLogout = async () => {
+    await logout();
+    window.location.href = "/login";
+  };
 
   return (
     <div className="w-64 bg-gray-900 text-white min-h-screen flex flex-col">
@@ -111,7 +127,27 @@ export function Sidebar({ dealerId }: SidebarProps) {
       </nav>
 
       {/* Footer */}
-      <div className="p-4 border-t border-gray-800">
+      <div className="p-4 border-t border-gray-800 space-y-3">
+        {user && (
+          <div className="text-xs text-gray-400 truncate">
+            Signed in as <span className="text-white font-medium">{user.name || user.username}</span>
+          </div>
+        )}
+        <div className="flex flex-col gap-1">
+          <Link href="/change-password">
+            <div className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-gray-400 hover:bg-gray-800 hover:text-white cursor-pointer transition-colors">
+              <KeyRound className="w-4 h-4" />
+              Change Password
+            </div>
+          </Link>
+          <button
+            onClick={handleLogout}
+            className="flex items-center gap-2 px-2 py-1.5 rounded-md text-xs text-gray-400 hover:bg-gray-800 hover:text-white cursor-pointer transition-colors w-full text-left"
+          >
+            <LogOut className="w-4 h-4" />
+            Logout
+          </button>
+        </div>
         <div className="text-xs text-gray-500">
           <div className="font-semibold text-gray-400 mb-1">SYSTEM STATUS</div>
           <div className="flex items-center justify-between">

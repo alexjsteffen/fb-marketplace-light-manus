@@ -14,6 +14,7 @@ import AdStaging from "@/pages/AdStaging";
 import Dashboard from "@/pages/Dashboard";
 import ContentGenerator from "@/pages/ContentGenerator";
 import Templates from "@/pages/Templates";
+import Users from "@/pages/Users";
 import { DealerLayout } from "@/components/DealerLayout";
 
 function Router() {
@@ -47,6 +48,7 @@ function Router() {
       </Route>
       <Route path="/content/:adId" component={ContentGenerator} />
       <Route path="/templates" component={Templates} />
+      <Route path="/users" component={Users} />
       <Route path={"/404"} component={NotFound} />
       <Route component={NotFound} />
     </Switch>
