@@ -269,24 +269,84 @@ export const appRouter = router({
           }
           
           // Map CSV columns to inventory items
-          const items = records.map((record: any) => ({
-            stockNumber: record.stockNumber || record.stock || record.Stock || '',
-            brand: record.brand || record.make || record.Make || undefined,
-            model: record.model || record.Model || undefined,
-            year: record.year || record.Year ? parseInt(record.year || record.Year) : undefined,
-            trim: record.trim || record.Trim || undefined,
-            price: record.price || record.Price || undefined,
-            mileage: record.mileage || record.Mileage || undefined,
-            vin: record.vin || record.VIN || record.Vin || undefined,
-            category: record.category || record.Category || undefined,
-            location: record.location || record.Location || undefined,
-            imageUrl: record.imageUrl || record.image || record.Image || undefined,
-            description: record.description || record.Description || undefined,
-            condition: (record.condition === 'new' || record.category === 'new') ? 'new' as const : 'used' as const,
-          })).filter((item: any) => item.stockNumber); // Filter out items without stock numbers
-          
+          // Supports standard lowercase names as well as the novlanbros-style PascalCase/uppercase names
+          const items = records.map((record: any) => {
+            const stockNumber =
+              record.StockNumber || record.stockNumber || record.stock || record.Stock || '';
+            const brand =
+              record.Make || record.brand || record.make || undefined;
+            const model =
+              record.Model || record.model || undefined;
+            const rawYear = record.Year || record.year;
+            const year = rawYear ? parseInt(rawYear) : undefined;
+            const trim =
+              record.Trim || record.trim || undefined;
+            // Prefer SalePrice then RetailPrice then generic price columns
+            const price =
+              record.SalePrice || record.RetailPrice || record.price || record.Price || undefined;
+            const mileage =
+              record.Mileage || record.mileage || undefined;
+            const vin =
+              record.VIN || record.vin || record.Vin || undefined;
+            // Build location from City + Province when available
+            const city = record.City || record.city || '';
+            const province = record.Province || record.province || '';
+            const location =
+              (city || province)
+                ? [city, province].filter(Boolean).join(', ')
+                : (record.location || record.Location || undefined);
+            // Support Images (pipe-separated or single URL) as well as generic imageUrl columns
+            const rawImages = record.Images || record.imageUrl || record.image || record.Image || '';
+            const imageUrl = rawImages ? rawImages.split('|')[0].trim() || undefined : undefined;
+            const description =
+              record.Description || record.description || undefined;
+            const exteriorColor =
+              record.ColorExterior || record.exteriorColor || record.ExteriorColor || undefined;
+            const interiorColor =
+              record.ColorInterior || record.interiorColor || record.InteriorColor || undefined;
+            const engine =
+              record.Engine || record.engine || undefined;
+            const transmission =
+              record.TransmissionDesc || record.Transmission || record.transmission || undefined;
+            const drivetrain =
+              record.Drivetrain || record.drivetrain || undefined;
+            const fuel =
+              record.Fuel || record.fuel || undefined;
+            const cylinders =
+              record.Cylinders ? String(record.Cylinders) : (record.cylinders ? String(record.cylinders) : undefined);
+            const doors =
+              record.Doors ? String(record.Doors) : (record.doors ? String(record.doors) : undefined);
+            // Determine condition: Type column uses 'New'/'Used', Condition column may also exist
+            const typeRaw = (record.Type || record.type || '').toLowerCase();
+            const condRaw = (record.Condition || record.condition || '').toLowerCase();
+            const condition: 'new' | 'used' =
+              typeRaw === 'new' || condRaw === 'new' ? 'new' : 'used';
+            return {
+              stockNumber,
+              brand,
+              model,
+              year,
+              trim,
+              price,
+              mileage,
+              vin,
+              location,
+              imageUrl,
+              description,
+              exteriorColor,
+              interiorColor,
+              engine,
+              transmission,
+              drivetrain,
+              fuel,
+              cylinders,
+              doors,
+              condition,
+            };
+          }).filter((item: any) => item.stockNumber); // Filter out items without stock numbers
+
           if (items.length === 0) {
-            throw new TRPCError({ code: 'BAD_REQUEST', message: 'No valid items found in CSV. Ensure stockNumber column exists.' });
+            throw new TRPCError({ code: 'BAD_REQUEST', message: 'No valid items found in CSV. Ensure StockNumber or stockNumber column exists.' });
           }
           
           // Get current active stock numbers
@@ -953,6 +1013,60 @@ export const appRouter = router({
         };
       }),
    }),
+
+  // User management
+  users: router({
+    list: protectedProcedure
+      .query(async ({ ctx }) => {
+        // Super admins see all users; others see only themselves
+        if (ctx.user.role === 'admin' && (ctx.user.dealerId === null || ctx.user.dealerId === undefined)) {
+          return await db.getAllUsers();
+        }
+        // Return safe version of the requesting user only
+        const self = await db.getUserById(ctx.user.id);
+        if (!self) return [];
+        const { passwordHash, ...safe } = self;
+        return [safe];
+      }),
+
+    create: protectedProcedure
+      .input(z.object({
+        username: z.string().min(1),
+        password: z.string().min(6),
+        name: z.string().min(1),
+        role: z.enum(['user', 'admin']).default('user'),
+        mustChangePassword: z.boolean().default(true),
+      }))
+      .mutation(async ({ ctx, input }) => {
+        // Only super admins can create users
+        if (ctx.user.role !== 'admin' || (ctx.user.dealerId !== null && ctx.user.dealerId !== undefined)) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can create users' });
+        }
+        const passwordHash = await bcrypt.hash(input.password, 10);
+        const newUser = await db.createLocalUser({
+          username: input.username,
+          passwordHash,
+          name: input.name,
+          role: input.role,
+          mustChangePassword: input.mustChangePassword,
+        });
+        return { success: true, user: newUser };
+      }),
+
+    delete: protectedProcedure
+      .input(z.object({ id: z.number() }))
+      .mutation(async ({ ctx, input }) => {
+        // Only super admins can delete users
+        if (ctx.user.role !== 'admin' || (ctx.user.dealerId !== null && ctx.user.dealerId !== undefined)) {
+          throw new TRPCError({ code: 'FORBIDDEN', message: 'Only admins can delete users' });
+        }
+        if (ctx.user.id === input.id) {
+          throw new TRPCError({ code: 'BAD_REQUEST', message: 'Cannot delete your own account' });
+        }
+        await db.deleteUser(input.id);
+        return { success: true };
+      }),
+  }),
 
   // Image upload endpoint - saves to local uploads directory and serves as static files
   uploadImage: protectedProcedure

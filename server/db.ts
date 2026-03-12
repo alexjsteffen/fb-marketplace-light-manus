@@ -487,6 +487,32 @@ export async function updateUserPassword(id: number, passwordHash: string, mustC
   await db.update(users).set({ passwordHash, mustChangePassword: mustChange }).where(eq(users.id, id));
 }
 
+export async function getAllUsers() {
+  const db = await getDb();
+  if (!db) return [];
+
+  return await db.select({
+    id: users.id,
+    openId: users.openId,
+    username: users.username,
+    name: users.name,
+    email: users.email,
+    role: users.role,
+    dealerId: users.dealerId,
+    loginMethod: users.loginMethod,
+    mustChangePassword: users.mustChangePassword,
+    createdAt: users.createdAt,
+    lastSignedIn: users.lastSignedIn,
+  }).from(users);
+}
+
+export async function deleteUser(id: number) {
+  const db = await getDb();
+  if (!db) throw new Error("Database not available");
+
+  await db.delete(users).where(eq(users.id, id));
+}
+
 export async function createLocalUser(user: {
   username: string;
   passwordHash: string;
