@@ -1,0 +1,69 @@
+name: Build for Production
+
+on:
+  push:
+    branches:
+      - main
+      - master
+  workflow_dispatch:
+
+jobs:
+  build:
+    name: Compile & Package
+    runs-on: ubuntu-latest
+    permissions:
+      contents: read
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Set up pnpm
+        uses: pnpm/action-setup@v4
+        with:
+          version: 10.4.1
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'pnpm'
+
+      - name: Install dependencies
+        run: pnpm install --frozen-lockfile
+
+      - name: Build for production
+        run: pnpm run build
+
+      - name: Package build artifacts
+        run: |
+          mkdir -p release
+
+          # Copy compiled output
+          cp -r dist release/dist
+
+          # Copy runtime files needed on the server
+          cp package.json release/
+          cp pnpm-lock.yaml release/
+          cp install.sh release/
+          cp seed-admin.mjs release/
+          cp seed-templates.mjs release/
+          cp .env.example release/
+
+          # Copy database migration files
+          cp -r drizzle release/drizzle
+
+          # Install production-only dependencies inside the release folder
+          cd release
+          pnpm install --production --frozen-lockfile
+          cd ..
+
+          # Create the zip archive
+          zip -r fb-marketplace-production.zip release/
+
+      - name: Upload production artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: fb-marketplace-production
+          path: fb-marketplace-production.zip
+          retention-days: 30
